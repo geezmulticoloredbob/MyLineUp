@@ -1,13 +1,15 @@
 import PageContainer from '../components/common/PageContainer';
 import TeamCard from '../features/dashboard/components/TeamCard';
+import { mockTeams } from '../mocks/mockTeams';
 
 function DashboardPage() {
   return (
     <PageContainer title="Your Teams">
-      <TeamCard />
+      {mockTeams.map((team) => (
+        <TeamCard key={team.id} team={team} />
+      ))}
     </PageContainer>
   );
 }
 
 export default DashboardPage;
-
