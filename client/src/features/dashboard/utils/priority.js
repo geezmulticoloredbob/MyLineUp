@@ -1,18 +1,69 @@
-function resolvePriorityPanel(team) {
-  const priority = team?.priority === 'latest' ? 'latest' : 'upNext';
+function parseDate(dateValue) {
+  if (!dateValue) {
+    return null;
+  }
 
-  if (priority === 'latest') {
+  const parsed = new Date(dateValue);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getLatestResultPanel(team, windowDays = 30) {
+  const date = parseDate(team?.latestResult?.date);
+
+  if (!date) {
     return {
-      title: 'Latest Result',
-      content: `${team?.latestResult?.outcome || '-'} vs ${team?.latestResult?.opponent || 'TBD'} (${team?.latestResult?.score || 'TBD'})`,
-      meta: team?.latestResult?.date || 'Date TBD',
+      title: 'Last Result',
+      content: 'No recent result available.',
+      meta: 'Date unavailable',
+    };
+  }
+
+  const now = new Date();
+  const diffDays = (now - date) / (1000 * 60 * 60 * 24);
+  const isWithinWindow = diffDays >= 0 && diffDays <= windowDays;
+
+  if (!isWithinWindow) {
+    return {
+      title: 'Last Result',
+      content: `No result in the last ${windowDays} days.`,
+      meta: team?.latestResult?.date,
     };
   }
 
   return {
-    title: 'Up Next',
+    title: 'Last Result',
+    content: `${team?.latestResult?.outcome || '-'} vs ${team?.latestResult?.opponent || 'TBD'} (${team?.latestResult?.score || 'TBD'})`,
+    meta: team?.latestResult?.date,
+  };
+}
+
+function getNextGamePanel(team, windowDays = 30) {
+  const date = parseDate(team?.nextFixture?.date);
+
+  if (!date) {
+    return {
+      title: 'Next Game',
+      content: 'No upcoming fixture available.',
+      meta: 'Date unavailable',
+    };
+  }
+
+  const now = new Date();
+  const diffDays = (date - now) / (1000 * 60 * 60 * 24);
+  const isWithinWindow = diffDays >= 0 && diffDays <= windowDays;
+
+  if (!isWithinWindow) {
+    return {
+      title: 'Next Game',
+      content: `No game in the next ${windowDays} days.`,
+      meta: `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim(),
+    };
+  }
+
+  return {
+    title: 'Next Game',
     content: `vs ${team?.nextFixture?.opponent || 'TBD'} at ${team?.nextFixture?.venue || 'Venue TBD'}`,
-    meta: `${team?.nextFixture?.date || 'Date TBD'} ${team?.nextFixture?.time || ''}`.trim(),
+    meta: `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim(),
   };
 }
 
@@ -22,5 +73,4 @@ function formatStatLabel(label) {
     .replace(/^./, (char) => char.toUpperCase());
 }
 
-export { resolvePriorityPanel, formatStatLabel };
-
+export { getLatestResultPanel, getNextGamePanel, formatStatLabel };

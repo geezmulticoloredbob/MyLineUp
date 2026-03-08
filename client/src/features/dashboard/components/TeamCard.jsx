@@ -1,4 +1,4 @@
-import { formatStatLabel, resolvePriorityPanel } from '../utils/priority';
+import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
 
 function CardHeader({ teamName, league, logoUrl, ladderPosition }) {
   return (
@@ -20,15 +20,25 @@ function CardHeader({ teamName, league, logoUrl, ladderPosition }) {
   );
 }
 
-function PriorityPanel({ team }) {
-  const panel = resolvePriorityPanel(team);
-
+function MatchPanel({ panel }) {
   return (
     <section className="team-card__section">
       <h3 className="team-card__section-title">{panel.title}</h3>
       <p>{panel.content}</p>
       <p className="team-card__meta">{panel.meta}</p>
     </section>
+  );
+}
+
+function MatchesSection({ team }) {
+  const latestPanel = getLatestResultPanel(team, 30);
+  const nextPanel = getNextGamePanel(team, 30);
+
+  return (
+    <>
+      <MatchPanel panel={latestPanel} />
+      <MatchPanel panel={nextPanel} />
+    </>
   );
 }
 
@@ -84,7 +94,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         logoUrl={team.logoUrl}
         ladderPosition={team.ladderPosition}
       />
-      <PriorityPanel team={team} />
+      <MatchesSection team={team} />
       <StatsPanel stats={team.stats} />
     </article>
   );
