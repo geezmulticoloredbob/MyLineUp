@@ -1,8 +1,23 @@
+:root {
+  --bg-app: #121212;
+  --surface-card: #1e1e1e;
+  --text-primary: #eaeaea;
+  --text-secondary: #a1a1aa;
+  --border-default: #2c2c2c;
+  --accent-success: #2e7d32;
+  --accent-success-hover: #66bb6a;
+  --accent-warning: #fbc02d;
+  --accent-error: #d32f2f;
+  --badge-live-bg: #e53935;
+  --badge-live-text: #ffffff;
+  --focus-ring: #22c55e;
+}
+
 body {
   margin: 0;
   font-family: sans-serif;
-  background: #f4f6f9;
-  color: #1b1f24;
+  background: var(--bg-app);
+  color: var(--text-primary);
 }
 
 .app-shell {
@@ -19,8 +34,8 @@ body {
 }
 
 .team-card {
-  background: #fff;
-  border: 1px solid #dce2ea;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -28,7 +43,7 @@ body {
 
 .team-card--state {
   text-align: center;
-  color: #4b5563;
+  color: var(--text-secondary);
 }
 
 .team-card__header {
@@ -40,7 +55,7 @@ body {
 
 .team-card__logo {
   border-radius: 8px;
-  border: 1px solid #e6eaf0;
+  border: 1px solid var(--border-default);
   object-fit: cover;
 }
 
@@ -51,7 +66,7 @@ body {
 
 .team-card__meta {
   margin: 0.2rem 0 0;
-  color: #5f6b7a;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -64,7 +79,7 @@ body {
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  color: #2b3642;
+  color: var(--text-secondary);
 }
 
 .team-card__stats {
@@ -77,9 +92,44 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 0.3rem 0;
-  border-bottom: 1px solid #eef2f7;
+  border-bottom: 1px solid var(--border-default);
 }
 
 .team-card__stats li:last-child {
   border-bottom: 0;
+}
+
+.score--positive {
+  color: var(--accent-success);
+}
+
+.badge-live {
+  display: inline-block;
+  background: var(--badge-live-bg);
+  color: var(--badge-live-text);
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.btn-primary {
+  background: var(--accent-success);
+  color: var(--badge-live-text);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--accent-success-hover);
+}
+
+.btn-primary:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
