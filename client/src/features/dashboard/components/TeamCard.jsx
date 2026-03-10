@@ -1,6 +1,6 @@
 import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
 
-function CardHeader({ teamName, league, logoUrl, ladderPosition }) {
+function CardHeader({ teamName, league, logoUrl, ladderPosition, isLive }) {
   return (
     <header className="team-card__header">
       <img
@@ -16,15 +16,18 @@ function CardHeader({ teamName, league, logoUrl, ladderPosition }) {
           {league} | Ladder #{ladderPosition ?? '-'}
         </p>
       </div>
+      {isLive ? <span className="badge-live">Live</span> : null}
     </header>
   );
 }
 
-function MatchPanel({ panel }) {
+function MatchPanel({ panel, tone = 'neutral' }) {
+  const toneClassName = tone === 'positive' ? 'score--positive' : tone === 'warning' ? 'score--warning' : tone === 'negative' ? 'score--negative' : '';
+
   return (
     <section className="team-card__section">
       <h3 className="team-card__section-title">{panel.title}</h3>
-      <p>{panel.content}</p>
+      <p className={toneClassName}>{panel.content}</p>
       <p className="team-card__meta">{panel.meta}</p>
     </section>
   );
@@ -33,10 +36,18 @@ function MatchPanel({ panel }) {
 function MatchesSection({ team }) {
   const latestPanel = getLatestResultPanel(team, 30);
   const nextPanel = getNextGamePanel(team, 30);
+  const resultTone =
+    team?.latestResult?.outcome === 'W'
+      ? 'positive'
+      : team?.latestResult?.outcome === 'D'
+        ? 'warning'
+        : team?.latestResult?.outcome === 'L'
+          ? 'negative'
+          : 'neutral';
 
   return (
     <>
-      <MatchPanel panel={latestPanel} />
+      <MatchPanel panel={latestPanel} tone={resultTone} />
       <MatchPanel panel={nextPanel} />
     </>
   );
@@ -93,6 +104,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         league={team.league || 'League'}
         logoUrl={team.logoUrl}
         ladderPosition={team.ladderPosition}
+        isLive={team.isLive}
       />
       <MatchesSection team={team} />
       <StatsPanel stats={team.stats} />

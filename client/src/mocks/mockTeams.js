@@ -19,6 +19,7 @@ export const mockTeams = [
       time: '7:30 PM',
     },
     ladderPosition: 2,
+    isLive: true,
     stats: {
       wins: 41,
       losses: 19,
@@ -80,4 +81,3 @@ export const mockTeams = [
     priority: 'upNext',
   },
 ];
-

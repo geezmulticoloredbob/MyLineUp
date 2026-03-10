@@ -103,6 +103,14 @@ body {
   color: var(--accent-success);
 }
 
+.score--warning {
+  color: var(--accent-warning);
+}
+
+.score--negative {
+  color: var(--accent-error);
+}
+
 .badge-live {
   display: inline-block;
   background: var(--badge-live-bg);
