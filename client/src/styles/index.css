@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
+
 :root {
   --bg-app: #121212;
   --surface-card: #1e1e1e;
@@ -11,13 +13,25 @@
   --badge-live-bg: #e53935;
   --badge-live-text: #ffffff;
   --focus-ring: #22c55e;
+  --font-heading: 'Oswald', sans-serif;
+  --font-body: 'Jost', sans-serif;
 }
 
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: var(--font-body);
   background: var(--bg-app);
   color: var(--text-primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  letter-spacing: 0.01em;
 }
 
 .app-shell {
@@ -28,6 +42,7 @@ body {
 }
 
 .app-shell__header {
+  font-family: var(--font-heading);
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1.25rem;
@@ -60,6 +75,7 @@ body {
 }
 
 .team-card__title {
+  font-family: var(--font-heading);
   margin: 0;
   font-size: 1.1rem;
 }
@@ -75,6 +91,7 @@ body {
 }
 
 .team-card__section-title {
+  font-family: var(--font-heading);
   margin: 0 0 0.35rem;
   font-size: 0.95rem;
   text-transform: uppercase;
