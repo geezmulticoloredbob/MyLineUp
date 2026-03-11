@@ -26,7 +26,11 @@ function DashboardPage() {
       {mockTeams.length === 0 ? (
         <TeamCard status="empty" />
       ) : (
-        mockTeams.map((team) => <TeamCard key={team.id} team={team} />)
+        <div className="team-card-grid">
+          {mockTeams.map((team) => (
+            <TeamCard key={team.id} team={team} />
+          ))}
+        </div>
       )}
     </PageContainer>
   );

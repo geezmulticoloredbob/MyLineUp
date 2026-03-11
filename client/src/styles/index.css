@@ -1,18 +1,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap');
 
 :root {
+  --layout-max-width: 1280px;
+
   --bg-app: #121212;
   --surface-card: #1e1e1e;
+  --surface-card-hover: #232323;
   --text-primary: #eaeaea;
   --text-secondary: #a1a1aa;
   --border-default: #2c2c2c;
   --accent-success: #2e7d32;
-  --accent-success-hover: #66bb6a;
+  --accent-success-hover: #388e3c;
   --accent-warning: #fbc02d;
   --accent-error: #d32f2f;
   --badge-live-bg: #e53935;
   --badge-live-text: #ffffff;
   --focus-ring: #22c55e;
+
+  --radius-card: 12px;
+  --radius-button: 8px;
+  --radius-pill: 999px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  --text-display: 48px;
+  --text-h1: 32px;
+  --text-h2: 24px;
+  --text-h3: 20px;
+  --text-body: 16px;
+  --text-small: 14px;
+  --text-caption: 12px;
+
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 6px 18px rgba(0, 0, 0, 0.45);
+
+  --motion-fast: 120ms;
+  --motion-normal: 200ms;
+  --motion-slow: 300ms;
+
   --font-heading: 'Oswald', sans-serif;
   --font-body: 'Jost', sans-serif;
 }
@@ -20,6 +50,7 @@
 body {
   margin: 0;
   font-family: var(--font-body);
+  font-size: var(--text-body);
   background: var(--bg-app);
   color: var(--text-primary);
 }
@@ -32,28 +63,79 @@ h5,
 h6 {
   font-family: var(--font-heading);
   letter-spacing: 0.01em;
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--text-h1);
+}
+
+h2 {
+  font-size: var(--text-h2);
+}
+
+h3 {
+  font-size: var(--text-h3);
+}
+
+p {
+  margin: 0;
 }
 
 .app-shell {
   min-height: 100vh;
-  max-width: 900px;
+  max-width: var(--layout-max-width);
   margin: 0 auto;
-  padding: 1.25rem;
+  padding: var(--space-lg);
 }
 
 .app-shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: var(--text-h2);
   font-weight: 700;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-xl);
+}
+
+.app-shell__main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-xl);
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.page-container__title {
+  font-size: var(--text-h1);
+}
+
+.team-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-md);
 }
 
 .team-card {
   background: var(--surface-card);
   border: 1px solid var(--border-default);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
+  transition:
+    background-color var(--motion-normal) ease,
+    box-shadow var(--motion-normal) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.team-card:hover {
+  background: var(--surface-card-hover);
+  box-shadow: var(--shadow-hover);
 }
 
 .team-card--state {
@@ -64,39 +146,48 @@ h6 {
 .team-card__header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
 }
 
 .team-card__logo {
-  border-radius: 8px;
+  border-radius: var(--radius-button);
   border: 1px solid var(--border-default);
   object-fit: cover;
 }
 
 .team-card__title {
   font-family: var(--font-heading);
-  margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--text-h3);
 }
 
 .team-card__meta {
-  margin: 0.2rem 0 0;
+  margin-top: var(--space-xs);
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: var(--text-small);
 }
 
 .team-card__section {
-  padding-top: 0.6rem;
+  padding-top: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
 .team-card__section-title {
   font-family: var(--font-heading);
-  margin: 0 0 0.35rem;
-  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-small);
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: var(--text-secondary);
+}
+
+.team-card__score {
+  font-size: var(--text-h2);
+  font-family: var(--font-heading);
 }
 
 .team-card__stats {
@@ -108,8 +199,9 @@ h6 {
 .team-card__stats li {
   display: flex;
   justify-content: space-between;
-  padding: 0.3rem 0;
+  padding: var(--space-xs) 0;
   border-bottom: 1px solid var(--border-default);
+  font-size: var(--text-small);
 }
 
 .team-card__stats li:last-child {
@@ -132,26 +224,32 @@ h6 {
   display: inline-block;
   background: var(--badge-live-bg);
   color: var(--badge-live-text);
-  border-radius: 999px;
-  padding: 0.15rem 0.55rem;
-  font-size: 0.75rem;
-  font-weight: 700;
+  border-radius: var(--radius-pill);
+  padding: var(--space-xs) 10px;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  margin-left: auto;
 }
 
 .btn-primary {
   background: var(--accent-success);
   color: var(--badge-live-text);
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--radius-button);
   padding: 0.55rem 0.9rem;
   font: inherit;
   cursor: pointer;
+  transition:
+    background-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
 }
 
 .btn-primary:hover {
   background: var(--accent-success-hover);
+  box-shadow: var(--shadow-card);
 }
 
 .btn-primary:focus-visible {

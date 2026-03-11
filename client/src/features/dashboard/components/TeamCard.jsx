@@ -1,4 +1,5 @@
 import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
+import { BarChart3, CalendarDays, Trophy } from 'lucide-react';
 
 function CardHeader({ teamName, league, logoUrl, ladderPosition, isLive }) {
   return (
@@ -26,8 +27,11 @@ function MatchPanel({ panel, tone = 'neutral' }) {
 
   return (
     <section className="team-card__section">
-      <h3 className="team-card__section-title">{panel.title}</h3>
-      <p className={toneClassName}>{panel.content}</p>
+      <h3 className="team-card__section-title">
+        <CalendarDays size={14} strokeWidth={2} />
+        {panel.title}
+      </h3>
+      <p className={`team-card__score ${toneClassName}`}>{panel.content}</p>
       <p className="team-card__meta">{panel.meta}</p>
     </section>
   );
@@ -59,7 +63,10 @@ function StatsPanel({ stats }) {
   if (!entries.length) {
     return (
       <section className="team-card__section">
-        <h3 className="team-card__section-title">Basic Stats</h3>
+        <h3 className="team-card__section-title">
+          <BarChart3 size={14} strokeWidth={2} />
+          Basic Stats
+        </h3>
         <p className="team-card__meta">No stats available yet.</p>
       </section>
     );
@@ -67,7 +74,10 @@ function StatsPanel({ stats }) {
 
   return (
     <section className="team-card__section">
-      <h3 className="team-card__section-title">Basic Stats</h3>
+      <h3 className="team-card__section-title">
+        <BarChart3 size={14} strokeWidth={2} />
+        Basic Stats
+      </h3>
       <ul className="team-card__stats">
         {entries.map(([key, value]) => (
           <li key={key}>
@@ -106,6 +116,11 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         ladderPosition={team.ladderPosition}
         isLive={team.isLive}
       />
+      {!team.isLive ? (
+        <p className="team-card__meta">
+          <Trophy size={14} strokeWidth={2} /> Matchday insights ready
+        </p>
+      ) : null}
       <MatchesSection team={team} />
       <StatsPanel stats={team.stats} />
     </article>
