@@ -1,11 +1,30 @@
-const userSchemaDefinition = {
-  username: 'string',
-  email: 'string',
-  password: 'string',
-  favouriteTeams: [],
-};
+const mongoose = require('mongoose');
 
-module.exports = {
-  userSchemaDefinition,
-};
+const userSchema = new mongoose.Schema(
+  {
+    username: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 2,
+      maxlength: 30,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 8,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
+module.exports = mongoose.model('User', userSchema);

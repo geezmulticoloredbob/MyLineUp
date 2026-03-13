@@ -7,5 +7,5 @@ module.exports = {
   nodeEnv: getEnv('NODE_ENV', 'development'),
   mongoUri: getEnv('MONGODB_URI'),
   jwtSecret: getEnv('JWT_SECRET'),
+  clientUrl: getEnv('CLIENT_URL', 'http://localhost:5173'),
 };
-
