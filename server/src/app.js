@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const env = require('./config/env');
 const apiRoutes = require('./routes');
+const notFoundMiddleware = require('./middleware/notFoundMiddleware');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -19,6 +20,7 @@ app.get('/api/health', (req, res) => {
   res.json({ message: 'MyLineup API is running' });
 });
 
+app.use(notFoundMiddleware);
 app.use(errorHandler);
 
 module.exports = app;
