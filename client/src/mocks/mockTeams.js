@@ -18,7 +18,7 @@ export const mockTeams = [
       date: '2026-03-08',
       time: '7:30 PM',
     },
-    ladderPosition: 2,
+    ladderPosition: 4,
     isLive: true,
     stats: {
       wins: 41,
