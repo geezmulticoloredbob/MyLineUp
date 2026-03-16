@@ -1,0 +1,4 @@
+MONGO_DB_NAME=mylineup
+MONGO_DB_USERNAME=coenwalmsley_db_user
+MONGO_DB_PASSWORD=hjbykPMM4i0pETP0
+MONGO_DB_CLUSTER=mylineup
