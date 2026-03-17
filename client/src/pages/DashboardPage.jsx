@@ -1,11 +1,22 @@
+import { useEffect, useState } from 'react';
+import { apiClient } from '../services/apiClient';
 import PageContainer from '../components/common/PageContainer';
 import TeamCard from '../features/dashboard/components/TeamCard';
-import { mockTeams } from '../mocks/mockTeams';
 
 function DashboardPage() {
-  const teamLoadState = 'ready';
+  const [teams, setTeams] = useState([]);
+  const [status, setStatus] = useState('loading');
 
-  if (teamLoadState === 'loading') {
+  useEffect(() => {
+    apiClient('/api/dashboard')
+      .then(({ teams }) => {
+        setTeams(teams);
+        setStatus(teams.length === 0 ? 'empty' : 'ready');
+      })
+      .catch(() => setStatus('error'));
+  }, []);
+
+  if (status === 'loading') {
     return (
       <PageContainer title="Your Teams">
         <TeamCard status="loading" />
@@ -13,7 +24,7 @@ function DashboardPage() {
     );
   }
 
-  if (teamLoadState === 'error') {
+  if (status === 'error') {
     return (
       <PageContainer title="Your Teams">
         <TeamCard status="error" errorMessage="Unable to reach sports service." />
@@ -23,12 +34,12 @@ function DashboardPage() {
 
   return (
     <PageContainer title="Your Teams">
-      {mockTeams.length === 0 ? (
+      {status === 'empty' ? (
         <TeamCard status="empty" />
       ) : (
         <div className="team-card-grid">
-          {mockTeams.map((team) => (
-            <TeamCard key={team.id} team={team} />
+          {teams.map((team) => (
+            <TeamCard key={team.favouriteId} team={team} />
           ))}
         </div>
       )}

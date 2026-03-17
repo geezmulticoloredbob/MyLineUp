@@ -1,6 +1,11 @@
+import AuthForm from '../features/auth/components/AuthForm';
+
 function RegisterPage() {
-  return <section>Register page placeholder</section>;
+  return (
+    <div className="auth-page">
+      <AuthForm mode="register" />
+    </div>
+  );
 }
 
 export default RegisterPage;
-
