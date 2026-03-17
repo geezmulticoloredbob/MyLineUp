@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../services/apiClient';
+import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import PageContainer from '../components/common/PageContainer';
 import TeamCard from '../features/dashboard/components/TeamCard';
 
 function DashboardPage() {
+  const { refreshTick } = useFavouritesRefresh();
   const [teams, setTeams] = useState([]);
   const [status, setStatus] = useState('loading');
 
   useEffect(() => {
+    setStatus('loading');
     apiClient('/api/dashboard')
       .then(({ teams }) => {
         setTeams(teams);
         setStatus(teams.length === 0 ? 'empty' : 'ready');
       })
       .catch(() => setStatus('error'));
-  }, []);
+  }, [refreshTick]);
 
   if (status === 'loading') {
     return (
