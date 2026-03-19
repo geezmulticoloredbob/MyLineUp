@@ -1,0 +1,76 @@
+const BDL_BASE = 'https://www.balldontlie.io/api/v1';
+
+let _teamsCache = null;
+
+async function getBDLTeams() {
+  if (_teamsCache) return _teamsCache;
+  const res = await fetch(`${BDL_BASE}/teams?per_page=100`);
+  if (!res.ok) throw new Error(`BallDontLie teams fetch failed: ${res.status}`);
+  const { data } = await res.json();
+  _teamsCache = data;
+  return data;
+}
+
+function toDateStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+async function getNBATeamData(favourite) {
+  const abbr = favourite.teamId.replace('nba-', '').toUpperCase();
+  const teams = await getBDLTeams();
+  const bdlTeam = teams.find((t) => t.abbreviation === abbr);
+  if (!bdlTeam) return null;
+
+  const now = new Date();
+  const past = new Date(now);
+  past.setDate(past.getDate() - 14);
+  const future = new Date(now);
+  future.setDate(future.getDate() + 14);
+
+  const [pastRes, futureRes] = await Promise.all([
+    fetch(`${BDL_BASE}/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=10`),
+    fetch(`${BDL_BASE}/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=5`),
+  ]);
+
+  const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
+    pastRes.json(),
+    futureRes.json(),
+  ]);
+
+  const finished = (pastGames || [])
+    .filter((g) => g.status === 'Final')
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  let latestResult = null;
+  if (finished[0]) {
+    const g = finished[0];
+    const isHome = g.home_team.id === bdlTeam.id;
+    const myScore = isHome ? g.home_team_score : g.visitor_team_score;
+    const oppScore = isHome ? g.visitor_team_score : g.home_team_score;
+    const opponent = isHome ? g.visitor_team.full_name : g.home_team.full_name;
+    latestResult = {
+      date: g.date.split('T')[0],
+      outcome: myScore > oppScore ? 'W' : 'L',
+      opponent,
+      score: `${myScore}-${oppScore}`,
+    };
+  }
+
+  let nextFixture = null;
+  const upcoming = (futureGames || []).sort((a, b) => new Date(a.date) - new Date(b.date));
+  if (upcoming[0]) {
+    const g = upcoming[0];
+    const isHome = g.home_team.id === bdlTeam.id;
+    const opponent = isHome ? g.visitor_team.full_name : g.home_team.full_name;
+    nextFixture = {
+      date: g.date.split('T')[0],
+      time: g.status,
+      opponent,
+      venue: isHome ? 'Home' : 'Away',
+    };
+  }
+
+  return { latestResult, nextFixture, ladderPosition: null, stats: {} };
+}
+
+module.exports = { getNBATeamData };
