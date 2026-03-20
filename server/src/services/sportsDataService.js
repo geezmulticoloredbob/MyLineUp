@@ -1,5 +1,6 @@
 const { getNBATeamData } = require('./nbaService');
 const { getAFLTeamData } = require('./aflService');
+const { getEPLTeamData } = require('./footballService');
 
 async function hydrateTeam(favourite) {
   let sportData = null;
@@ -8,6 +9,8 @@ async function hydrateTeam(favourite) {
       sportData = await getNBATeamData(favourite);
     } else if (favourite.league === 'AFL') {
       sportData = await getAFLTeamData(favourite);
+    } else if (favourite.league === 'EPL') {
+      sportData = await getEPLTeamData(favourite);
     }
   } catch (err) {
     console.error(`Sports data error for ${favourite.teamName}:`, err.message);
