@@ -9,4 +9,5 @@ module.exports = {
   jwtSecret: getEnv('JWT_SECRET'),
   clientUrl: getEnv('CLIENT_URL', 'http://localhost:5173'),
   footballApiKey: getEnv('FOOTBALL_API_KEY'),
+  basketballApiKey: getEnv('BASKETBALL_API_KEY'),
 };

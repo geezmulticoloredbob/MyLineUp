@@ -1,10 +1,18 @@
-const BDL_BASE = 'https://www.balldontlie.io/api/v1';
+const env = require('../config/env');
+
+const BDL_BASE = 'https://api.balldontlie.io/v1';
+
+function bdlFetch(path) {
+  return fetch(`${BDL_BASE}${path}`, {
+    headers: { Authorization: env.basketballApiKey },
+  });
+}
 
 let _teamsCache = null;
 
 async function getBDLTeams() {
   if (_teamsCache) return _teamsCache;
-  const res = await fetch(`${BDL_BASE}/teams?per_page=100`);
+  const res = await bdlFetch('/teams?per_page=100');
   if (!res.ok) throw new Error(`BallDontLie teams fetch failed: ${res.status}`);
   const { data } = await res.json();
   _teamsCache = data;
@@ -28,8 +36,8 @@ async function getNBATeamData(favourite) {
   future.setDate(future.getDate() + 14);
 
   const [pastRes, futureRes] = await Promise.all([
-    fetch(`${BDL_BASE}/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=10`),
-    fetch(`${BDL_BASE}/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=5`),
+    bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=10`),
+    bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=5`),
   ]);
 
   const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
