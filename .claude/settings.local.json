@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(node scripts/seedDemo.js)",
+      "Bash(nslookup mylineup.rwqdry6.mongodb.net)",
+      "PowerShell(Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | Select-Object Name, InterfaceDescription)",
+      "PowerShell(Set-DnsClientServerAddress -InterfaceAlias \"Wi-Fi\" -ServerAddresses \\(\"8.8.8.8\",\"8.8.4.4\"\\))",
+      "PowerShell(ipconfig /flushdns)",
+      "Bash(node -e \"const dns = require\\('dns'\\); dns.resolveSrv\\('_mongodb._tcp.mylineup.rwqdry6.mongodb.net', \\(err, r\\) => console.log\\(err?.message || r\\)\\)\")",
+      "Bash(node -e \"const dns = require\\('dns'\\); dns.setServers\\(['8.8.8.8']\\); dns.resolveSrv\\('_mongodb._tcp.mylineup.rwqdry6.mongodb.net', \\(err, r\\) => console.log\\(err?.message || JSON.stringify\\(r\\)\\)\\)\")"
     ]
   }
 }

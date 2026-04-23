@@ -20,12 +20,13 @@ async function hydrateTeam(favourite) {
     favouriteId: favourite._id,
     teamId: favourite.teamId,
     teamName: favourite.teamName,
-    teamLogoUrl: favourite.teamLogoUrl,
+    teamLogoUrl: sportData?.logoUrl || favourite.teamLogoUrl || null,
     league: favourite.league,
     latestResult: sportData?.latestResult ?? null,
     nextFixture: sportData?.nextFixture ?? null,
     ladderPosition: sportData?.ladderPosition ?? null,
     stats: sportData?.stats ?? {},
+    isLive: sportData !== null,
     source: sportData ? 'live' : 'unavailable',
   };
 }

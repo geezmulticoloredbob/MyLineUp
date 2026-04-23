@@ -142,7 +142,7 @@ async function getEPLTeamData(favourite) {
       }
     : {};
 
-  return { latestResult, nextFixture, ladderPosition, stats };
+  return { latestResult, nextFixture, ladderPosition, stats, logoUrl: fdTeam.crest || null };
 }
 
 module.exports = { getEPLTeamData };

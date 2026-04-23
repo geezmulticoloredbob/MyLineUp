@@ -2,6 +2,14 @@ const env = require('../config/env');
 
 const BDL_BASE = 'https://api.balldontlie.io/v1';
 
+// BallDontLie abbreviations differ from ESPN for a few teams
+const ESPN_ABBR_OVERRIDE = { GSW: 'gs', NOP: 'no', NYK: 'ny', SAS: 'sa', UTA: 'utah', WAS: 'wsh' };
+
+function getNBALogoUrl(abbreviation) {
+  const espnAbbr = ESPN_ABBR_OVERRIDE[abbreviation] || abbreviation.toLowerCase();
+  return `https://a.espncdn.com/i/teamlogos/nba/500/${espnAbbr}.png`;
+}
+
 function bdlFetch(path) {
   return fetch(`${BDL_BASE}${path}`, {
     headers: { Authorization: env.basketballApiKey },
@@ -16,6 +24,23 @@ async function getBDLTeams() {
   if (!res.ok) throw new Error(`BallDontLie teams fetch failed: ${res.status}`);
   const { data } = await res.json();
   _teamsCache = data;
+  return data;
+}
+
+let _standingsCache = null;
+let _standingsCachedAt = 0;
+const STANDINGS_TTL_MS = 5 * 60 * 1000;
+
+async function getBDLStandings() {
+  if (_standingsCache && Date.now() - _standingsCachedAt < STANDINGS_TTL_MS) {
+    return _standingsCache;
+  }
+  const season = new Date().getFullYear() - (new Date().getMonth() < 9 ? 1 : 0);
+  const res = await bdlFetch(`/standings?season=${season}`);
+  if (!res.ok) throw new Error(`BallDontLie standings fetch failed: ${res.status}`);
+  const { data } = await res.json();
+  _standingsCache = data;
+  _standingsCachedAt = Date.now();
   return data;
 }
 
@@ -35,9 +60,10 @@ async function getNBATeamData(favourite) {
   const future = new Date(now);
   future.setDate(future.getDate() + 14);
 
-  const [pastRes, futureRes] = await Promise.all([
+  const [pastRes, futureRes, allStandings] = await Promise.all([
     bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=10`),
     bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=5`),
+    getBDLStandings(),
   ]);
 
   const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
@@ -78,7 +104,19 @@ async function getNBATeamData(favourite) {
     };
   }
 
-  return { latestResult, nextFixture, ladderPosition: null, stats: {} };
+  const standing = (allStandings || []).find((s) => s.team.id === bdlTeam.id);
+  const ladderPosition = standing?.conference?.rank ?? null;
+  const stats = standing
+    ? { wins: standing.wins, losses: standing.losses }
+    : {};
+
+  return {
+    latestResult,
+    nextFixture,
+    ladderPosition,
+    stats,
+    logoUrl: getNBALogoUrl(bdlTeam.abbreviation),
+  };
 }
 
 module.exports = { getNBATeamData };

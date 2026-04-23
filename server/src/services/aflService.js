@@ -106,7 +106,7 @@ async function getAFLTeamData(favourite) {
     ? { wins: standing.wins, losses: standing.losses, points: standing.pts }
     : {};
 
-  return { latestResult, nextFixture, ladderPosition, stats };
+  return { latestResult, nextFixture, ladderPosition, stats, logoUrl: team.logo || null };
 }
 
 module.exports = { getAFLTeamData };

@@ -22,7 +22,11 @@ function DashboardPage() {
   if (status === 'loading') {
     return (
       <PageContainer title="Your Teams">
-        <TeamCard status="loading" />
+        <div className="team-card-grid">
+          <TeamCard status="loading" />
+          <TeamCard status="loading" />
+          <TeamCard status="loading" />
+        </div>
       </PageContainer>
     );
   }

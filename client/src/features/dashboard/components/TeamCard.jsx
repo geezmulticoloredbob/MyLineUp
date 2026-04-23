@@ -90,9 +90,33 @@ function StatsPanel({ stats }) {
   );
 }
 
+function SkeletonCard() {
+  return (
+    <article className="team-card team-card--skeleton">
+      <div className="skeleton-header">
+        <div className="skeleton skeleton-logo" />
+        <div style={{ flex: 1 }}>
+          <div className="skeleton skeleton-title" />
+          <div className="skeleton skeleton-meta" style={{ width: '90px' }} />
+        </div>
+      </div>
+      <div className="skeleton-section">
+        <div className="skeleton skeleton-label" />
+        <div className="skeleton skeleton-score" />
+        <div className="skeleton skeleton-sub" />
+      </div>
+      <div className="skeleton-section">
+        <div className="skeleton skeleton-label" />
+        <div className="skeleton skeleton-score" style={{ width: '120px' }} />
+        <div className="skeleton skeleton-sub" style={{ width: '140px' }} />
+      </div>
+    </article>
+  );
+}
+
 function TeamCard({ team, status = 'ready', errorMessage = '' }) {
   if (status === 'loading') {
-    return <article className="team-card team-card--state">Loading team card...</article>;
+    return <SkeletonCard />;
   }
 
   if (status === 'error') {

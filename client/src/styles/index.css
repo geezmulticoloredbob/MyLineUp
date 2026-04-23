@@ -525,3 +525,69 @@ p {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Skeleton loading ── */
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--border-default) 25%, #333 50%, var(--border-default) 75%);
+  background-size: 800px 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+  border-radius: 4px;
+}
+
+.team-card--skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.skeleton-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-button);
+  flex-shrink: 0;
+}
+
+.skeleton-title {
+  height: 20px;
+  width: 140px;
+}
+
+.skeleton-meta {
+  height: 14px;
+  margin-top: var(--space-xs);
+}
+
+.skeleton-section {
+  padding-top: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.skeleton-label {
+  height: 12px;
+  width: 80px;
+}
+
+.skeleton-score {
+  height: 28px;
+  width: 160px;
+}
+
+.skeleton-sub {
+  height: 12px;
+  width: 110px;
+}
