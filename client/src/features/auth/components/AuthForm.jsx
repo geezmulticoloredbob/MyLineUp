@@ -15,6 +15,19 @@ function AuthForm({ mode }) {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  async function handleDemo() {
+    setError('');
+    setSubmitting(true);
+    try {
+      await login({ email: 'demo@mylineup.com', password: 'demo1234' });
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
@@ -83,6 +96,12 @@ function AuthForm({ mode }) {
       <button className="btn-primary" type="submit" disabled={submitting}>
         {submitting ? 'Please wait...' : isLogin ? 'Log in' : 'Create account'}
       </button>
+
+      {isLogin && (
+        <button className="btn-secondary" type="button" onClick={handleDemo} disabled={submitting}>
+          Use demo account
+        </button>
+      )}
 
       <p className="auth-form__switch">
         {isLogin ? (
