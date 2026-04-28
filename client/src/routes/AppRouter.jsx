@@ -5,7 +5,8 @@ import ProtectedRoute from '../components/common/ProtectedRoute';
 import AppShell from '../layouts/AppShell';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
-import DashboardPage from '../pages/DashboardPage';
+import HomePage from '../pages/HomePage';
+import OnboardingPage from '../pages/OnboardingPage';
 
 function AppRouter() {
   return (
@@ -16,16 +17,24 @@ function AppRouter() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route
-              path="/dashboard"
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/"
               element={
                 <ProtectedRoute>
                   <AppShell>
-                    <DashboardPage />
+                    <HomePage />
                   </AppShell>
                 </ProtectedRoute>
               }
             />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </FavouritesProvider>
       </AuthProvider>

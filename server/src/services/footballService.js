@@ -145,4 +145,17 @@ async function getEPLTeamData(favourite) {
   return { latestResult, nextFixture, ladderPosition, stats, logoUrl: fdTeam.crest || null };
 }
 
-module.exports = { getEPLTeamData };
+async function getEPLStandings() {
+  const [allTeams, table] = await Promise.all([getPLTeams(), getPLStandings()]);
+  return (table || []).map((s) => {
+    const team = allTeams.find((t) => t.id === s.team.id);
+    return {
+      position: s.position,
+      teamName: s.team.shortName || s.team.name,
+      logoUrl: team?.crest || null,
+      stats: { played: s.playedGames, won: s.won, drawn: s.draw, lost: s.lost, points: s.points, gd: s.goalDifference },
+    };
+  });
+}
+
+module.exports = { getEPLTeamData, getEPLStandings };

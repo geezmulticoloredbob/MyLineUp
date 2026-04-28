@@ -20,7 +20,7 @@ function AuthForm({ mode }) {
     setSubmitting(true);
     try {
       await login({ email: 'demo@mylineup.com', password: 'demo1234' });
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {
@@ -36,10 +36,11 @@ function AuthForm({ mode }) {
     try {
       if (isLogin) {
         await login({ email: fields.email, password: fields.password });
+        navigate('/');
       } else {
         await register({ username: fields.username, email: fields.email, password: fields.password });
+        navigate('/onboarding');
       }
-      navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again.');
     } finally {

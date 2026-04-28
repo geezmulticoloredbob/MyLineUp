@@ -119,4 +119,16 @@ async function getNBATeamData(favourite) {
   };
 }
 
-module.exports = { getNBATeamData };
+async function getNBAStandings() {
+  const data = await getBDLStandings();
+  return (data || [])
+    .sort((a, b) => (a.conference?.rank ?? 99) - (b.conference?.rank ?? 99))
+    .map((s) => ({
+      position: s.conference?.rank ?? null,
+      teamName: s.team.full_name,
+      logoUrl: getNBALogoUrl(s.team.abbreviation),
+      stats: { wins: s.wins, losses: s.losses },
+    }));
+}
+
+module.exports = { getNBATeamData, getNBAStandings };

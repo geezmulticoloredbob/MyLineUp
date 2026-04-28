@@ -21,6 +21,15 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 8,
     },
+    followedLeagues: {
+      type: [String],
+      enum: ['NBA', 'EPL', 'AFL'],
+      default: [],
+    },
+    onboardingComplete: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

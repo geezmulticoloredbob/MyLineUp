@@ -109,4 +109,21 @@ async function getAFLTeamData(favourite) {
   return { latestResult, nextFixture, ladderPosition, stats, logoUrl: team.logo || null };
 }
 
-module.exports = { getAFLTeamData };
+async function getAFLStandings() {
+  const year = new Date().getFullYear();
+  const res = await fetch(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
+    headers: { 'User-Agent': USER_AGENT },
+  });
+  if (!res.ok) throw new Error(`Squiggle standings fetch failed: ${res.status}`);
+  const { standings } = await res.json();
+  return (standings || [])
+    .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
+    .map((s) => ({
+      position: s.rank,
+      teamName: s.name,
+      logoUrl: null,
+      stats: { wins: s.wins, losses: s.losses, points: s.pts, percentage: Math.round(s.percentage) },
+    }));
+}
+
+module.exports = { getAFLTeamData, getAFLStandings };

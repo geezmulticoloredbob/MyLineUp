@@ -34,10 +34,10 @@ async function seed() {
   const hashed = await bcrypt.hash(DEMO_PASSWORD, 10);
   let user = await User.findOne({ email: DEMO_EMAIL });
   if (user) {
-    await User.updateOne({ _id: user._id }, { password: hashed, username: DEMO_USERNAME });
+    await User.updateOne({ _id: user._id }, { password: hashed, username: DEMO_USERNAME, onboardingComplete: true, followedLeagues: ['EPL'] });
     console.log('Demo user updated');
   } else {
-    user = await User.create({ username: DEMO_USERNAME, email: DEMO_EMAIL, password: hashed });
+    user = await User.create({ username: DEMO_USERNAME, email: DEMO_EMAIL, password: hashed, onboardingComplete: true, followedLeagues: ['EPL'] });
     console.log('Demo user created');
   }
 

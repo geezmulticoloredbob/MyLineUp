@@ -591,3 +591,157 @@ p {
   height: 12px;
   width: 110px;
 }
+
+/* ── Onboarding page ── */
+
+.onboarding-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  background: var(--bg-app);
+}
+
+.onboarding-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.onboarding-header {
+  padding: var(--space-xl) var(--space-lg) var(--space-md);
+}
+
+.onboarding-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-h1);
+  margin-bottom: var(--space-xs);
+}
+
+.onboarding-subtitle {
+  color: var(--text-secondary);
+  font-size: var(--text-body);
+}
+
+.onboarding-follow-league {
+  padding: var(--space-sm) var(--space-lg);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.onboarding-follow-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--text-small);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.onboarding-follow-label input[type='checkbox'] {
+  accent-color: var(--focus-ring);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.onboarding-team-list {
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.onboarding-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border-default);
+}
+
+/* ── League card ── */
+
+.league-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.league-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
+}
+
+.league-card--unavailable {
+  color: var(--text-secondary);
+}
+
+.league-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.league-card__title {
+  font-family: var(--font-heading);
+  font-size: var(--text-h3);
+  color: var(--text-primary);
+}
+
+.league-table-wrapper {
+  overflow-x: auto;
+}
+
+.league-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+}
+
+.league-table th {
+  text-align: left;
+  padding: var(--space-xs) var(--space-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.league-table td {
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+
+.league-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.league-table__team-col {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 140px;
+}
+
+th.league-table__team-col {
+  display: table-cell;
+}
+
+.league-table__logo {
+  object-fit: contain;
+  flex-shrink: 0;
+}
