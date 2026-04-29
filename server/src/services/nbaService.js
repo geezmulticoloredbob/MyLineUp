@@ -131,4 +131,45 @@ async function getNBAStandings() {
     }));
 }
 
-module.exports = { getNBATeamData, getNBAStandings };
+async function getNBALeagueGames() {
+  const now = new Date();
+  const past = new Date(now);
+  past.setDate(past.getDate() - 7);
+  const future = new Date(now);
+  future.setDate(future.getDate() + 7);
+
+  const [pastRes, futureRes] = await Promise.all([
+    bdlFetch(`/games?start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=15`),
+    bdlFetch(`/games?start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=15`),
+  ]);
+  const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
+    pastRes.json(),
+    futureRes.json(),
+  ]);
+
+  const recentResults = (pastGames || [])
+    .filter((g) => g.status === 'Final')
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5)
+    .map((g) => ({
+      homeTeam: g.home_team.full_name,
+      awayTeam: g.visitor_team.full_name,
+      homeScore: g.home_team_score,
+      awayScore: g.visitor_team_score,
+      date: g.date.split('T')[0],
+    }));
+
+  const upcomingFixtures = (futureGames || [])
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 5)
+    .map((g) => ({
+      homeTeam: g.home_team.full_name,
+      awayTeam: g.visitor_team.full_name,
+      date: g.date.split('T')[0],
+      time: typeof g.status === 'string' && g.status !== 'Final' ? g.status : '',
+    }));
+
+  return { recentResults, upcomingFixtures };
+}
+
+module.exports = { getNBATeamData, getNBAStandings, getNBALeagueGames };

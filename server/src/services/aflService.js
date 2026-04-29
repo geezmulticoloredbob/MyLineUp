@@ -126,4 +126,37 @@ async function getAFLStandings() {
     }));
 }
 
-module.exports = { getAFLTeamData, getAFLStandings };
+async function getAFLLeagueGames() {
+  const year = new Date().getFullYear();
+  const now = new Date();
+  const res = await fetch(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
+    headers: { 'User-Agent': USER_AGENT },
+  });
+  if (!res.ok) throw new Error(`Squiggle league games fetch failed: ${res.status}`);
+  const { games } = await res.json();
+
+  const recentResults = (games || [])
+    .filter((g) => g.complete === 100)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5)
+    .map((g) => ({
+      homeTeam: g.hteam,
+      awayTeam: g.ateam,
+      homeScore: g.hscore,
+      awayScore: g.ascore,
+      date: g.date.split(' ')[0],
+    }));
+
+  const upcomingFixtures = (games || [])
+    .filter((g) => g.complete < 100 && new Date(g.date) > now)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 5)
+    .map((g) => {
+      const [date, time] = g.date.split(' ');
+      return { homeTeam: g.hteam, awayTeam: g.ateam, date, time: time || '', venue: g.venue };
+    });
+
+  return { recentResults, upcomingFixtures };
+}
+
+module.exports = { getAFLTeamData, getAFLStandings, getAFLLeagueGames };

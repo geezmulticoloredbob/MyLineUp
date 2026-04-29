@@ -158,4 +158,48 @@ async function getEPLStandings() {
   });
 }
 
-module.exports = { getEPLTeamData, getEPLStandings };
+async function getEPLLeagueGames() {
+  const now = new Date();
+  const past = new Date(now);
+  past.setDate(past.getDate() - 10);
+  const future = new Date(now);
+  future.setDate(future.getDate() + 14);
+
+  const [finishedRes, scheduledRes] = await Promise.all([
+    fdFetch(`/competitions/PL/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
+    fdFetch(`/competitions/PL/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
+  ]);
+  const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
+    finishedRes.json(),
+    scheduledRes.json(),
+  ]);
+
+  const recentResults = (finished || [])
+    .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate))
+    .slice(0, 5)
+    .map((m) => ({
+      homeTeam: m.homeTeam.shortName || m.homeTeam.name,
+      awayTeam: m.awayTeam.shortName || m.awayTeam.name,
+      homeScore: m.score.fullTime.home,
+      awayScore: m.score.fullTime.away,
+      date: m.utcDate.split('T')[0],
+    }));
+
+  const upcomingFixtures = (scheduled || [])
+    .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate))
+    .slice(0, 5)
+    .map((m) => ({
+      homeTeam: m.homeTeam.shortName || m.homeTeam.name,
+      awayTeam: m.awayTeam.shortName || m.awayTeam.name,
+      date: m.utcDate.split('T')[0],
+      time: new Date(m.utcDate).toLocaleTimeString('en-AU', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Australia/Sydney',
+      }),
+    }));
+
+  return { recentResults, upcomingFixtures };
+}
+
+module.exports = { getEPLTeamData, getEPLStandings, getEPLLeagueGames };
