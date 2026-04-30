@@ -488,6 +488,12 @@ p {
   font-size: var(--text-body);
 }
 
+.team-list__sub {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
 .btn-toggle {
   background: transparent;
   border: 1px solid var(--border-default);
