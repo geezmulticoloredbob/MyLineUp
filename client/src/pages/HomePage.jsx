@@ -4,12 +4,26 @@ import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import PageContainer from '../components/common/PageContainer';
 import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard from '../features/dashboard/components/LeagueCard';
+import FavouritesManager from '../features/favourites/components/FavouritesManager';
+
+function EmptyState({ onOpen }) {
+  return (
+    <div className="empty-state">
+      <p className="empty-state__title">Nothing here yet</p>
+      <p className="empty-state__body">Follow some teams or leagues to fill your dashboard.</p>
+      <button className="btn-primary" type="button" onClick={onOpen}>
+        Add teams &amp; leagues
+      </button>
+    </div>
+  );
+}
 
 function HomePage() {
-  const { refreshTick } = useFavouritesRefresh();
+  const { refreshTick, triggerRefresh } = useFavouritesRefresh();
   const [teams, setTeams] = useState([]);
   const [leagueOverviews, setLeagueOverviews] = useState([]);
   const [status, setStatus] = useState('loading');
+  const [managerOpen, setManagerOpen] = useState(false);
 
   useEffect(() => {
     setStatus('loading');
@@ -17,10 +31,15 @@ function HomePage() {
       .then(({ teams, leagueOverviews }) => {
         setTeams(teams);
         setLeagueOverviews(leagueOverviews || []);
-        setStatus(teams.length === 0 && leagueOverviews?.length === 0 ? 'empty' : 'ready');
+        setStatus(teams.length === 0 && (leagueOverviews?.length ?? 0) === 0 ? 'empty' : 'ready');
       })
       .catch(() => setStatus('error'));
   }, [refreshTick]);
+
+  function handleCloseManager() {
+    setManagerOpen(false);
+    triggerRefresh();
+  }
 
   if (status === 'loading') {
     return (
@@ -45,7 +64,8 @@ function HomePage() {
   if (status === 'empty') {
     return (
       <PageContainer title="Your Teams">
-        <TeamCard status="empty" />
+        <EmptyState onOpen={() => setManagerOpen(true)} />
+        {managerOpen && <FavouritesManager onClose={handleCloseManager} />}
       </PageContainer>
     );
   }
@@ -54,8 +74,8 @@ function HomePage() {
     <PageContainer title="Your Teams">
       {leagueOverviews.length > 0 && (
         <div className="league-card-grid">
-          {leagueOverviews.map(({ league, standings }) => (
-            <LeagueCard key={league} league={league} standings={standings} />
+          {leagueOverviews.map((overview) => (
+            <LeagueCard key={overview.league} {...overview} />
           ))}
         </div>
       )}
@@ -66,6 +86,7 @@ function HomePage() {
           ))}
         </div>
       )}
+      {managerOpen && <FavouritesManager onClose={handleCloseManager} />}
     </PageContainer>
   );
 }
