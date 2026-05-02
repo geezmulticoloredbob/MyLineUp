@@ -1,24 +1,28 @@
 import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
 import { BarChart3, CalendarDays, Trophy } from 'lucide-react';
 
-function CardHeader({ teamName, league, logoUrl, ladderPosition, isLive }) {
+function CardBanner({ teamName, league, logoUrl, ladderPosition, isLive }) {
   return (
-    <header className="team-card__header">
-      <img
-        className="team-card__logo"
-        src={logoUrl || 'https://via.placeholder.com/48?text=TEAM'}
-        alt={`${teamName} logo`}
-        width={48}
-        height={48}
-      />
-      <div>
-        <h2 className="team-card__title">{teamName}</h2>
-        <p className="team-card__meta">
-          {league} | Ladder #{ladderPosition ?? '-'}
-        </p>
+    <div className="team-card__banner">
+      {logoUrl && (
+        <img className="team-card__banner-bg" src={logoUrl} alt="" aria-hidden="true" />
+      )}
+      <div className="team-card__banner-overlay" />
+      <div className="team-card__banner-content">
+        <img
+          className="team-card__banner-logo"
+          src={logoUrl || 'https://via.placeholder.com/56?text=TEAM'}
+          alt={`${teamName} logo`}
+          width={56}
+          height={56}
+        />
+        <div className="team-card__banner-info">
+          <h2 className="team-card__title">{teamName}</h2>
+          <p className="team-card__meta">{league}{ladderPosition != null ? ` · #${ladderPosition}` : ''}</p>
+        </div>
+        {isLive && <span className="badge-live">Live</span>}
       </div>
-      {isLive ? <span className="badge-live">Live</span> : null}
-    </header>
+    </div>
   );
 }
 
@@ -93,8 +97,8 @@ function StatsPanel({ stats }) {
 function SkeletonCard() {
   return (
     <article className="team-card team-card--skeleton">
+      <div className="skeleton" style={{ height: '100px', margin: 'calc(-1 * var(--space-md)) calc(-1 * var(--space-md)) var(--space-md)', borderRadius: 'var(--radius-card) var(--radius-card) 0 0' }} />
       <div className="skeleton-header">
-        <div className="skeleton skeleton-logo" />
         <div style={{ flex: 1 }}>
           <div className="skeleton skeleton-title" />
           <div className="skeleton skeleton-meta" style={{ width: '90px' }} />
@@ -133,10 +137,10 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
 
   return (
     <article className="team-card">
-      <CardHeader
+      <CardBanner
         teamName={team.teamName || 'Unknown Team'}
         league={team.league || 'League'}
-        logoUrl={team.logoUrl}
+        logoUrl={team.teamLogoUrl}
         ladderPosition={team.ladderPosition}
         isLive={team.isLive}
       />

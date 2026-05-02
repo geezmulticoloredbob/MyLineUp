@@ -8,7 +8,8 @@
       "PowerShell(Set-DnsClientServerAddress -InterfaceAlias \"Wi-Fi\" -ServerAddresses \\(\"8.8.8.8\",\"8.8.4.4\"\\))",
       "PowerShell(ipconfig /flushdns)",
       "Bash(node -e \"const dns = require\\('dns'\\); dns.resolveSrv\\('_mongodb._tcp.mylineup.rwqdry6.mongodb.net', \\(err, r\\) => console.log\\(err?.message || r\\)\\)\")",
-      "Bash(node -e \"const dns = require\\('dns'\\); dns.setServers\\(['8.8.8.8']\\); dns.resolveSrv\\('_mongodb._tcp.mylineup.rwqdry6.mongodb.net', \\(err, r\\) => console.log\\(err?.message || JSON.stringify\\(r\\)\\)\\)\")"
+      "Bash(node -e \"const dns = require\\('dns'\\); dns.setServers\\(['8.8.8.8']\\); dns.resolveSrv\\('_mongodb._tcp.mylineup.rwqdry6.mongodb.net', \\(err, r\\) => console.log\\(err?.message || JSON.stringify\\(r\\)\\)\\)\")",
+      "Bash(node -e ' *)"
     ]
   }
 }

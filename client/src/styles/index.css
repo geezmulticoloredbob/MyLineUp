@@ -143,22 +143,66 @@ p {
   color: var(--text-secondary);
 }
 
-.team-card__header {
+.team-card__banner {
+  position: relative;
+  overflow: hidden;
+  margin: calc(-1 * var(--space-md)) calc(-1 * var(--space-md)) var(--space-md);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  height: 100px;
+}
+
+.team-card__banner-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: blur(18px) saturate(0.6);
+  transform: scale(1.2);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.team-card__banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(18, 18, 18, 0.75) 0%,
+    rgba(18, 18, 18, 0.4) 100%
+  );
+}
+
+.team-card__banner-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  margin-bottom: var(--space-sm);
+  padding: var(--space-md);
+  height: 100%;
 }
 
-.team-card__logo {
-  border-radius: var(--radius-button);
-  border: 1px solid var(--border-default);
-  object-fit: cover;
+.team-card__banner-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+}
+
+.team-card__banner-info {
+  flex: 1;
+  min-width: 0;
 }
 
 .team-card__title {
   font-family: var(--font-heading);
   font-size: var(--text-h3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .team-card__meta {

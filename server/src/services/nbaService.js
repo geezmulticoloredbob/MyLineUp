@@ -63,7 +63,7 @@ async function getNBATeamData(favourite) {
   const [pastRes, futureRes, allStandings] = await Promise.all([
     bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=10`),
     bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=5`),
-    getBDLStandings(),
+    getBDLStandings().catch(() => null),
   ]);
 
   const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
@@ -120,7 +120,7 @@ async function getNBATeamData(favourite) {
 }
 
 async function getNBAStandings() {
-  const data = await getBDLStandings();
+  const data = await getBDLStandings().catch(() => null);
   return (data || [])
     .sort((a, b) => (a.conference?.rank ?? 99) - (b.conference?.rank ?? 99))
     .map((s) => ({

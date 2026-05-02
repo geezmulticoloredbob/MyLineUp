@@ -1,10 +1,10 @@
 const express = require('express');
-const { authenticate } = require('../middleware/authMiddleware');
+const { requireAuth } = require('../middleware/authMiddleware');
 const { getFollowedLeagues, updateFollowedLeagues, completeOnboarding } = require('../controllers/leagueController');
 
 const router = express.Router();
 
-router.use(authenticate);
+router.use(requireAuth);
 
 router.get('/', getFollowedLeagues);
 router.put('/', updateFollowedLeagues);
