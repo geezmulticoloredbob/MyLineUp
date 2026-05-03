@@ -2,6 +2,20 @@ const { getNBATeamData } = require('./nbaService');
 const { getAFLTeamData } = require('./aflService');
 const { getEPLTeamData } = require('./footballService');
 
+const NBA_ESPN_OVERRIDES = { gsw: 'gs', nop: 'no', nyk: 'ny', sas: 'sa', uta: 'utah', was: 'wsh' };
+
+function espnLogoFromTeamId(teamId) {
+  if (teamId.startsWith('nba-')) {
+    const abbr = teamId.replace('nba-', '');
+    return `https://a.espncdn.com/i/teamlogos/nba/500/${NBA_ESPN_OVERRIDES[abbr] || abbr}.png`;
+  }
+  if (teamId.startsWith('afl-')) {
+    const abbr = teamId.replace('afl-', '');
+    return `https://a.espncdn.com/i/teamlogos/afl/500/${abbr}.png`;
+  }
+  return null;
+}
+
 async function hydrateTeam(favourite) {
   let sportData = null;
   try {
@@ -20,7 +34,7 @@ async function hydrateTeam(favourite) {
     favouriteId: favourite._id,
     teamId: favourite.teamId,
     teamName: favourite.teamName,
-    teamLogoUrl: sportData?.logoUrl || favourite.teamLogoUrl || null,
+    teamLogoUrl: sportData?.logoUrl || favourite.teamLogoUrl || espnLogoFromTeamId(favourite.teamId),
     league: favourite.league,
     latestResult: sportData?.latestResult ?? null,
     nextFixture: sportData?.nextFixture ?? null,

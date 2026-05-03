@@ -178,23 +178,26 @@ p {
   position: relative;
   z-index: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-sm);
+  justify-content: center;
+  gap: var(--space-xs);
   padding: var(--space-md);
   height: 100%;
+  text-align: center;
 }
 
 .team-card__banner-logo {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
   flex-shrink: 0;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
 }
 
 .team-card__banner-info {
-  flex: 1;
   min-width: 0;
+  width: 100%;
 }
 
 .team-card__title {
@@ -203,6 +206,7 @@ p {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
 }
 
 .team-card__meta {
@@ -262,6 +266,13 @@ p {
 
 .score--negative {
   color: var(--accent-error);
+}
+
+.badge-live--corner {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  z-index: 2;
 }
 
 .badge-live {

@@ -8,19 +8,19 @@ function CardBanner({ teamName, league, logoUrl, ladderPosition, isLive }) {
         <img className="team-card__banner-bg" src={logoUrl} alt="" aria-hidden="true" />
       )}
       <div className="team-card__banner-overlay" />
+      {isLive && <span className="badge-live badge-live--corner">Live</span>}
       <div className="team-card__banner-content">
         <img
           className="team-card__banner-logo"
-          src={logoUrl || 'https://via.placeholder.com/56?text=TEAM'}
+          src={logoUrl || 'https://via.placeholder.com/52?text=TEAM'}
           alt={`${teamName} logo`}
-          width={56}
-          height={56}
+          width={52}
+          height={52}
         />
         <div className="team-card__banner-info">
           <h2 className="team-card__title">{teamName}</h2>
           <p className="team-card__meta">{league}{ladderPosition != null ? ` · #${ladderPosition}` : ''}</p>
         </div>
-        {isLive && <span className="badge-live">Live</span>}
       </div>
     </div>
   );
