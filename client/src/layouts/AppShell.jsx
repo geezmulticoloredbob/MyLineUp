@@ -23,7 +23,7 @@ function AppShell({ children }) {
   return (
     <div className="app-shell">
       <header className="app-shell__header">
-        <span>MyLineup</span>
+        <span className="app-shell__wordmark">My<span className="app-shell__wordmark-accent">LineUp</span></span>
         <div className="app-shell__header-actions">
           {user && <span className="app-shell__username">{user.username}</span>}
           <button type="button" className="btn-primary" onClick={() => setManagerOpen(true)}>

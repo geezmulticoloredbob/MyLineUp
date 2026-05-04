@@ -93,10 +93,19 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.app-shell__wordmark {
   font-family: var(--font-heading);
   font-size: var(--text-h2);
   font-weight: 700;
-  margin-bottom: var(--space-xl);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.app-shell__wordmark-accent {
+  color: var(--focus-ring);
 }
 
 .app-shell__main {

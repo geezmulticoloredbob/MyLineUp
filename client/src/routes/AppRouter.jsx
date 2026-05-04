@@ -34,6 +34,7 @@ function AppRouter() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/dashboard" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </FavouritesProvider>

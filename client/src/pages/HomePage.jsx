@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 import PageContainer from '../components/common/PageContainer';
 import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard from '../features/dashboard/components/LeagueCard';
@@ -19,6 +20,7 @@ function EmptyState({ onOpen }) {
 }
 
 function HomePage() {
+  usePageTitle('Dashboard');
   const { refreshTick, triggerRefresh } = useFavouritesRefresh();
   const [teams, setTeams] = useState([]);
   const [leagueOverviews, setLeagueOverviews] = useState([]);
