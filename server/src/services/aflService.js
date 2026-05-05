@@ -1,5 +1,6 @@
 const SQUIGGLE_BASE = 'https://api.squiggle.com.au';
 const USER_AGENT = 'MyLineUp/1.0 (personal sports dashboard)';
+const TTL_MS = 5 * 60 * 1000;
 
 // Maps our stored teamName to the name Squiggle uses
 const SQUIGGLE_NAME_MAP = {
@@ -24,6 +25,10 @@ const SQUIGGLE_NAME_MAP = {
 };
 
 let _teamsCache = null;
+let _standingsCache = null;
+let _standingsCachedAt = 0;
+let _gamesCache = null;
+let _gamesCachedAt = 0;
 
 async function getSquiggleTeams() {
   if (_teamsCache) return _teamsCache;
@@ -36,6 +41,32 @@ async function getSquiggleTeams() {
   return teams;
 }
 
+async function getCachedStandings() {
+  if (_standingsCache && Date.now() - _standingsCachedAt < TTL_MS) return _standingsCache;
+  const year = new Date().getFullYear();
+  const res = await fetch(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
+    headers: { 'User-Agent': USER_AGENT },
+  });
+  if (!res.ok) throw new Error(`Squiggle standings fetch failed: ${res.status}`);
+  const { standings } = await res.json();
+  _standingsCache = standings || [];
+  _standingsCachedAt = Date.now();
+  return _standingsCache;
+}
+
+async function getCachedGames() {
+  if (_gamesCache && Date.now() - _gamesCachedAt < TTL_MS) return _gamesCache;
+  const year = new Date().getFullYear();
+  const res = await fetch(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
+    headers: { 'User-Agent': USER_AGENT },
+  });
+  if (!res.ok) throw new Error(`Squiggle league games fetch failed: ${res.status}`);
+  const { games } = await res.json();
+  _gamesCache = games || [];
+  _gamesCachedAt = Date.now();
+  return _gamesCache;
+}
+
 async function getAFLTeamData(favourite) {
   const squiggleName = SQUIGGLE_NAME_MAP[favourite.teamName];
   if (!squiggleName) return null;
@@ -44,29 +75,23 @@ async function getAFLTeamData(favourite) {
   const team = teams.find((t) => t.name === squiggleName);
   if (!team) return null;
 
+  const now = new Date();
   const year = new Date().getFullYear();
 
-  const [gamesRes, standingsRes] = await Promise.all([
-    fetch(`${SQUIGGLE_BASE}/?q=games&year=${year}&team=${team.id}`, {
-      headers: { 'User-Agent': USER_AGENT },
-    }),
-    fetch(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
-      headers: { 'User-Agent': USER_AGENT },
-    }),
+  const [allGames, standings] = await Promise.all([
+    getCachedGames(),
+    getCachedStandings(),
   ]);
 
-  const [{ games }, { standings }] = await Promise.all([
-    gamesRes.json(),
-    standingsRes.json(),
-  ]);
+  const teamGames = allGames.filter(
+    (g) => g.hteam === squiggleName || g.ateam === squiggleName
+  );
 
-  const now = new Date();
-
-  const completed = (games || [])
+  const completed = teamGames
     .filter((g) => g.complete === 100)
     .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const upcoming = (games || [])
+  const upcoming = teamGames
     .filter((g) => g.complete < 100 && new Date(g.date) > now)
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -100,7 +125,7 @@ async function getAFLTeamData(favourite) {
     };
   }
 
-  const standing = (standings || []).find((s) => s.name === squiggleName);
+  const standing = standings.find((s) => s.name === squiggleName);
   const ladderPosition = standing?.rank ?? null;
   const stats = standing
     ? { wins: standing.wins, losses: standing.losses, points: standing.pts }
@@ -111,13 +136,9 @@ async function getAFLTeamData(favourite) {
 }
 
 async function getAFLStandings() {
-  const year = new Date().getFullYear();
-  const res = await fetch(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
-    headers: { 'User-Agent': USER_AGENT },
-  });
-  if (!res.ok) throw new Error(`Squiggle standings fetch failed: ${res.status}`);
-  const { standings } = await res.json();
-  return (standings || [])
+  const standings = await getCachedStandings();
+  return standings
+    .slice()
     .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
     .map((s) => ({
       position: s.rank,
@@ -128,15 +149,10 @@ async function getAFLStandings() {
 }
 
 async function getAFLLeagueGames() {
-  const year = new Date().getFullYear();
   const now = new Date();
-  const res = await fetch(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
-    headers: { 'User-Agent': USER_AGENT },
-  });
-  if (!res.ok) throw new Error(`Squiggle league games fetch failed: ${res.status}`);
-  const { games } = await res.json();
+  const games = await getCachedGames();
 
-  const recentResults = (games || [])
+  const recentResults = games
     .filter((g) => g.complete === 100)
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5)
@@ -148,7 +164,7 @@ async function getAFLLeagueGames() {
       date: g.date.split(' ')[0],
     }));
 
-  const upcomingFixtures = (games || [])
+  const upcomingFixtures = games
     .filter((g) => g.complete < 100 && new Date(g.date) > now)
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 5)

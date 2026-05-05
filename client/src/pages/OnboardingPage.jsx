@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { teamsByLeague } from '../data/teamsByLeague';
 import { saveFavouriteTeam } from '../features/favourites/services/favouritesApi';
@@ -15,6 +16,14 @@ function OnboardingPage() {
   const [selectedTeams, setSelectedTeams] = useState({});
   const [followedLeagues, setFollowedLeagues] = useState(new Set());
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === 'Escape') handleSkip();
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   function toggleTeam(league, teamId, teamName) {
     const key = `${league}::${teamId}`;
@@ -67,8 +76,13 @@ function OnboardingPage() {
     <div className="onboarding-page">
       <div className="onboarding-card">
         <div className="onboarding-header">
-          <h1 className="onboarding-title">Welcome{user?.username ? `, ${user.username}` : ''}!</h1>
-          <p className="onboarding-subtitle">Pick the teams and leagues you want to follow.</p>
+          <div>
+            <h1 className="onboarding-title">Welcome{user?.username ? `, ${user.username}` : ''}!</h1>
+            <p className="onboarding-subtitle">Pick the teams and leagues you want to follow.</p>
+          </div>
+          <button className="modal__close" type="button" onClick={handleSkip} aria-label="Skip onboarding" disabled={saving}>
+            <X size={20} />
+          </button>
         </div>
 
         <div className="league-tabs">

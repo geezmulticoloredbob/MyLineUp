@@ -709,6 +709,9 @@ p {
 }
 
 .onboarding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   padding: var(--space-xl) var(--space-lg) var(--space-md);
 }
 

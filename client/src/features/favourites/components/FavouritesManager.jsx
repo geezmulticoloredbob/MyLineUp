@@ -4,6 +4,7 @@ import { LEAGUES, SUPPORTED_LEAGUES } from '../../../constants/leagues';
 import { teamsByLeague } from '../../../data/teamsByLeague';
 import { useFavourites } from '../hooks/useFavourites';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useFavouritesRefresh } from '../../../contexts/FavouritesContext';
 import { updateFollowedLeagues } from '../../../services/leagueApi';
 
 const TAB_LEAGUES = 'LEAGUES';
@@ -40,6 +41,7 @@ function FavouritesManager({ onClose }) {
   const [leagueBusy, setLeagueBusy] = useState(false);
   const { favourites, loading, addFavourite, removeFavourite } = useFavourites();
   const { user, updateUser } = useAuth();
+  const { triggerRefresh } = useFavouritesRefresh();
 
   const followedLeagues = user?.followedLeagues ?? [];
   const teams = teamsByLeague[activeTab] ?? [];
@@ -70,6 +72,7 @@ function FavouritesManager({ onClose }) {
     try {
       await updateFollowedLeagues(next);
       updateUser({ followedLeagues: next });
+      triggerRefresh();
     } finally {
       setLeagueBusy(false);
     }
