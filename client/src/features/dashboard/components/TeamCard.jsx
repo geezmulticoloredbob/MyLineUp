@@ -1,13 +1,19 @@
 import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
-import { BarChart3, CalendarDays } from 'lucide-react';
+import { BarChart3, CalendarDays, WifiOff } from 'lucide-react';
 
-function CardBanner({ teamName, league, logoUrl, ladderPosition }) {
+function CardBanner({ teamName, league, logoUrl, ladderPosition, source }) {
   return (
     <div className="team-card__banner">
       {logoUrl && (
         <img className="team-card__banner-bg" src={logoUrl} alt="" aria-hidden="true" />
       )}
       <div className="team-card__banner-overlay" />
+      {source === 'unavailable' && (
+        <div className="team-card__status-badge" title="Sports data could not be loaded">
+          <WifiOff size={10} />
+          No live data
+        </div>
+      )}
       <div className="team-card__banner-content">
         <img
           className="team-card__banner-logo"
@@ -141,6 +147,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         league={team.league || 'League'}
         logoUrl={team.teamLogoUrl}
         ladderPosition={team.ladderPosition}
+        source={team.source}
       />
       <MatchesSection team={team} />
       <StatsPanel stats={team.stats} />

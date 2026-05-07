@@ -183,6 +183,22 @@ p {
   );
 }
 
+.team-card__status-badge {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(251, 192, 45, 0.12);
+  border: 1px solid rgba(251, 192, 45, 0.3);
+  color: var(--accent-warning);
+  font-size: var(--text-caption);
+}
+
 .team-card__banner-content {
   position: relative;
   z-index: 1;
