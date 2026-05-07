@@ -19,7 +19,7 @@ function AppRouter() {
             <Route
               path="/onboarding"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute forOnboarding>
                   <OnboardingPage />
                 </ProtectedRoute>
               }

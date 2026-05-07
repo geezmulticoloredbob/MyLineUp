@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { SUPPORTED_LEAGUES } from '../constants/leagues';
 import { teamsByLeague } from '../data/teamsByLeague';
 import { saveFavouriteTeam } from '../features/favourites/services/favouritesApi';
 import { updateFollowedLeagues, completeOnboarding } from '../services/leagueApi';
-
-const LEAGUES = ['NBA', 'EPL', 'AFL'];
 
 function OnboardingPage() {
   const { user, updateUser } = useAuth();
@@ -86,7 +85,7 @@ function OnboardingPage() {
         </div>
 
         <div className="league-tabs">
-          {LEAGUES.map((l) => (
+          {SUPPORTED_LEAGUES.map((l) => (
             <button
               key={l}
               className={`league-tab${activeLeague === l ? ' league-tab--active' : ''}`}
