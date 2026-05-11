@@ -135,10 +135,8 @@ async function getEPLTeamData(favourite) {
   const stats = standingRow
     ? {
         played: standingRow.playedGames,
-        won: standingRow.won,
-        drawn: standingRow.draw,
-        lost: standingRow.lost,
         points: standingRow.points,
+        gd: standingRow.goalDifference,
       }
     : {};
 

@@ -88,7 +88,6 @@ function HomePage() {
           ))}
         </div>
       )}
-      {managerOpen && <FavouritesManager onClose={handleCloseManager} />}
     </PageContainer>
   );
 }

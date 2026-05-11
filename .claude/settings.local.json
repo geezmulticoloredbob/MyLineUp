@@ -9,7 +9,11 @@
       "PowerShell(ipconfig /flushdns)",
       "Bash(node -e \"const dns = require\\('dns'\\); dns.resolveSrv\\('_mongodb._tcp.mylineup.rwqdry6.mongodb.net', \\(err, r\\) => console.log\\(err?.message || r\\)\\)\")",
       "Bash(node -e \"const dns = require\\('dns'\\); dns.setServers\\(['8.8.8.8']\\); dns.resolveSrv\\('_mongodb._tcp.mylineup.rwqdry6.mongodb.net', \\(err, r\\) => console.log\\(err?.message || JSON.stringify\\(r\\)\\)\\)\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Read(//c/Users/coenw/.claude/projects/c--Users-coenw-source-repos-MyLineUp/memory/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\coenw\\.claude\\projects\\c--Users-coenw-source-repos-MyLineUp\\memory"
     ]
   }
 }

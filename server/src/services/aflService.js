@@ -136,16 +136,19 @@ async function getAFLTeamData(favourite) {
 }
 
 async function getAFLStandings() {
-  const standings = await getCachedStandings();
+  const [standings, teams] = await Promise.all([getCachedStandings(), getSquiggleTeams()]);
   return standings
     .slice()
     .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
-    .map((s) => ({
-      position: s.rank,
-      teamName: s.name,
-      logoUrl: null,
-      stats: { wins: s.wins, losses: s.losses, points: s.pts, percentage: Math.round(s.percentage) },
-    }));
+    .map((s) => {
+      const team = teams.find((t) => t.name === s.name);
+      return {
+        position: s.rank,
+        teamName: s.name,
+        logoUrl: team?.logo ? `${SQUIGGLE_BASE}${team.logo}` : null,
+        stats: { wins: s.wins, losses: s.losses, points: s.pts, percentage: Math.round(s.percentage) },
+      };
+    });
 }
 
 async function getAFLLeagueGames() {
