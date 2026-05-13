@@ -5,6 +5,7 @@ import { usePageTitle } from '../hooks/usePageTitle';
 import PageContainer from '../components/common/PageContainer';
 import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard from '../features/dashboard/components/LeagueCard';
+import GamesFeed from '../features/dashboard/components/GamesFeed';
 import FavouritesManager from '../features/favourites/components/FavouritesManager';
 
 function EmptyState({ onOpen }) {
@@ -81,6 +82,7 @@ function HomePage() {
           ))}
         </div>
       )}
+      <GamesFeed teams={teams} />
       {teams.length > 0 && (
         <div className="team-card-grid">
           {teams.map((team) => (

@@ -16,6 +16,18 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
 }
 
+function getUpcomingLabel(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (Number.isNaN(d.getTime())) return dateStr;
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+  if (d.toDateString() === today.toDateString()) return 'Today';
+  if (d.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+  return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
 function StandingsSection({ league, standings }) {
   const keys = STANDINGS_STATS[league] || [];
   const rows = (standings || []).slice(0, 5);
@@ -92,12 +104,17 @@ function FixturesSection({ fixtures }) {
         <ul className="lc-games">
           {fixtures.map((f, i) => (
             <li key={i} className="lc-game">
-              <span className="lc-game__date">{formatDate(f.date)}{f.time ? ` · ${f.time}` : ''}</span>
+              <span className="lc-game__date">{getUpcomingLabel(f.date)}</span>
               <span className="lc-game__matchup">
                 <span>{f.homeTeam}</span>
                 <strong className="lc-game__score">vs</strong>
                 <span>{f.awayTeam}</span>
               </span>
+              {(f.time || f.venue) && (
+                <span className="lc-game__meta">
+                  {[f.time, f.venue].filter(Boolean).join(' · ')}
+                </span>
+              )}
             </li>
           ))}
         </ul>

@@ -926,6 +926,127 @@ p {
   flex-shrink: 0;
 }
 
+.lc-game__meta {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+/* ── Games feed ── */
+
+.games-feed {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: var(--space-md);
+  box-shadow: var(--shadow-card);
+}
+
+.games-feed__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-heading);
+  font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+.games-feed__group + .games-feed__group {
+  margin-top: var(--space-md);
+}
+
+.games-feed__group-label {
+  font-size: var(--text-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  padding-bottom: var(--space-xs);
+  margin-bottom: var(--space-xs);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.games-feed__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.games-feed__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  border-top: 1px solid var(--border-default);
+}
+
+.games-feed__item:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.games-feed__logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.games-feed__team {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.games-feed__team-name {
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.games-feed__badge {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.games-feed__opponent {
+  flex: 1;
+  font-size: var(--text-small);
+  color: var(--text-primary);
+}
+
+.games-feed__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.games-feed__time {
+  font-size: var(--text-small);
+  color: var(--text-primary);
+}
+
+.games-feed__venue {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .games-feed__team {
+    min-width: 0;
+  }
+
+  .games-feed__venue {
+    display: none;
+  }
+}
+
 .lc-game__team--win {
   color: var(--focus-ring);
   font-weight: 600;
