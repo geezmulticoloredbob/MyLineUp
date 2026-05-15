@@ -2,7 +2,7 @@ jest.mock('../../models/User', () => ({ findOne: jest.fn(), create: jest.fn() })
 jest.mock('bcryptjs', () => ({ hash: jest.fn(), compare: jest.fn() }));
 jest.mock('../../utils/jwt', () => ({ signToken: jest.fn() }));
 
-const { register, login, getCurrentUser } = require('../../controllers/authController');
+const { register, login, logout, getCurrentUser } = require('../../controllers/authController');
 const User = require('../../models/User');
 const bcrypt = require('bcryptjs');
 const { signToken } = require('../../utils/jwt');
@@ -11,6 +11,8 @@ function makeRes() {
   const res = {};
   res.status = jest.fn().mockReturnValue(res);
   res.json = jest.fn().mockReturnValue(res);
+  res.cookie = jest.fn().mockReturnValue(res);
+  res.clearCookie = jest.fn().mockReturnValue(res);
   return res;
 }
 
@@ -38,11 +40,12 @@ describe('authController', () => {
         email: 'alice@example.com',
         password: 'hashed-password',
       }));
+      expect(res.cookie).toHaveBeenCalledWith('token', 'signed-token', expect.any(Object));
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        token: 'signed-token',
         user: expect.objectContaining({ username: 'alice' }),
       }));
+      expect(res.json.mock.calls[0][0]).not.toHaveProperty('token');
     });
 
     it('calls next with 409 when the email already exists', async () => {
@@ -73,10 +76,11 @@ describe('authController', () => {
       const res = makeRes();
       await login({ body: { email: 'alice@example.com', password: 'password123' } }, res, jest.fn());
 
+      expect(res.cookie).toHaveBeenCalledWith('token', 'login-token', expect.any(Object));
       expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        token: 'login-token',
         user: expect.objectContaining({ username: 'alice' }),
       }));
+      expect(res.json.mock.calls[0][0]).not.toHaveProperty('token');
     });
 
     it('calls next with 401 when the email is not found', async () => {
@@ -98,6 +102,15 @@ describe('authController', () => {
       User.findOne.mockResolvedValue(null);
       await login({ body: { email: 'Alice@EXAMPLE.COM', password: 'pass' } }, makeRes(), jest.fn());
       expect(User.findOne).toHaveBeenCalledWith({ email: 'alice@example.com' });
+    });
+  });
+
+  describe('logout', () => {
+    it('clears the token cookie and returns a success message', async () => {
+      const res = makeRes();
+      await logout({}, res, jest.fn());
+      expect(res.clearCookie).toHaveBeenCalledWith('token', expect.any(Object));
+      expect(res.json).toHaveBeenCalledWith({ message: 'Logged out' });
     });
   });
 

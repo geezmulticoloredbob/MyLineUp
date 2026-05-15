@@ -19,6 +19,10 @@ function validateRegisterPayload(req, res, next) {
     return next(new ApiError(400, 'password must be at least 8 characters long'));
   }
 
+  if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return next(new ApiError(400, 'password must contain at least one uppercase letter and one number'));
+  }
+
   next();
 }
 

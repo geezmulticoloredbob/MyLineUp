@@ -17,3 +17,7 @@ export function registerUser(payload) {
 export function fetchCurrentUser() {
   return apiClient('/api/auth/me');
 }
+
+export function logoutUser() {
+  return apiClient('/api/auth/logout', { method: 'POST' });
+}

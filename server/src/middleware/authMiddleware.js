@@ -4,13 +4,12 @@ const { verifyToken } = require('../utils/jwt');
 const User = require('../models/User');
 
 const requireAuth = asyncHandler(async (req, res, next) => {
-  const authHeader = req.headers.authorization || '';
+  const token = req.cookies?.token;
 
-  if (!authHeader.startsWith('Bearer ')) {
+  if (!token) {
     throw new ApiError(401, 'Authentication required');
   }
 
-  const token = authHeader.replace('Bearer ', '').trim();
   const decoded = verifyToken(token);
   const user = await User.findById(decoded.userId).select('-password');
 

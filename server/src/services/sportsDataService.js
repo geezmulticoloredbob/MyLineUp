@@ -40,7 +40,7 @@ async function hydrateTeam(favourite) {
     nextFixture: sportData?.nextFixture ?? null,
     ladderPosition: sportData?.ladderPosition ?? null,
     stats: sportData?.stats ?? {},
-    isLive: sportData !== null,
+    dataAvailable: sportData !== null,
     source: sportData ? 'live' : 'unavailable',
   };
 }

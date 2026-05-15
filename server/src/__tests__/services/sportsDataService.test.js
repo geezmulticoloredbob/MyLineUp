@@ -26,7 +26,7 @@ describe('sportsDataService', () => {
       const [result] = await hydrateFavouriteTeams([nbaFav]);
       expect(getNBATeamData).toHaveBeenCalledWith(nbaFav);
       expect(result.source).toBe('live');
-      expect(result.isLive).toBe(true);
+      expect(result.dataAvailable).toBe(true);
     });
 
     it('dispatches to aflService for AFL favourites', async () => {
@@ -47,7 +47,7 @@ describe('sportsDataService', () => {
       getNBATeamData.mockRejectedValue(new Error('API is down'));
       const [result] = await hydrateFavouriteTeams([nbaFav]);
       expect(result.source).toBe('unavailable');
-      expect(result.isLive).toBe(false);
+      expect(result.dataAvailable).toBe(false);
       expect(result.latestResult).toBeNull();
       expect(result.nextFixture).toBeNull();
       expect(result.stats).toEqual({});

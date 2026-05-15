@@ -4,6 +4,13 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/apiError');
 const { signToken } = require('../utils/jwt');
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+};
+
 function userShape(user) {
   return {
     id: user._id,
@@ -30,7 +37,8 @@ const register = asyncHandler(async (req, res) => {
   });
 
   const token = signToken({ userId: user._id.toString() });
-  res.status(201).json({ token, user: userShape(user) });
+  res.cookie('token', token, COOKIE_OPTIONS);
+  res.status(201).json({ user: userShape(user) });
 });
 
 const login = asyncHandler(async (req, res) => {
@@ -47,7 +55,13 @@ const login = asyncHandler(async (req, res) => {
   }
 
   const token = signToken({ userId: user._id.toString() });
-  res.json({ token, user: userShape(user) });
+  res.cookie('token', token, COOKIE_OPTIONS);
+  res.json({ user: userShape(user) });
+});
+
+const logout = asyncHandler(async (req, res) => {
+  res.clearCookie('token', { httpOnly: true, sameSite: 'lax' });
+  res.json({ message: 'Logged out' });
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
@@ -57,5 +71,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 module.exports = {
   register,
   login,
+  logout,
   getCurrentUser,
 };

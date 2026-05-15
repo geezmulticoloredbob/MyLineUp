@@ -39,6 +39,7 @@ function FavouritesManager({ onClose }) {
   const [activeTab, setActiveTab] = useState(TAB_LEAGUES);
   const [busy, setBusy] = useState({});
   const [leagueBusy, setLeagueBusy] = useState(false);
+  const [error, setError] = useState(null);
   const { favourites, loading, addFavourite, removeFavourite } = useFavourites();
   const { user, updateUser } = useAuth();
   const { triggerRefresh } = useFavouritesRefresh();
@@ -53,12 +54,15 @@ function FavouritesManager({ onClose }) {
   async function handleTeamToggle(team) {
     const existing = getExisting(team.teamId);
     setBusy((prev) => ({ ...prev, [team.teamId]: true }));
+    setError(null);
     try {
       if (existing) {
         await removeFavourite(existing._id);
       } else {
         await addFavourite({ league: activeTab, teamId: team.teamId, teamName: team.teamName });
       }
+    } catch {
+      setError('Something went wrong. Please try again.');
     } finally {
       setBusy((prev) => ({ ...prev, [team.teamId]: false }));
     }
@@ -69,10 +73,13 @@ function FavouritesManager({ onClose }) {
       ? followedLeagues.filter((l) => l !== league)
       : [...followedLeagues, league];
     setLeagueBusy(true);
+    setError(null);
     try {
       await updateFollowedLeagues(next);
       updateUser({ followedLeagues: next });
       triggerRefresh();
+    } catch {
+      setError('Something went wrong. Please try again.');
     } finally {
       setLeagueBusy(false);
     }
@@ -87,6 +94,8 @@ function FavouritesManager({ onClose }) {
             <X size={20} />
           </button>
         </div>
+
+        {error && <p className="modal__error">{error}</p>}
 
         <div className="league-tabs">
           <button
