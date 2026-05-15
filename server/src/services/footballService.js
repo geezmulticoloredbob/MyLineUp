@@ -1,9 +1,10 @@
 const env = require('../config/env');
+const fetchWithTimeout = require('../utils/fetchWithTimeout');
 
 const FD_BASE = 'https://api.football-data.org/v4';
 
 function fdFetch(path) {
-  return fetch(`${FD_BASE}${path}`, {
+  return fetchWithTimeout(`${FD_BASE}${path}`, {
     headers: { 'X-Auth-Token': env.footballApiKey },
   });
 }

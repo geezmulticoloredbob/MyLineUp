@@ -1,3 +1,5 @@
+const fetchWithTimeout = require('../utils/fetchWithTimeout');
+
 const SQUIGGLE_BASE = 'https://api.squiggle.com.au';
 const USER_AGENT = 'MyLineUp/1.0 (personal sports dashboard)';
 const TTL_MS = 5 * 60 * 1000;
@@ -32,7 +34,7 @@ let _gamesCachedAt = 0;
 
 async function getSquiggleTeams() {
   if (_teamsCache) return _teamsCache;
-  const res = await fetch(`${SQUIGGLE_BASE}/?q=teams`, {
+  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=teams`, {
     headers: { 'User-Agent': USER_AGENT },
   });
   if (!res.ok) throw new Error(`Squiggle teams fetch failed: ${res.status}`);
@@ -44,7 +46,7 @@ async function getSquiggleTeams() {
 async function getCachedStandings() {
   if (_standingsCache && Date.now() - _standingsCachedAt < TTL_MS) return _standingsCache;
   const year = new Date().getFullYear();
-  const res = await fetch(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
+  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
     headers: { 'User-Agent': USER_AGENT },
   });
   if (!res.ok) throw new Error(`Squiggle standings fetch failed: ${res.status}`);
@@ -57,7 +59,7 @@ async function getCachedStandings() {
 async function getCachedGames() {
   if (_gamesCache && Date.now() - _gamesCachedAt < TTL_MS) return _gamesCache;
   const year = new Date().getFullYear();
-  const res = await fetch(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
+  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
     headers: { 'User-Agent': USER_AGENT },
   });
   if (!res.ok) throw new Error(`Squiggle league games fetch failed: ${res.status}`);

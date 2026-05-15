@@ -1,4 +1,5 @@
 const env = require('../config/env');
+const fetchWithTimeout = require('../utils/fetchWithTimeout');
 
 const BDL_BASE = 'https://api.balldontlie.io/v1';
 
@@ -11,7 +12,7 @@ function getNBALogoUrl(abbreviation) {
 }
 
 function bdlFetch(path) {
-  return fetch(`${BDL_BASE}${path}`, {
+  return fetchWithTimeout(`${BDL_BASE}${path}`, {
     headers: { Authorization: env.basketballApiKey },
   });
 }
