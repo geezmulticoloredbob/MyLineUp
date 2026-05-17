@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Favourite = require('../models/Favourite');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -38,6 +39,10 @@ const saveFavourite = asyncHandler(async (req, res) => {
 
 const deleteFavourite = asyncHandler(async (req, res) => {
   const { favouriteId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(favouriteId)) {
+    return res.status(404).json({ message: 'Favourite not found' });
+  }
 
   const favourite = await Favourite.findOneAndDelete({
     _id: favouriteId,

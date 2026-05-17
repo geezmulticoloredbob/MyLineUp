@@ -3,9 +3,13 @@ jest.mock('../../models/Favourite', () => ({
   findOneAndUpdate: jest.fn(),
   findOneAndDelete: jest.fn(),
 }));
+jest.mock('mongoose', () => ({
+  Types: { ObjectId: { isValid: jest.fn() } },
+}));
 
 const { getFavourites, saveFavourite, deleteFavourite } = require('../../controllers/favouritesController');
 const Favourite = require('../../models/Favourite');
+const mongoose = require('mongoose');
 
 function makeRes() {
   const res = {};
@@ -62,6 +66,7 @@ describe('favouritesController', () => {
 
   describe('deleteFavourite', () => {
     it('responds with a success message when the favourite is deleted', async () => {
+      mongoose.Types.ObjectId.isValid.mockReturnValue(true);
       Favourite.findOneAndDelete.mockResolvedValue({ _id: 'fav-1' });
 
       const res = makeRes();
@@ -72,11 +77,22 @@ describe('favouritesController', () => {
     });
 
     it('responds 404 when the favourite does not exist or belongs to another user', async () => {
+      mongoose.Types.ObjectId.isValid.mockReturnValue(true);
       Favourite.findOneAndDelete.mockResolvedValue(null);
 
       const res = makeRes();
       await deleteFavourite({ user: mockUser, params: { favouriteId: 'other-fav' } }, res, jest.fn());
 
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+
+    it('responds 404 without hitting the DB when the id is not a valid ObjectId', async () => {
+      mongoose.Types.ObjectId.isValid.mockReturnValue(false);
+
+      const res = makeRes();
+      await deleteFavourite({ user: mockUser, params: { favouriteId: 'not-an-id' } }, res, jest.fn());
+
+      expect(Favourite.findOneAndDelete).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(404);
     });
   });
