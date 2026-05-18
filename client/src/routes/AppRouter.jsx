@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 import { FavouritesProvider } from '../contexts/FavouritesContext';
 import ProtectedRoute from '../components/common/ProtectedRoute';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 import AppShell from '../layouts/AppShell';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
@@ -11,6 +12,7 @@ import OnboardingPage from '../pages/OnboardingPage';
 function AppRouter() {
   return (
     <BrowserRouter>
+      <ErrorBoundary>
       <AuthProvider>
         <FavouritesProvider>
           <Routes>
@@ -39,6 +41,7 @@ function AppRouter() {
           </Routes>
         </FavouritesProvider>
       </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

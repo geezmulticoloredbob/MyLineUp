@@ -128,4 +128,30 @@ describe('FavouritesManager', () => {
     fireEvent.click(document.querySelector('.modal'));
     expect(mockOnClose).not.toHaveBeenCalled();
   });
+
+  it('shows an error message when addFavourite fails', async () => {
+    mockAddFavourite.mockRejectedValue(new Error('Network error'));
+    render(<FavouritesManager onClose={mockOnClose} />);
+    fireEvent.click(screen.getByRole('button', { name: 'NBA' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Add' })[0]);
+    await waitFor(() => expect(screen.getByText(/something went wrong/i)).toBeInTheDocument());
+  });
+
+  it('shows an error message when updateFollowedLeagues fails', async () => {
+    updateFollowedLeagues.mockRejectedValue(new Error('Server error'));
+    render(<FavouritesManager onClose={mockOnClose} />);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Follow' })[0]);
+    await waitFor(() => expect(screen.getByText(/something went wrong/i)).toBeInTheDocument());
+  });
+
+  it('clears the error when a new operation begins', async () => {
+    mockAddFavourite.mockRejectedValueOnce(new Error('fail')).mockResolvedValue({});
+    render(<FavouritesManager onClose={mockOnClose} />);
+    fireEvent.click(screen.getByRole('button', { name: 'NBA' }));
+    const addButtons = screen.getAllByRole('button', { name: 'Add' });
+    fireEvent.click(addButtons[0]);
+    await waitFor(() => expect(screen.getByText(/something went wrong/i)).toBeInTheDocument());
+    fireEvent.click(addButtons[1]);
+    await waitFor(() => expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument());
+  });
 });

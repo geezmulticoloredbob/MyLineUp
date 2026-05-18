@@ -13,6 +13,9 @@ export async function apiClient(path, options = {}) {
   });
 
   if (!response.ok) {
+    if (response.status === 401 && !path.startsWith('/api/auth/')) {
+      window.dispatchEvent(new Event('auth:unauthorized'));
+    }
     const body = await response.json().catch(() => ({ message: 'Request failed' }));
     const err = new Error(body.message || 'Request failed');
     err.status = response.status;
