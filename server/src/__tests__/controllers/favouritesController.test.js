@@ -49,7 +49,7 @@ describe('favouritesController', () => {
       expect(Favourite.findOneAndUpdate).toHaveBeenCalledWith(
         { user: mockUser._id, league: 'NBA', teamId: 'nba-lal' },
         expect.any(Object),
-        expect.objectContaining({ upsert: true, new: true }),
+        expect.objectContaining({ upsert: true, returnDocument: 'after' }),
       );
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({ favourite: saved });

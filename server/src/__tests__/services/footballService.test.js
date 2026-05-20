@@ -46,7 +46,7 @@ beforeEach(() => {
 describe('getEPLStandings', () => {
   beforeEach(() => {
     mockFetch.mockImplementation((url) => {
-      if (url.includes('/teams')) return mockOk({ teams: MOCK_PL_TEAMS });
+      if (url.includes('/competitions/PL/teams')) return mockOk({ teams: MOCK_PL_TEAMS });
       if (url.includes('/standings')) return mockOk({ standings: [{ type: 'TOTAL', table: MOCK_STANDINGS_TABLE }] });
       return mockOk({});
     });
@@ -74,7 +74,7 @@ describe('getEPLStandings', () => {
 
   it('throws when the standings API call fails', async () => {
     mockFetch.mockImplementation((url) => {
-      if (url.includes('/teams')) return mockOk({ teams: MOCK_PL_TEAMS });
+      if (url.includes('/competitions/PL/teams')) return mockOk({ teams: MOCK_PL_TEAMS });
       return mockFail();
     });
     await expect(footballService.getEPLStandings()).rejects.toThrow();
@@ -124,7 +124,7 @@ describe('getEPLLeagueGames', () => {
 describe('getEPLTeamData', () => {
   it('returns null for a team not in the PL squad list', async () => {
     mockFetch.mockImplementation((url) => {
-      if (url.includes('/teams')) return mockOk({ teams: MOCK_PL_TEAMS });
+      if (url.includes('/competitions/PL/teams')) return mockOk({ teams: MOCK_PL_TEAMS });
       if (url.includes('/standings')) return mockOk({ standings: [{ type: 'TOTAL', table: MOCK_STANDINGS_TABLE }] });
       return mockOk({ matches: [] });
     });

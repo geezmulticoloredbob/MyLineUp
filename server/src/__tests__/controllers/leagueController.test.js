@@ -31,7 +31,7 @@ describe('leagueController', () => {
       expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
         mockUser._id,
         { followedLeagues: ['AFL'] },
-        { new: true },
+        { returnDocument: 'after' },
       );
       expect(res.json).toHaveBeenCalledWith({ followedLeagues: ['AFL'] });
     });
