@@ -133,7 +133,7 @@ async function getAFLTeamData(favourite) {
     ? { wins: standing.wins, losses: standing.losses, points: standing.pts }
     : {};
 
-  const logoUrl = team.logo ? `https://api.squiggle.com.au${team.logo}` : null;
+  const logoUrl = team.logo ? `${SQUIGGLE_BASE}${team.logo}` : null;
   return { latestResult, nextFixture, ladderPosition, stats, logoUrl };
 }
 
