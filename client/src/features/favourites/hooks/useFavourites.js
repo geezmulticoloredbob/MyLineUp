@@ -13,6 +13,7 @@ export function useFavourites() {
     setLoading(true);
     fetchFavouriteTeams()
       .then(({ favourites }) => setFavourites(favourites))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

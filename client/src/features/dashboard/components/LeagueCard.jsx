@@ -76,8 +76,8 @@ function ResultsSection({ results }) {
         <p className="lc-empty">No recent results</p>
       ) : (
         <ul className="lc-games">
-          {results.map((r, i) => (
-            <li key={i} className="lc-game">
+          {results.map((r) => (
+            <li key={`${r.date}-${r.homeTeam}-${r.awayTeam}`} className="lc-game">
               <span className="lc-game__date">{formatDate(r.date)}</span>
               <span className="lc-game__matchup">
                 <span className={r.homeScore > r.awayScore ? 'lc-game__team--win' : ''}>{r.homeTeam}</span>
@@ -102,8 +102,8 @@ function FixturesSection({ fixtures }) {
         <p className="lc-empty">No upcoming fixtures</p>
       ) : (
         <ul className="lc-games">
-          {fixtures.map((f, i) => (
-            <li key={i} className="lc-game">
+          {fixtures.map((f) => (
+            <li key={`${f.date}-${f.homeTeam}-${f.awayTeam}`} className="lc-game">
               <span className="lc-game__date">{getUpcomingLabel(f.date)}</span>
               <span className="lc-game__matchup">
                 <span>{f.homeTeam}</span>

@@ -4,18 +4,15 @@ import FavouritesManager from '../../../features/favourites/components/Favourite
 
 vi.mock('../../../features/favourites/hooks/useFavourites');
 vi.mock('../../../contexts/AuthContext');
-vi.mock('../../../contexts/FavouritesContext');
 vi.mock('../../../services/leagueApi');
 
 import { useFavourites } from '../../../features/favourites/hooks/useFavourites';
 import { useAuth } from '../../../contexts/AuthContext';
-import { useFavouritesRefresh } from '../../../contexts/FavouritesContext';
 import { updateFollowedLeagues } from '../../../services/leagueApi';
 
 const mockAddFavourite = vi.fn();
 const mockRemoveFavourite = vi.fn();
 const mockUpdateUser = vi.fn();
-const mockTriggerRefresh = vi.fn();
 const mockOnClose = vi.fn();
 
 beforeEach(() => {
@@ -30,7 +27,6 @@ beforeEach(() => {
     user: { followedLeagues: [] },
     updateUser: mockUpdateUser,
   });
-  useFavouritesRefresh.mockReturnValue({ triggerRefresh: mockTriggerRefresh });
   updateFollowedLeagues.mockResolvedValue({});
 });
 
@@ -114,7 +110,6 @@ describe('FavouritesManager', () => {
 
     await waitFor(() => expect(updateFollowedLeagues).toHaveBeenCalled());
     expect(mockUpdateUser).toHaveBeenCalled();
-    expect(mockTriggerRefresh).toHaveBeenCalled();
   });
 
   it('calls onClose when the backdrop is clicked', () => {

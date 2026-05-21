@@ -20,11 +20,18 @@ describe('requireAuth', () => {
     expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
   });
 
-  it('calls next with an error when the token fails verification', async () => {
+  it('calls next with 401 when the token fails verification', async () => {
     verifyToken.mockImplementation(() => { throw new Error('jwt malformed'); });
     const { req, res, next } = makeContext('bad.token.here');
     await requireAuth(req, res, next);
-    expect(next).toHaveBeenCalledWith(expect.any(Error));
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
+  });
+
+  it('calls next with 401 for an expired token', async () => {
+    verifyToken.mockImplementation(() => { throw new Error('jwt expired'); });
+    const { req, res, next } = makeContext('expired.token.here');
+    await requireAuth(req, res, next);
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 401 }));
   });
 
   it('calls next with 401 when the user is not found in the database', async () => {

@@ -12,7 +12,7 @@ function getDateLabel(date) {
 function groupByDate(teams) {
   const map = new Map();
   for (const team of teams) {
-    const date = new Date(team.nextFixture.date);
+    const date = new Date(team.nextFixture.date + 'T00:00:00');
     const key = date.toDateString();
     if (!map.has(key)) map.set(key, { label: getDateLabel(date), teams: [] });
     map.get(key).teams.push(team);

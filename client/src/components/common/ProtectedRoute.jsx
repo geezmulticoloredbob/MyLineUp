@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 function ProtectedRoute({ children, forOnboarding = false }) {
   const { user, loading } = useAuth();
 
-  if (loading) return null;
+  if (loading) return <div className="auth-loading" aria-busy="true" />;
   if (!user) return <Navigate to="/login" replace />;
 
   if (forOnboarding && user.onboardingComplete) return <Navigate to="/" replace />;

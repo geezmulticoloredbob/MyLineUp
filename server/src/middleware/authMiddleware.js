@@ -10,7 +10,13 @@ const requireAuth = asyncHandler(async (req, res, next) => {
     throw new ApiError(401, 'Authentication required');
   }
 
-  const decoded = verifyToken(token);
+  let decoded;
+  try {
+    decoded = verifyToken(token);
+  } catch {
+    throw new ApiError(401, 'Invalid or expired token');
+  }
+
   const user = await User.findById(decoded.userId).select('-password');
 
   if (!user) {
