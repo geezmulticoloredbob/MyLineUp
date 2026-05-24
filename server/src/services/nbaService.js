@@ -18,13 +18,16 @@ function bdlFetch(path) {
 }
 
 let _teamsCache = null;
+let _teamsCachedAt = 0;
+const TEAMS_TTL_MS = 24 * 60 * 60 * 1000;
 
 async function getBDLTeams() {
-  if (_teamsCache) return _teamsCache;
+  if (_teamsCache && Date.now() - _teamsCachedAt < TEAMS_TTL_MS) return _teamsCache;
   const res = await bdlFetch('/teams?per_page=100');
   if (!res.ok) throw new Error(`BallDontLie teams fetch failed: ${res.status}`);
   const { data } = await res.json();
   _teamsCache = data;
+  _teamsCachedAt = Date.now();
   return data;
 }
 

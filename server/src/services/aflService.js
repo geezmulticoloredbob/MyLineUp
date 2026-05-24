@@ -27,19 +27,22 @@ const SQUIGGLE_NAME_MAP = {
 };
 
 let _teamsCache = null;
+let _teamsCachedAt = 0;
+const TEAMS_TTL_MS = 24 * 60 * 60 * 1000;
 let _standingsCache = null;
 let _standingsCachedAt = 0;
 let _gamesCache = null;
 let _gamesCachedAt = 0;
 
 async function getSquiggleTeams() {
-  if (_teamsCache) return _teamsCache;
+  if (_teamsCache && Date.now() - _teamsCachedAt < TEAMS_TTL_MS) return _teamsCache;
   const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=teams`, {
     headers: { 'User-Agent': USER_AGENT },
   });
   if (!res.ok) throw new Error(`Squiggle teams fetch failed: ${res.status}`);
   const { teams } = await res.json();
   _teamsCache = teams;
+  _teamsCachedAt = Date.now();
   return teams;
 }
 

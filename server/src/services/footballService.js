@@ -22,15 +22,17 @@ const SHORTNAME_OVERRIDES = {
   'Nottingham Forest': "Nott'm Forest",
 };
 
-// --- Teams cache (permanent — squads don't change mid-request) ---
+const TEAMS_TTL_MS = 24 * 60 * 60 * 1000;
 let _plTeamsCache = null;
+let _plTeamsCachedAt = 0;
 
 async function getPLTeams() {
-  if (_plTeamsCache) return _plTeamsCache;
+  if (_plTeamsCache && Date.now() - _plTeamsCachedAt < TEAMS_TTL_MS) return _plTeamsCache;
   const res = await fdFetch('/competitions/PL/teams');
   if (!res.ok) throw new Error(`football-data.org /teams failed: ${res.status}`);
   const { teams } = await res.json();
   _plTeamsCache = teams;
+  _plTeamsCachedAt = Date.now();
   return teams;
 }
 

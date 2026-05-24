@@ -13,9 +13,10 @@ const updateFollowedLeagues = asyncHandler(async (req, res) => {
   if (!Array.isArray(leagues) || leagues.some((l) => !VALID_LEAGUES.includes(l))) {
     throw new ApiError(400, 'leagues must be an array of valid league codes (NBA, EPL, AFL)');
   }
+  const deduped = [...new Set(leagues)];
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    { followedLeagues: leagues },
+    { followedLeagues: deduped },
     { returnDocument: 'after' },
   );
   res.json({ followedLeagues: user.followedLeagues });

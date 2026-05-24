@@ -3,11 +3,16 @@ const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/apiError');
 const { signToken } = require('../utils/jwt');
+const env = require('../config/env');
+
+const COOKIE_BASE = {
+  httpOnly: true,
+  secure: env.nodeEnv === 'production',
+  sameSite: 'lax',
+};
 
 const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
+  ...COOKIE_BASE,
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -60,7 +65,7 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const logout = asyncHandler(async (req, res) => {
-  res.clearCookie('token', { httpOnly: true, sameSite: 'lax' });
+  res.clearCookie('token', COOKIE_BASE);
   res.json({ message: 'Logged out' });
 });
 
