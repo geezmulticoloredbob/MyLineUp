@@ -10,8 +10,8 @@ function AppShell({ children }) {
   const navigate = useNavigate();
   const [managerOpen, setManagerOpen] = useState(false);
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     navigate('/login');
   }
 

@@ -85,10 +85,16 @@ function FavouritesManager({ onClose }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose} aria-label="Close modal">
+      <div
+        className="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal__header">
-          <h2 className="modal__title">Manage Favourites</h2>
+          <h2 className="modal__title" id="modal-title">Manage Favourites</h2>
           <button className="modal__close" type="button" onClick={onClose} aria-label="Close">
             <X size={20} />
           </button>

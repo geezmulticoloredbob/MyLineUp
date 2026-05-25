@@ -6,8 +6,10 @@ import { SUPPORTED_LEAGUES } from '../constants/leagues';
 import { teamsByLeague } from '../data/teamsByLeague';
 import { saveFavouriteTeam } from '../features/favourites/services/favouritesApi';
 import { updateFollowedLeagues, completeOnboarding } from '../services/leagueApi';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 function OnboardingPage() {
+  usePageTitle('Get started');
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
@@ -88,6 +90,7 @@ function OnboardingPage() {
           {SUPPORTED_LEAGUES.map((l) => (
             <button
               key={l}
+              type="button"
               className={`league-tab${activeLeague === l ? ' league-tab--active' : ''}`}
               onClick={() => setActiveLeague(l)}
             >
@@ -115,6 +118,7 @@ function OnboardingPage() {
               <li key={teamId} className="team-list__item">
                 <span className="team-list__name">{teamName}</span>
                 <button
+                  type="button"
                   className={`btn-toggle${selected ? ' btn-toggle--active' : ''}`}
                   onClick={() => toggleTeam(activeLeague, teamId, teamName)}
                 >
