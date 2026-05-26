@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { LEAGUES, SUPPORTED_LEAGUES } from '../../../constants/leagues';
+import { SUPPORTED_LEAGUES } from '../../../constants/leagues';
 import { teamsByLeague } from '../../../data/teamsByLeague';
 import { useFavourites } from '../hooks/useFavourites';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -42,7 +42,6 @@ function FavouritesManager({ onClose }) {
   const [error, setError] = useState(null);
   const { favourites, loading, addFavourite, removeFavourite } = useFavourites();
   const { user, updateUser } = useAuth();
-
 
   const followedLeagues = user?.followedLeagues ?? [];
   const teams = teamsByLeague[activeTab] ?? [];

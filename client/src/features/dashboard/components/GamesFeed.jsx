@@ -48,7 +48,7 @@ function GamesFeed({ teams }) {
               <li key={team.favouriteId} className="games-feed__item">
                 <img
                   className="games-feed__logo"
-                  src={team.teamLogoUrl || 'https://via.placeholder.com/32?text=T'}
+                  src={team.teamLogoUrl || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23333'/%3E%3Ccircle cx='16' cy='12' r='5' fill='%23555'/%3E%3Cpath d='M6 28c0-5.523 4.477-10 10-10s10 4.477 10 10' fill='%23555'/%3E%3C/svg%3E"}
                   alt={team.teamName}
                   width={32}
                   height={32}

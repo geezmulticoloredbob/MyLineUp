@@ -17,7 +17,7 @@ function CardBanner({ teamName, league, logoUrl, ladderPosition, source }) {
       <div className="team-card__banner-content">
         <img
           className="team-card__banner-logo"
-          src={logoUrl || 'https://via.placeholder.com/52?text=TEAM'}
+          src={logoUrl || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Crect width='52' height='52' fill='%23333'/%3E%3Ccircle cx='26' cy='20' r='8' fill='%23555'/%3E%3Cpath d='M10 44c0-8.837 7.163-16 16-16s16 7.163 16 16' fill='%23555'/%3E%3C/svg%3E"}
           alt={`${teamName} logo`}
           width={52}
           height={52}
@@ -102,11 +102,11 @@ function StatsPanel({ stats }) {
 function SkeletonCard() {
   return (
     <article className="team-card team-card--skeleton">
-      <div className="skeleton" style={{ height: '100px', margin: 'calc(-1 * var(--space-md)) calc(-1 * var(--space-md)) var(--space-md)', borderRadius: 'var(--radius-card) var(--radius-card) 0 0' }} />
+      <div className="skeleton skeleton-banner" />
       <div className="skeleton-header">
-        <div style={{ flex: 1 }}>
+        <div className="skeleton-text-col">
           <div className="skeleton skeleton-title" />
-          <div className="skeleton skeleton-meta" style={{ width: '90px' }} />
+          <div className="skeleton skeleton-meta skeleton-meta--narrow" />
         </div>
       </div>
       <div className="skeleton-section">
@@ -116,8 +116,8 @@ function SkeletonCard() {
       </div>
       <div className="skeleton-section">
         <div className="skeleton skeleton-label" />
-        <div className="skeleton skeleton-score" style={{ width: '120px' }} />
-        <div className="skeleton skeleton-sub" style={{ width: '140px' }} />
+        <div className="skeleton skeleton-score skeleton-score--narrow" />
+        <div className="skeleton skeleton-sub skeleton-sub--wide" />
       </div>
     </article>
   );

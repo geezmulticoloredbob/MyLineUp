@@ -697,6 +697,28 @@ p {
   width: 110px;
 }
 
+.skeleton-banner {
+  height: 100px;
+  margin: calc(-1 * var(--space-md)) calc(-1 * var(--space-md)) var(--space-md);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+
+.skeleton-text-col {
+  flex: 1;
+}
+
+.skeleton-meta--narrow {
+  width: 90px;
+}
+
+.skeleton-score--narrow {
+  width: 120px;
+}
+
+.skeleton-sub--wide {
+  width: 140px;
+}
+
 /* ── Empty state ── */
 
 .empty-state {
