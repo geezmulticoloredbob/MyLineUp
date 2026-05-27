@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
+import { useAuth } from '../contexts/AuthContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import PageContainer from '../components/common/PageContainer';
 import TeamCard from '../features/dashboard/components/TeamCard';
-import LeagueCard from '../features/dashboard/components/LeagueCard';
+import LeagueCard, { SkeletonLeagueCard } from '../features/dashboard/components/LeagueCard';
 import GamesFeed from '../features/dashboard/components/GamesFeed';
-import FavouritesManager from '../features/favourites/components/FavouritesManager';
 
 function EmptyState({ onOpen }) {
   return (
@@ -22,11 +22,11 @@ function EmptyState({ onOpen }) {
 
 function HomePage() {
   usePageTitle('Dashboard');
-  const { refreshTick, triggerRefresh } = useFavouritesRefresh();
+  const { refreshTick, openManager } = useFavouritesRefresh();
+  const { user } = useAuth();
   const [teams, setTeams] = useState([]);
   const [leagueOverviews, setLeagueOverviews] = useState([]);
   const [status, setStatus] = useState('loading');
-  const [managerOpen, setManagerOpen] = useState(false);
 
   useEffect(() => {
     setStatus('loading');
@@ -39,14 +39,15 @@ function HomePage() {
       .catch(() => setStatus('error'));
   }, [refreshTick]);
 
-  function handleCloseManager() {
-    setManagerOpen(false);
-    triggerRefresh();
-  }
-
   if (status === 'loading') {
+    const followedLeagues = user?.followedLeagues ?? [];
     return (
       <PageContainer title="Your Teams">
+        {followedLeagues.length > 0 && (
+          <div className="league-card-grid">
+            {followedLeagues.map((l) => <SkeletonLeagueCard key={l} />)}
+          </div>
+        )}
         <div className="team-card-grid">
           <TeamCard status="loading" />
           <TeamCard status="loading" />
@@ -67,8 +68,7 @@ function HomePage() {
   if (status === 'empty') {
     return (
       <PageContainer title="Your Teams">
-        <EmptyState onOpen={() => setManagerOpen(true)} />
-        {managerOpen && <FavouritesManager onClose={handleCloseManager} />}
+        <EmptyState onOpen={openManager} />
       </PageContainer>
     );
   }

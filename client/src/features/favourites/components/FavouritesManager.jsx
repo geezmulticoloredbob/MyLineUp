@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { SUPPORTED_LEAGUES } from '../../../constants/leagues';
 import { teamsByLeague } from '../../../data/teamsByLeague';
@@ -40,6 +40,14 @@ function FavouritesManager({ onClose }) {
   const [busy, setBusy] = useState({});
   const [leagueBusy, setLeagueBusy] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === 'Escape') onClose();
+    }
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
   const { favourites, loading, addFavourite, removeFavourite } = useFavourites();
   const { user, updateUser } = useAuth();
 

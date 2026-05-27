@@ -48,6 +48,7 @@ function AuthForm({ mode }) {
             className="auth-form__input"
             type="text"
             name="username"
+            autoComplete="username"
             value={fields.username}
             onChange={handleChange}
             required
@@ -62,6 +63,7 @@ function AuthForm({ mode }) {
           className="auth-form__input"
           type="email"
           name="email"
+          autoComplete="email"
           value={fields.email}
           onChange={handleChange}
           required
@@ -74,11 +76,15 @@ function AuthForm({ mode }) {
           className="auth-form__input"
           type="password"
           name="password"
+          autoComplete={isLogin ? 'current-password' : 'new-password'}
           value={fields.password}
           onChange={handleChange}
           required
           minLength={8}
         />
+        {!isLogin && (
+          <span className="auth-form__hint">Min 8 characters, 1 uppercase, 1 number</span>
+        )}
       </label>
 
       <button className="btn-primary" type="submit" disabled={submitting}>

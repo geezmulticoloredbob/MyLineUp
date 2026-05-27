@@ -1,5 +1,25 @@
 import { CalendarDays, ClipboardList, Trophy } from 'lucide-react';
 
+export function SkeletonLeagueCard() {
+  return (
+    <article className="league-card">
+      <header className="league-card__header">
+        <div className="skeleton lc-skeleton-header" />
+      </header>
+      <div className="lc-grid">
+        {[5, 3, 3].map((rowCount, i) => (
+          <div key={i} className="lc-section">
+            <div className="skeleton lc-skeleton-section-label" />
+            {Array.from({ length: rowCount }, (_, j) => (
+              <div key={j} className="skeleton lc-skeleton-row" />
+            ))}
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 const STANDINGS_STATS = {
   NBA: ['wins', 'losses'],
   EPL: ['played', 'points', 'gd'],

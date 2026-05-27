@@ -4,13 +4,23 @@ const FavouritesContext = createContext(null);
 
 export function FavouritesProvider({ children }) {
   const [refreshTick, setRefreshTick] = useState(0);
+  const [managerOpen, setManagerOpen] = useState(false);
 
   function triggerRefresh() {
     setRefreshTick((t) => t + 1);
   }
 
+  function openManager() {
+    setManagerOpen(true);
+  }
+
+  function closeManager() {
+    setManagerOpen(false);
+    triggerRefresh();
+  }
+
   return (
-    <FavouritesContext.Provider value={{ refreshTick, triggerRefresh }}>
+    <FavouritesContext.Provider value={{ refreshTick, triggerRefresh, managerOpen, openManager, closeManager }}>
       {children}
     </FavouritesContext.Provider>
   );
