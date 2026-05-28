@@ -979,6 +979,22 @@ p {
   color: var(--text-secondary);
 }
 
+/* League card skeleton */
+.lc-skeleton-header {
+  height: 20px;
+  width: 80px;
+}
+
+.lc-skeleton-section-label {
+  height: 12px;
+  width: 90px;
+  margin-bottom: var(--space-xs);
+}
+
+.lc-skeleton-row {
+  height: 14px;
+}
+
 /* ── Games feed ── */
 
 .games-feed {
