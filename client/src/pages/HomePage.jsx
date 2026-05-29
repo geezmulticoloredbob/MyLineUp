@@ -4,6 +4,7 @@ import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useAuth } from '../contexts/AuthContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import PageContainer from '../components/common/PageContainer';
+import ErrorBoundary from '../components/common/ErrorBoundary';
 import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard, { SkeletonLeagueCard } from '../features/dashboard/components/LeagueCard';
 import GamesFeed from '../features/dashboard/components/GamesFeed';
@@ -27,6 +28,7 @@ function HomePage() {
   const [teams, setTeams] = useState([]);
   const [leagueOverviews, setLeagueOverviews] = useState([]);
   const [status, setStatus] = useState('loading');
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     setStatus('loading');
@@ -37,7 +39,7 @@ function HomePage() {
         setStatus(teams.length === 0 && (leagueOverviews?.length ?? 0) === 0 ? 'empty' : 'ready');
       })
       .catch(() => setStatus('error'));
-  }, [refreshTick]);
+  }, [refreshTick, retryCount]);
 
   if (status === 'loading') {
     const followedLeagues = user?.followedLeagues ?? [];
@@ -60,7 +62,13 @@ function HomePage() {
   if (status === 'error') {
     return (
       <PageContainer title="Your Teams">
-        <TeamCard status="error" errorMessage="Unable to reach sports service." />
+        <div className="empty-state">
+          <p className="empty-state__title">Could not load dashboard</p>
+          <p className="empty-state__body">Unable to reach the sports service.</p>
+          <button className="btn-primary" type="button" onClick={() => setRetryCount((c) => c + 1)}>
+            Try again
+          </button>
+        </div>
       </PageContainer>
     );
   }
@@ -76,19 +84,23 @@ function HomePage() {
   return (
     <PageContainer title="Your Teams">
       {leagueOverviews.length > 0 && (
-        <div className="league-card-grid">
-          {leagueOverviews.map((overview) => (
-            <LeagueCard key={overview.league} {...overview} />
-          ))}
-        </div>
+        <ErrorBoundary>
+          <div className="league-card-grid">
+            {leagueOverviews.map((overview) => (
+              <LeagueCard key={overview.league} {...overview} />
+            ))}
+          </div>
+        </ErrorBoundary>
       )}
       <GamesFeed teams={teams} />
       {teams.length > 0 && (
-        <div className="team-card-grid">
-          {teams.map((team) => (
-            <TeamCard key={team.favouriteId} team={team} />
-          ))}
-        </div>
+        <ErrorBoundary>
+          <div className="team-card-grid">
+            {teams.map((team) => (
+              <TeamCard key={team.favouriteId} team={team} />
+            ))}
+          </div>
+        </ErrorBoundary>
       )}
     </PageContainer>
   );

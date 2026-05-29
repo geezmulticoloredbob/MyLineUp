@@ -39,7 +39,7 @@ function AuthForm({ mode }) {
     <form className="auth-form" onSubmit={handleSubmit}>
       <h1 className="auth-form__title">{isLogin ? 'Log in' : 'Create account'}</h1>
 
-      {error && <p className="auth-form__error">{error}</p>}
+      {error && <p className="auth-form__error" role="alert">{error}</p>}
 
       {!isLogin && (
         <label className="auth-form__label">

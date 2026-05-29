@@ -14,9 +14,9 @@ export function FavouritesProvider({ children }) {
     setManagerOpen(true);
   }
 
-  function closeManager() {
+  function closeManager(wasDirty = false) {
     setManagerOpen(false);
-    triggerRefresh();
+    if (wasDirty) triggerRefresh();
   }
 
   return (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { SUPPORTED_LEAGUES } from '../../../constants/leagues';
 import { teamsByLeague } from '../../../data/teamsByLeague';
@@ -14,6 +14,7 @@ function LeaguesPanel({ followedLeagues, onToggle, busy }) {
     <ul className="team-list">
       {SUPPORTED_LEAGUES.map((league) => {
         const isFollowing = followedLeagues.includes(league);
+        const isBusy = Boolean(busy[league]);
         return (
           <li key={league} className="team-list__item">
             <div>
@@ -24,9 +25,9 @@ function LeaguesPanel({ followedLeagues, onToggle, busy }) {
               type="button"
               className={`btn-toggle${isFollowing ? ' btn-toggle--active' : ''}`}
               onClick={() => onToggle(league)}
-              disabled={busy}
+              disabled={isBusy}
             >
-              {busy ? '...' : isFollowing ? 'Unfollow' : 'Follow'}
+              {isBusy ? '...' : isFollowing ? 'Unfollow' : 'Follow'}
             </button>
           </li>
         );
@@ -38,12 +39,13 @@ function LeaguesPanel({ followedLeagues, onToggle, busy }) {
 function FavouritesManager({ onClose }) {
   const [activeTab, setActiveTab] = useState(TAB_LEAGUES);
   const [busy, setBusy] = useState({});
-  const [leagueBusy, setLeagueBusy] = useState(false);
+  const [leagueBusy, setLeagueBusy] = useState({});
   const [error, setError] = useState(null);
+  const dirtyRef = useRef(false);
 
   useEffect(() => {
     function onKeyDown(e) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onClose(dirtyRef.current);
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
@@ -68,6 +70,7 @@ function FavouritesManager({ onClose }) {
       } else {
         await addFavourite({ league: activeTab, teamId: team.teamId, teamName: team.teamName });
       }
+      dirtyRef.current = true;
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -79,20 +82,21 @@ function FavouritesManager({ onClose }) {
     const next = followedLeagues.includes(league)
       ? followedLeagues.filter((l) => l !== league)
       : [...followedLeagues, league];
-    setLeagueBusy(true);
+    setLeagueBusy((prev) => ({ ...prev, [league]: true }));
     setError(null);
     try {
       await updateFollowedLeagues(next);
       updateUser({ followedLeagues: next });
+      dirtyRef.current = true;
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
-      setLeagueBusy(false);
+      setLeagueBusy((prev) => ({ ...prev, [league]: false }));
     }
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose} aria-label="Close modal">
+    <div className="modal-overlay" onClick={() => onClose(dirtyRef.current)} aria-label="Close modal">
       <div
         className="modal"
         role="dialog"
@@ -102,12 +106,12 @@ function FavouritesManager({ onClose }) {
       >
         <div className="modal__header">
           <h2 className="modal__title" id="modal-title">Manage Favourites</h2>
-          <button className="modal__close" type="button" onClick={onClose} aria-label="Close">
+          <button className="modal__close" type="button" onClick={() => onClose(dirtyRef.current)} aria-label="Close">
             <X size={20} />
           </button>
         </div>
 
-        {error && <p className="modal__error">{error}</p>}
+        {error && <p className="modal__error" role="alert">{error}</p>}
 
         <div className="league-tabs">
           <button
