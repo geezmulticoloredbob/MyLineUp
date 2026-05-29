@@ -26,25 +26,32 @@ const SQUIGGLE_NAME_MAP = {
   'Western Bulldogs': 'Western Bulldogs',
 };
 
-let _teamsCache = null;
-let _teamsCachedAt = 0;
-const TEAMS_TTL_MS = 24 * 60 * 60 * 1000;
+const ESPN_LOGO_BASE = 'https://a.espncdn.com/i/teamlogos/afl/500';
+const AFL_ESPN_LOGOS = {
+  Adelaide: `${ESPN_LOGO_BASE}/adel.png`,
+  Brisbane: `${ESPN_LOGO_BASE}/bl.png`,
+  Carlton: `${ESPN_LOGO_BASE}/carl.png`,
+  Collingwood: `${ESPN_LOGO_BASE}/coll.png`,
+  Essendon: `${ESPN_LOGO_BASE}/ess.png`,
+  Fremantle: `${ESPN_LOGO_BASE}/fre.png`,
+  GWS: `${ESPN_LOGO_BASE}/gws.png`,
+  Geelong: `${ESPN_LOGO_BASE}/geel.png`,
+  'Gold Coast': `${ESPN_LOGO_BASE}/suns.png`,
+  Hawthorn: `${ESPN_LOGO_BASE}/haw.png`,
+  Melbourne: `${ESPN_LOGO_BASE}/melb.png`,
+  'North Melbourne': `${ESPN_LOGO_BASE}/nmfc.png`,
+  'Port Adelaide': `${ESPN_LOGO_BASE}/port.png`,
+  Richmond: `${ESPN_LOGO_BASE}/rich.png`,
+  'St Kilda': `${ESPN_LOGO_BASE}/stk.png`,
+  Sydney: `${ESPN_LOGO_BASE}/syd.png`,
+  'West Coast': `${ESPN_LOGO_BASE}/wce.png`,
+  'Western Bulldogs': `${ESPN_LOGO_BASE}/wb.png`,
+};
+
 let _standingsCache = null;
 let _standingsCachedAt = 0;
 let _gamesCache = null;
 let _gamesCachedAt = 0;
-
-async function getSquiggleTeams() {
-  if (_teamsCache && Date.now() - _teamsCachedAt < TEAMS_TTL_MS) return _teamsCache;
-  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=teams`, {
-    headers: { 'User-Agent': USER_AGENT },
-  });
-  if (!res.ok) throw new Error(`Squiggle teams fetch failed: ${res.status}`);
-  const { teams } = await res.json();
-  _teamsCache = teams;
-  _teamsCachedAt = Date.now();
-  return teams;
-}
 
 async function getCachedStandings() {
   if (_standingsCache && Date.now() - _standingsCachedAt < TTL_MS) return _standingsCache;
@@ -76,12 +83,7 @@ async function getAFLTeamData(favourite) {
   const squiggleName = SQUIGGLE_NAME_MAP[favourite.teamName];
   if (!squiggleName) return null;
 
-  const teams = await getSquiggleTeams();
-  const team = teams.find((t) => t.name === squiggleName);
-  if (!team) return null;
-
   const now = new Date();
-  const year = new Date().getFullYear();
 
   const [allGames, standings] = await Promise.all([
     getCachedGames(),
@@ -136,24 +138,21 @@ async function getAFLTeamData(favourite) {
     ? { wins: standing.wins, losses: standing.losses, points: standing.pts }
     : {};
 
-  const logoUrl = team.logo ? `${SQUIGGLE_BASE}${team.logo}` : null;
+  const logoUrl = AFL_ESPN_LOGOS[squiggleName] ?? null;
   return { latestResult, nextFixture, ladderPosition, stats, logoUrl };
 }
 
 async function getAFLStandings() {
-  const [standings, teams] = await Promise.all([getCachedStandings(), getSquiggleTeams()]);
+  const standings = await getCachedStandings();
   return standings
     .slice()
     .sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99))
-    .map((s) => {
-      const team = teams.find((t) => t.name === s.name);
-      return {
-        position: s.rank,
-        teamName: s.name,
-        logoUrl: team?.logo ? `${SQUIGGLE_BASE}${team.logo}` : null,
-        stats: { wins: s.wins, losses: s.losses, points: s.pts, percentage: Math.round(s.percentage) },
-      };
-    });
+    .map((s) => ({
+      position: s.rank,
+      teamName: s.name,
+      logoUrl: AFL_ESPN_LOGOS[s.name] ?? null,
+      stats: { wins: s.wins, losses: s.losses, points: s.pts, percentage: Math.round(s.percentage) },
+    }));
 }
 
 async function getAFLLeagueGames() {

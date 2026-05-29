@@ -17,7 +17,8 @@
       "Bash(npm audit *)",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); vulns=d.get\\('vulnerabilities',{}\\); print\\('Total:', d.get\\('metadata',{}\\).get\\('vulnerabilities',{}\\)\\); [print\\(k, v.get\\('severity'\\), '-', v.get\\('title',''\\)\\) for k,v in list\\(vulns.items\\(\\)\\)[:20]]\")",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('Total:', d.get\\('metadata',{}\\).get\\('vulnerabilities',{}\\)\\)\")",
-      "Bash(Select-String -Pattern \"npm audit\" -NotMatch)"
+      "Bash(Select-String -Pattern \"npm audit\" -NotMatch)",
+      "WebSearch"
     ],
     "additionalDirectories": [
       "c:\\Users\\coenw\\.claude\\projects\\c--Users-coenw-source-repos-MyLineUp\\memory"
