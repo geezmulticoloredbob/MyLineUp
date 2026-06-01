@@ -346,6 +346,26 @@ p {
   padding: var(--space-lg);
 }
 
+.auth-page__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+}
+
+.auth-page__wordmark {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.auth-page__wordmark-accent {
+  color: var(--focus-ring);
+}
+
 .auth-form {
   width: 100%;
   max-width: 400px;
@@ -362,6 +382,7 @@ p {
 .auth-form__title {
   font-size: var(--text-h1);
   margin-bottom: var(--space-xs);
+  text-align: center;
 }
 
 .auth-form__error {

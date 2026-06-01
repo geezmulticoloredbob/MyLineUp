@@ -5,7 +5,12 @@ function LoginPage() {
   usePageTitle('Log in');
   return (
     <div className="auth-page">
-      <AuthForm mode="login" />
+      <div className="auth-page__inner">
+        <div className="auth-page__wordmark">
+          My<span className="auth-page__wordmark-accent">LineUp</span>
+        </div>
+        <AuthForm mode="login" />
+      </div>
     </div>
   );
 }

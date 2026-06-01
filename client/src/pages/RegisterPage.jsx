@@ -5,7 +5,12 @@ function RegisterPage() {
   usePageTitle('Create account');
   return (
     <div className="auth-page">
-      <AuthForm mode="register" />
+      <div className="auth-page__inner">
+        <div className="auth-page__wordmark">
+          My<span className="auth-page__wordmark-accent">LineUp</span>
+        </div>
+        <AuthForm mode="register" />
+      </div>
     </div>
   );
 }
