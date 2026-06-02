@@ -9,6 +9,37 @@ import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard, { SkeletonLeagueCard } from '../features/dashboard/components/LeagueCard';
 import GamesFeed from '../features/dashboard/components/GamesFeed';
 
+const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23333'/%3E%3Ccircle cx='20' cy='15' r='6' fill='%23555'/%3E%3Cpath d='M8 36c0-6.627 5.373-12 12-12s12 5.373 12 12' fill='%23555'/%3E%3C/svg%3E";
+
+function TeamLogoStrip({ teams }) {
+  function scrollToTeam(favouriteId) {
+    document.getElementById(`team-${favouriteId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  return (
+    <div className="team-strip">
+      {teams.map((team) => (
+        <button
+          key={team.favouriteId}
+          type="button"
+          className="team-strip__item"
+          onClick={() => scrollToTeam(team.favouriteId)}
+          title={team.teamName}
+        >
+          <img
+            className="team-strip__logo"
+            src={team.teamLogoUrl || LOGO_FALLBACK}
+            alt={team.teamName}
+            width={40}
+            height={40}
+          />
+          <span className="team-strip__name">{team.teamName}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function EmptyState({ onOpen }) {
   return (
     <div className="empty-state">
@@ -45,16 +76,16 @@ function HomePage() {
     const followedLeagues = user?.followedLeagues ?? [];
     return (
       <PageContainer title="Your Teams">
-        {followedLeagues.length > 0 && (
-          <div className="league-card-grid">
-            {followedLeagues.map((l) => <SkeletonLeagueCard key={l} />)}
-          </div>
-        )}
         <div className="team-card-grid">
           <TeamCard status="loading" />
           <TeamCard status="loading" />
           <TeamCard status="loading" />
         </div>
+        {followedLeagues.length > 0 && (
+          <div className="league-card-grid">
+            {followedLeagues.map((l) => <SkeletonLeagueCard key={l} />)}
+          </div>
+        )}
       </PageContainer>
     );
   }
@@ -83,21 +114,24 @@ function HomePage() {
 
   return (
     <PageContainer title="Your Teams">
-      {leagueOverviews.length > 0 && (
-        <ErrorBoundary>
-          <div className="league-card-grid">
-            {leagueOverviews.map((overview) => (
-              <LeagueCard key={overview.league} {...overview} />
-            ))}
-          </div>
-        </ErrorBoundary>
-      )}
+      {teams.length > 0 && <TeamLogoStrip teams={teams} />}
       <GamesFeed teams={teams} />
       {teams.length > 0 && (
         <ErrorBoundary>
           <div className="team-card-grid">
             {teams.map((team) => (
-              <TeamCard key={team.favouriteId} team={team} />
+              <div id={`team-${team.favouriteId}`} key={team.favouriteId}>
+                <TeamCard team={team} />
+              </div>
+            ))}
+          </div>
+        </ErrorBoundary>
+      )}
+      {leagueOverviews.length > 0 && (
+        <ErrorBoundary>
+          <div className="league-card-grid">
+            {leagueOverviews.map((overview) => (
+              <LeagueCard key={overview.league} {...overview} />
             ))}
           </div>
         </ErrorBoundary>

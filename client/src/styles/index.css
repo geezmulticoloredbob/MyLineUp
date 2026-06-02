@@ -129,6 +129,63 @@ p {
   font-size: var(--text-h1);
 }
 
+/* ── Team logo strip ── */
+
+.team-strip {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
+}
+
+.team-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.team-strip::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 2px;
+}
+
+.team-strip__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-sm);
+  border-radius: var(--radius-button);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  flex-shrink: 0;
+  color: inherit;
+  transition: border-color 0.15s;
+}
+
+.team-strip__item:hover {
+  border-color: var(--focus-ring);
+}
+
+.team-strip__logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.team-strip__name {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Team card grid ── */
+
 .team-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
