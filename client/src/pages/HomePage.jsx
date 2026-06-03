@@ -22,7 +22,7 @@ function TeamLogoStrip({ teams }) {
         <button
           key={team.favouriteId}
           type="button"
-          className="team-strip__item"
+          className={`team-strip__item team-strip__item--${team.league.toLowerCase()}`}
           onClick={() => scrollToTeam(team.favouriteId)}
           title={team.teamName}
         >
