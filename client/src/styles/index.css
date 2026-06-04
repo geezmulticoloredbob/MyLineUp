@@ -132,21 +132,9 @@ p {
 /* ── Team logo strip ── */
 
 .team-strip {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--space-sm);
-  overflow-x: auto;
-  padding-bottom: var(--space-xs);
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-default) transparent;
-}
-
-.team-strip::-webkit-scrollbar {
-  height: 4px;
-}
-
-.team-strip::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 2px;
 }
 
 .team-strip__item {
@@ -155,12 +143,10 @@ p {
   align-items: center;
   gap: 6px;
   padding: var(--space-sm);
-  width: 80px;
   border-radius: var(--radius-button);
   background: var(--surface-card);
   border: 1px solid var(--border-default);
   cursor: pointer;
-  flex-shrink: 0;
   color: inherit;
   transition: border-color 0.15s, background 0.15s;
 }
