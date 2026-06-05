@@ -1,3 +1,5 @@
+import { formatGameTime } from './formatGameTime';
+
 function parseDate(dateValue) {
   if (!dateValue) {
     return null;
@@ -57,14 +59,20 @@ function getNextGamePanel(team, windowDays = 30) {
     return {
       title: 'Next Game',
       content: `No game in the next ${windowDays} days.`,
-      meta: `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim(),
+      meta: formatGameTime(team?.nextFixture?.utcDate, team?.nextFixture?.venueTimezone) ||
+        `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim(),
     };
   }
+
+  const timeStr =
+    formatGameTime(team?.nextFixture?.utcDate, team?.nextFixture?.venueTimezone) ||
+    `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim();
 
   return {
     title: 'Next Game',
     content: `vs ${team?.nextFixture?.opponent || 'TBD'} at ${team?.nextFixture?.venue || 'Venue TBD'}`,
-    meta: `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim(),
+    meta: timeStr,
+    opponentLogoUrl: team?.nextFixture?.opponentLogoUrl || null,
   };
 }
 

@@ -1,4 +1,5 @@
 import { CalendarDays } from 'lucide-react';
+import { formatGameTime } from '../utils/formatGameTime';
 
 function getDateLabel(date) {
   const today = new Date();
@@ -58,11 +59,23 @@ function GamesFeed({ teams }) {
                   <span className="games-feed__badge">{team.league}</span>
                 </div>
                 <div className="games-feed__opponent">
-                  vs {team.nextFixture.opponent || 'TBD'}
+                  <span>vs</span>
+                  {team.nextFixture.opponentLogoUrl && (
+                    <img
+                      className="games-feed__opp-logo"
+                      src={team.nextFixture.opponentLogoUrl}
+                      alt=""
+                      width={24}
+                      height={24}
+                    />
+                  )}
+                  <span>{team.nextFixture.opponent || 'TBD'}</span>
                 </div>
                 <div className="games-feed__right">
-                  {team.nextFixture.time && (
-                    <span className="games-feed__time">{team.nextFixture.time}</span>
+                  {(team.nextFixture.utcDate || team.nextFixture.time) && (
+                    <span className="games-feed__time">
+                      {formatGameTime(team.nextFixture.utcDate, team.nextFixture.venueTimezone) || team.nextFixture.time}
+                    </span>
                   )}
                   {team.nextFixture.venue && (
                     <span className="games-feed__venue">{team.nextFixture.venue}</span>

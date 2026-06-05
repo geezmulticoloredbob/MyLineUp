@@ -120,15 +120,16 @@ async function getEPLTeamData(favourite) {
     const opponent = isHome
       ? nextMatch.awayTeam.shortName || nextMatch.awayTeam.name
       : nextMatch.homeTeam.shortName || nextMatch.homeTeam.name;
+    const opponentLogoUrl = isHome
+      ? nextMatch.awayTeam.crest || null
+      : nextMatch.homeTeam.crest || null;
     const matchDate = new Date(nextMatch.utcDate);
     nextFixture = {
       date: toDateStr(matchDate),
-      time: matchDate.toLocaleTimeString('en-AU', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone: 'Australia/Sydney',
-      }),
+      utcDate: nextMatch.utcDate,
+      venueTimezone: 'Europe/London',
       opponent,
+      opponentLogoUrl,
       venue: isHome ? 'Home' : 'Away',
     };
   }

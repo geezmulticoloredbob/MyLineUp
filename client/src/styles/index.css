@@ -338,6 +338,19 @@ p {
   font-family: var(--font-heading);
 }
 
+.team-card__score-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.team-card__opp-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
 .team-card__stats {
   list-style: none;
   padding: 0;
@@ -1169,8 +1182,18 @@ p {
 
 .games-feed__opponent {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
   font-size: var(--text-small);
   color: var(--text-primary);
+}
+
+.games-feed__opp-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .games-feed__right {

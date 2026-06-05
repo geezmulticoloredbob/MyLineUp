@@ -40,7 +40,18 @@ function MatchPanel({ panel, tone = 'neutral' }) {
         <CalendarDays size={14} strokeWidth={2} />
         {panel.title}
       </h3>
-      <p className={`team-card__score ${toneClassName}`}>{panel.content}</p>
+      <div className="team-card__score-row">
+        {panel.opponentLogoUrl && (
+          <img
+            src={panel.opponentLogoUrl}
+            alt=""
+            className="team-card__opp-logo"
+            width={22}
+            height={22}
+          />
+        )}
+        <p className={`team-card__score ${toneClassName}`}>{panel.content}</p>
+      </div>
       <p className="team-card__meta">{panel.meta}</p>
     </section>
   );

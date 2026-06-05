@@ -26,6 +26,24 @@ const SQUIGGLE_NAME_MAP = {
   'Western Bulldogs': 'Western Bulldogs',
 };
 
+// Squiggle times are in AEST/AEDT (Australia/Sydney). Convert to UTC ISO.
+function aflDateToUtc(dateStr) {
+  if (!dateStr || !dateStr.includes(' ')) return null;
+  const month = parseInt(dateStr.substring(5, 7));
+  // Oct–Mar: AEDT (UTC+11); Apr–Sep: AEST (UTC+10)
+  const offset = month >= 10 || month <= 3 ? '+11:00' : '+10:00';
+  return new Date(dateStr.replace(' ', 'T') + offset).toISOString();
+}
+
+const AFL_HOME_TIMEZONES = {
+  Adelaide: 'Australia/Adelaide',
+  'Port Adelaide': 'Australia/Adelaide',
+  'West Coast': 'Australia/Perth',
+  Fremantle: 'Australia/Perth',
+  Brisbane: 'Australia/Brisbane',
+  'Gold Coast': 'Australia/Brisbane',
+};
+
 const ESPN_LOGO_BASE = 'https://a.espncdn.com/i/teamlogos/afl/500';
 const AFL_ESPN_LOGOS = {
   Adelaide: `${ESPN_LOGO_BASE}/adel.png`,
@@ -123,11 +141,13 @@ async function getAFLTeamData(favourite) {
     const g = upcoming[0];
     const isHome = g.hteam === squiggleName;
     const opponent = isHome ? g.ateam : g.hteam;
-    const [date, time] = g.date.split(' ');
+    const [date] = g.date.split(' ');
     nextFixture = {
       date,
-      time: time || '',
+      utcDate: aflDateToUtc(g.date),
+      venueTimezone: AFL_HOME_TIMEZONES[g.hteam] || 'Australia/Sydney',
       opponent,
+      opponentLogoUrl: AFL_ESPN_LOGOS[opponent] ?? null,
       venue: g.venue || (isHome ? 'Home' : 'Away'),
     };
   }
