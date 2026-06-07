@@ -474,6 +474,8 @@ p {
 
 .auth-form__title {
   font-size: var(--text-h1);
+  font-family: var(--font-heading);
+  letter-spacing: 0.06em;
   margin-bottom: var(--space-xs);
   text-align: center;
 }
@@ -488,6 +490,8 @@ p {
   flex-direction: column;
   gap: var(--space-xs);
   font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--text-secondary);
 }
 
@@ -499,6 +503,8 @@ p {
   color: var(--text-primary);
   font: inherit;
   font-size: var(--text-body);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .auth-form__input:focus {
