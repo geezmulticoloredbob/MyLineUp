@@ -956,14 +956,32 @@ p {
 .league-card {
   background: var(--surface-card);
   border: 1px solid var(--border-default);
+  border-top: 3px solid var(--border-default);
   border-radius: var(--radius-card);
   padding: var(--space-md);
   box-shadow: var(--shadow-card);
 }
 
+.league-card--nba { border-top-color: #c9510c; }
+.league-card--epl { border-top-color: #5b2d8e; }
+.league-card--afl { border-top-color: #003087; }
+
 .league-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
   margin-bottom: var(--space-md);
 }
+
+.league-card__sport-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.league-card--nba .league-card__sport-icon { color: #c9510c; }
+.league-card--epl .league-card__sport-icon { color: #5b2d8e; }
+.league-card--afl .league-card__sport-icon { color: #003087; }
 
 .league-card__title {
   font-family: var(--font-heading);

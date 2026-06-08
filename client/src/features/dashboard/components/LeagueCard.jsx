@@ -1,5 +1,35 @@
 import { CalendarDays, ClipboardList, Trophy } from 'lucide-react';
 
+function LeagueSportIcon({ league }) {
+  if (league === 'NBA') {
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M10 1v18M1 10h18" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M4 3.5C6.5 6 7.5 8 7.5 10s-1 4-3.5 6.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+        <path d="M16 3.5C13.5 6 12.5 8 12.5 10s1 4 3.5 6.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      </svg>
+    );
+  }
+  if (league === 'EPL') {
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
+        <polygon points="10,6 11.5,9 15,9 12.5,11 13.5,14.5 10,12.5 6.5,14.5 7.5,11 5,9 8.5,9" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (league === 'AFL') {
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="10" cy="10" rx="4" ry="9" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M1.5 10h17M3 5.5C5.5 7 7 8.4 7 10s-1.5 3-3.5 4.5M17 5.5C14.5 7 13 8.4 13 10s1.5 3 3.5 4.5" stroke="currentColor" strokeWidth="1.2" />
+      </svg>
+    );
+  }
+  return null;
+}
+
 export function SkeletonLeagueCard() {
   return (
     <article className="league-card">
@@ -145,8 +175,9 @@ function FixturesSection({ fixtures }) {
 
 function LeagueCard({ league, standings, recentResults, upcomingFixtures }) {
   return (
-    <article className="league-card">
+    <article className={`league-card league-card--${league.toLowerCase()}`}>
       <header className="league-card__header">
+        <LeagueSportIcon league={league} />
         <h2 className="league-card__title">{league}</h2>
       </header>
       <div className="lc-grid">
