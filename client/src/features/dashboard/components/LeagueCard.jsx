@@ -78,7 +78,7 @@ function getUpcomingLabel(dateStr) {
   return d.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-function StandingsSection({ league, standings }) {
+function StandingsSection({ league, standings, seasonComplete }) {
   const keys = STANDINGS_STATS[league] || [];
   const rows = (standings || []).slice(0, 5);
 
@@ -105,6 +105,9 @@ function StandingsSection({ league, standings }) {
                 <td className="lc-table__team">
                   {row.logoUrl && <img src={row.logoUrl} alt="" width={16} height={16} className="lc-table__logo" />}
                   <span>{row.teamName}</span>
+                  {seasonComplete && row.position === 1 && (
+                    <Trophy size={12} strokeWidth={2} className="lc-table__champion-icon" aria-label="Season champion" />
+                  )}
                 </td>
                 {keys.map((k) => <td key={k}>{row.stats?.[k] ?? '-'}</td>)}
               </tr>
@@ -174,6 +177,8 @@ function FixturesSection({ fixtures }) {
 }
 
 function LeagueCard({ league, standings, recentResults, upcomingFixtures }) {
+  const seasonComplete = !upcomingFixtures?.length && !!recentResults?.length;
+
   return (
     <article className={`league-card league-card--${league.toLowerCase()}`}>
       <header className="league-card__header">
@@ -181,7 +186,7 @@ function LeagueCard({ league, standings, recentResults, upcomingFixtures }) {
         <h2 className="league-card__title">{league}</h2>
       </header>
       <div className="lc-grid">
-        <StandingsSection league={league} standings={standings} />
+        <StandingsSection league={league} standings={standings} seasonComplete={seasonComplete} />
         <ResultsSection results={recentResults} />
         <FixturesSection fixtures={upcomingFixtures} />
       </div>

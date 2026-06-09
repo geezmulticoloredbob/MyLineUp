@@ -1071,6 +1071,11 @@ p {
   flex-shrink: 0;
 }
 
+.lc-table__champion-icon {
+  flex-shrink: 0;
+  color: #f0b429;
+}
+
 /* Results / fixtures list */
 .lc-games {
   list-style: none;
