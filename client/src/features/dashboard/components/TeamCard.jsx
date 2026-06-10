@@ -4,27 +4,45 @@ import { BarChart3, CalendarDays, WifiOff } from 'lucide-react';
 function SportIcon({ league }) {
   if (league === 'NBA') {
     return (
-      <svg className="team-card__sport-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M10 1v18M1 10h18" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M4 3.5C6.5 6 7.5 8 7.5 10s-1 4-3.5 6.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
-        <path d="M16 3.5C13.5 6 12.5 8 12.5 10s1 4 3.5 6.5" stroke="currentColor" strokeWidth="1.2" fill="none" />
+      <svg className="team-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        {/* Orange basketball with seam lines */}
+        <circle cx="10" cy="10" r="9" fill="#e87722" />
+        <path d="M1 10h18M10 1v18" stroke="#7a2e00" strokeWidth="1" fill="none" />
+        <path d="M6,1.94 Q2.2,10 6,18.06" stroke="#7a2e00" strokeWidth="1" fill="none" />
+        <path d="M14,1.94 Q17.8,10 14,18.06" stroke="#7a2e00" strokeWidth="1" fill="none" />
+        <circle cx="10" cy="10" r="9" fill="none" stroke="#7a2e00" strokeWidth="0.8" />
       </svg>
     );
   }
   if (league === 'EPL') {
     return (
-      <svg className="team-card__sport-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
-        <polygon points="10,6 11.5,9 15,9 12.5,11 13.5,14.5 10,12.5 6.5,14.5 7.5,11 5,9 8.5,9" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinejoin="round" />
+      <svg className="team-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        {/* White soccer ball with classic black pentagon patches */}
+        <circle cx="10" cy="10" r="9" fill="#f0f0f0" />
+        {/* Centre pentagon */}
+        <polygon points="10,6.8 12.1,8.4 11.3,10.9 8.7,10.9 7.9,8.4" fill="#111" />
+        {/* 5 outer patches at ball edge */}
+        <polygon points="10,1.2 11.2,3.2 8.8,3.2" fill="#111" />
+        <polygon points="17.4,6.4 15.6,7.2 15.2,5.2" fill="#111" />
+        <polygon points="16.2,15.2 14.2,14.6 15.4,12.8" fill="#111" />
+        <polygon points="3.8,15.2 5.8,14.6 4.6,12.8" fill="#111" />
+        <polygon points="2.6,6.4 4.4,7.2 4.8,5.2" fill="#111" />
+        <circle cx="10" cy="10" r="9" fill="none" stroke="#555" strokeWidth="0.8" />
       </svg>
     );
   }
   if (league === 'AFL') {
     return (
-      <svg className="team-card__sport-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <ellipse cx="10" cy="10" rx="4" ry="9" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M1.5 10h17M3 5.5C5.5 7 7 8.4 7 10s-1.5 3-3.5 4.5M17 5.5C14.5 7 13 8.4 13 10s1.5 3 3.5 4.5" stroke="currentColor" strokeWidth="1.2" />
+      <svg className="team-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        {/* Brown AFL Sherrin with white lace */}
+        <ellipse cx="10" cy="10" rx="5.5" ry="9" fill="#8B2500" />
+        {/* Lace stitching */}
+        <line x1="10" y1="6" x2="10" y2="14" stroke="#fff" strokeWidth="1.2" />
+        <line x1="7.8" y1="7.2" x2="12.2" y2="7.2" stroke="#fff" strokeWidth="0.8" strokeDasharray="1.2,0.8" />
+        <line x1="7.4" y1="9" x2="12.6" y2="9" stroke="#fff" strokeWidth="0.8" strokeDasharray="1.2,0.8" />
+        <line x1="7.4" y1="10.8" x2="12.6" y2="10.8" stroke="#fff" strokeWidth="0.8" strokeDasharray="1.2,0.8" />
+        <line x1="7.8" y1="12.6" x2="12.2" y2="12.6" stroke="#fff" strokeWidth="0.8" strokeDasharray="1.2,0.8" />
+        <ellipse cx="10" cy="10" rx="5.5" ry="9" fill="none" stroke="#5a1800" strokeWidth="0.8" />
       </svg>
     );
   }
