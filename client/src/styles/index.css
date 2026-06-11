@@ -974,14 +974,11 @@ p {
 }
 
 .league-card__sport-icon {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
-
-.league-card--nba .league-card__sport-icon { color: #c9510c; }
-.league-card--epl .league-card__sport-icon { color: #5b2d8e; }
-.league-card--afl .league-card__sport-icon { color: #003087; }
 
 .league-card__title {
   font-family: var(--font-heading);
