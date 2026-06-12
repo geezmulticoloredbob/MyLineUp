@@ -51,6 +51,21 @@ let _standingsCache = null;
 let _standingsCachedAt = 0;
 const STANDINGS_TTL_MS = 5 * 60 * 1000;
 
+// --- Scorers cache with 1-hour TTL ---
+let _scorersCache = null;
+let _scorersCachedAt = 0;
+const SCORERS_TTL_MS = 60 * 60 * 1000;
+
+async function getPLScorers() {
+  if (_scorersCache && Date.now() - _scorersCachedAt < SCORERS_TTL_MS) return _scorersCache;
+  const res = await fdFetch('/competitions/PL/scorers?limit=50');
+  if (!res.ok) throw new Error(`football-data.org /scorers failed: ${res.status}`);
+  const { scorers } = await res.json();
+  _scorersCache = scorers || [];
+  _scorersCachedAt = Date.now();
+  return _scorersCache;
+}
+
 async function getPLStandings() {
   if (_standingsCache && Date.now() - _standingsCachedAt < STANDINGS_TTL_MS) {
     return _standingsCache;
@@ -65,7 +80,11 @@ async function getPLStandings() {
 }
 
 async function getEPLTeamData(favourite) {
-  const [allTeams, standings] = await Promise.all([getPLTeams(), getPLStandings()]);
+  const [allTeams, standings, allScorers] = await Promise.all([
+    getPLTeams(),
+    getPLStandings(),
+    getPLScorers().catch(() => []),
+  ]);
 
   const fdTeam = findFDTeam(allTeams, favourite.teamName);
   if (!fdTeam) {
@@ -144,7 +163,13 @@ async function getEPLTeamData(favourite) {
       }
     : {};
 
-  return { latestResult, nextFixture, ladderPosition, stats, logoUrl: fdTeam.crest || null };
+  const topScorers = allScorers
+    .filter((s) => s.team?.id === fdTeam.id)
+    .sort((a, b) => (b.goals || 0) - (a.goals || 0))
+    .slice(0, 2)
+    .map((s) => ({ name: s.player.name, stat: `${s.goals} goals` }));
+
+  return { latestResult, nextFixture, ladderPosition, stats, logoUrl: fdTeam.crest || null, topScorers };
 }
 
 async function getEPLStandings() {

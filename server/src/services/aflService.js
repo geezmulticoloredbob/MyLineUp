@@ -70,6 +70,9 @@ let _standingsCache = null;
 let _standingsCachedAt = 0;
 let _gamesCache = null;
 let _gamesCachedAt = 0;
+let _playerStatsCache = null;
+let _playerStatsCachedAt = 0;
+const PLAYER_STATS_TTL_MS = 60 * 60 * 1000;
 
 async function getCachedStandings() {
   if (_standingsCache && Date.now() - _standingsCachedAt < TTL_MS) return _standingsCache;
@@ -97,15 +100,29 @@ async function getCachedGames() {
   return _gamesCache;
 }
 
+async function getCachedPlayerStats() {
+  if (_playerStatsCache && Date.now() - _playerStatsCachedAt < PLAYER_STATS_TTL_MS) return _playerStatsCache;
+  const year = new Date().getFullYear();
+  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=playerstats&year=${year}`, {
+    headers: { 'User-Agent': USER_AGENT },
+  });
+  if (!res.ok) throw new Error(`Squiggle player stats failed: ${res.status}`);
+  const { playerstats } = await res.json();
+  _playerStatsCache = playerstats || [];
+  _playerStatsCachedAt = Date.now();
+  return _playerStatsCache;
+}
+
 async function getAFLTeamData(favourite) {
   const squiggleName = SQUIGGLE_NAME_MAP[favourite.teamName];
   if (!squiggleName) return null;
 
   const now = new Date();
 
-  const [allGames, standings] = await Promise.all([
+  const [allGames, standings, playerStats] = await Promise.all([
     getCachedGames(),
     getCachedStandings(),
+    getCachedPlayerStats().catch(() => []),
   ]);
 
   const teamGames = allGames.filter(
@@ -158,8 +175,18 @@ async function getAFLTeamData(favourite) {
     ? { wins: standing.wins, losses: standing.losses, points: standing.pts }
     : {};
 
+  const goalsByPlayer = new Map();
+  for (const row of playerStats) {
+    if (row.team !== squiggleName) continue;
+    goalsByPlayer.set(row.player, (goalsByPlayer.get(row.player) || 0) + (row.goals || 0));
+  }
+  const topScorers = [...goalsByPlayer.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([name, goals]) => ({ name, stat: `${goals} goals` }));
+
   const logoUrl = AFL_ESPN_LOGOS[squiggleName] ?? null;
-  return { latestResult, nextFixture, ladderPosition, stats, logoUrl };
+  return { latestResult, nextFixture, ladderPosition, stats, logoUrl, topScorers };
 }
 
 async function getAFLStandings() {

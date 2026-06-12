@@ -102,6 +102,33 @@ function toDateStr(d) {
   return d.toISOString().split('T')[0];
 }
 
+const _nbaPlayersCache = new Map();
+const NBA_PLAYERS_TTL = 24 * 60 * 60 * 1000;
+const _nbaAvgsCache = new Map();
+const NBA_AVGS_TTL = 60 * 60 * 1000;
+
+async function getBDLPlayers(teamId) {
+  const cached = _nbaPlayersCache.get(teamId);
+  if (cached && Date.now() - cached.at < NBA_PLAYERS_TTL) return cached.data;
+  const res = await bdlFetch(`/players?team_ids[]=${teamId}&per_page=100`);
+  if (!res.ok) throw new Error(`BDL players failed: ${res.status}`);
+  const { data } = await res.json();
+  _nbaPlayersCache.set(teamId, { data: data || [], at: Date.now() });
+  return data || [];
+}
+
+async function getBDLSeasonAvgs(teamId, playerIds) {
+  const cached = _nbaAvgsCache.get(teamId);
+  if (cached && Date.now() - cached.at < NBA_AVGS_TTL) return cached.data;
+  const season = new Date().getFullYear() - (new Date().getMonth() < 9 ? 1 : 0);
+  const qs = playerIds.slice(0, 50).map((id) => `player_ids[]=${id}`).join('&');
+  const res = await bdlFetch(`/season_averages?season=${season}&${qs}`);
+  if (!res.ok) throw new Error(`BDL season avgs failed: ${res.status}`);
+  const { data } = await res.json();
+  _nbaAvgsCache.set(teamId, { data: data || [], at: Date.now() });
+  return data || [];
+}
+
 async function getNBATeamData(favourite) {
   const abbr = favourite.teamId.replace('nba-', '').toUpperCase();
   const teams = await getBDLTeams();
@@ -169,12 +196,22 @@ async function getNBATeamData(favourite) {
     ? { wins: standing.wins, losses: standing.losses }
     : {};
 
+  const players = await getBDLPlayers(bdlTeam.id).catch(() => []);
+  const playerIds = players.map((p) => p.id);
+  const avgs = playerIds.length ? await getBDLSeasonAvgs(bdlTeam.id, playerIds).catch(() => []) : [];
+  const nameById = new Map(players.map((p) => [p.id, `${p.first_name} ${p.last_name}`]));
+  const topScorers = avgs
+    .sort((a, b) => (b.pts || 0) - (a.pts || 0))
+    .slice(0, 2)
+    .map((a) => ({ name: nameById.get(a.player_id) || 'Unknown', stat: `${Number(a.pts).toFixed(1)} pts/g` }));
+
   return {
     latestResult,
     nextFixture,
     ladderPosition,
     stats,
     logoUrl: getNBALogoUrl(bdlTeam.abbreviation),
+    topScorers,
   };
 }
 

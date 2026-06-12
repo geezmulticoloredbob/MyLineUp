@@ -40,6 +40,7 @@ async function hydrateTeam(favourite) {
     nextFixture: sportData?.nextFixture ?? null,
     ladderPosition: sportData?.ladderPosition ?? null,
     stats: sportData?.stats ?? {},
+    topScorers: sportData?.topScorers ?? [],
     dataAvailable: sportData !== null,
     source: sportData ? 'live' : 'unavailable',
   };

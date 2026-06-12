@@ -1,5 +1,5 @@
 import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
-import { BarChart3, CalendarDays, WifiOff } from 'lucide-react';
+import { BarChart3, CalendarDays, Star, WifiOff } from 'lucide-react';
 
 function SportIcon({ league }) {
   if (league === 'NBA') {
@@ -159,6 +159,27 @@ function StatsPanel({ stats }) {
   );
 }
 
+function TopScorersPanel({ scorers }) {
+  if (!scorers?.length) return null;
+
+  return (
+    <section className="team-card__section">
+      <h3 className="team-card__section-title">
+        <Star size={14} strokeWidth={2} />
+        Top Scorers
+      </h3>
+      <ul className="team-card__scorers">
+        {scorers.map((s) => (
+          <li key={s.name}>
+            <span>{s.name}</span>
+            <strong>{s.stat}</strong>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function SkeletonCard() {
   return (
     <article className="team-card team-card--skeleton">
@@ -210,6 +231,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         source={team.source}
       />
       <MatchesSection team={team} />
+      <TopScorersPanel scorers={team.topScorers} />
       <StatsPanel stats={team.stats} />
     </article>
   );
