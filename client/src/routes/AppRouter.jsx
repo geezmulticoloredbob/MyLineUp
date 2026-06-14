@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '../contexts/AuthContext';
 import { FavouritesProvider } from '../contexts/FavouritesContext';
+import { ThemeProvider } from '../contexts/ThemeContext';
 import ProtectedRoute from '../components/common/ProtectedRoute';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import AppShell from '../layouts/AppShell';
@@ -13,6 +14,7 @@ function AppRouter() {
   return (
     <BrowserRouter>
       <ErrorBoundary>
+      <ThemeProvider>
       <AuthProvider>
         <FavouritesProvider>
           <Routes>
@@ -41,6 +43,7 @@ function AppRouter() {
           </Routes>
         </FavouritesProvider>
       </AuthProvider>
+      </ThemeProvider>
       </ErrorBoundary>
     </BrowserRouter>
   );
