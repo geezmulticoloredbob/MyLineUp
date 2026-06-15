@@ -62,8 +62,9 @@ function HomePage() {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
+    const controller = new AbortController();
     setStatus('loading');
-    apiClient('/api/dashboard')
+    apiClient('/api/dashboard', { signal: controller.signal })
       .then(({ teams, leagueOverviews }) => {
         setTeams(teams);
         setLeagueOverviews(leagueOverviews || []);
@@ -73,7 +74,8 @@ function HomePage() {
           .map(({ teamName, teamLogoUrl, league }) => ({ teamName, teamLogoUrl, league }));
         localStorage.setItem('mylineup_bg_teams', JSON.stringify(bgTeams));
       })
-      .catch(() => setStatus('error'));
+      .catch((err) => { if (err.name !== 'AbortError') setStatus('error'); });
+    return () => controller.abort();
   }, [refreshTick, retryCount]);
 
   if (status === 'loading') {

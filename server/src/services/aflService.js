@@ -26,12 +26,23 @@ const SQUIGGLE_NAME_MAP = {
   'Western Bulldogs': 'Western Bulldogs',
 };
 
+// DST starts 1st Sunday of October, ends 1st Sunday of April
+function isAEDT(year, month, day) {
+  const octDay1 = new Date(year, 9, 1).getDay();
+  const dstStart = 1 + (7 - octDay1) % 7; // 1st Sunday of October
+  const aprDay1 = new Date(year, 3, 1).getDay();
+  const dstEnd = 1 + (7 - aprDay1) % 7;   // 1st Sunday of April
+  if (month === 10) return day >= dstStart;
+  if (month === 4) return day < dstEnd;
+  return month > 10 || month < 4;
+}
+
 // Squiggle times are in AEST/AEDT (Australia/Sydney). Convert to UTC ISO.
 function aflDateToUtc(dateStr) {
   if (!dateStr || !dateStr.includes(' ')) return null;
-  const month = parseInt(dateStr.substring(5, 7));
-  // Oct–Mar: AEDT (UTC+11); Apr–Sep: AEST (UTC+10)
-  const offset = month >= 10 || month <= 3 ? '+11:00' : '+10:00';
+  const [datePart] = dateStr.split(' ');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const offset = isAEDT(year, month, day) ? '+11:00' : '+10:00';
   return new Date(dateStr.replace(' ', 'T') + offset).toISOString();
 }
 

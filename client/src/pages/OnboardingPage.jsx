@@ -17,6 +17,7 @@ function OnboardingPage() {
   const [selectedTeams, setSelectedTeams] = useState({});
   const [followedLeagues, setFollowedLeagues] = useState(new Set());
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -49,6 +50,7 @@ function OnboardingPage() {
 
   async function handleFinish() {
     setSaving(true);
+    setSaveError(null);
     try {
       const saves = Object.values(selectedTeams).map((t) => saveFavouriteTeam(t));
       const leagueUpdate = updateFollowedLeagues([...followedLeagues]);
@@ -57,8 +59,8 @@ function OnboardingPage() {
       updateUser({ onboardingComplete: true, followedLeagues: [...followedLeagues] });
       navigate('/');
     } catch {
-      // Non-fatal — still proceed to dashboard
-      navigate('/');
+      setSaving(false);
+      setSaveError('Could not save your selections. Please try again.');
     }
   }
 
@@ -129,6 +131,7 @@ function OnboardingPage() {
           })}
         </ul>
 
+        {saveError && <p className="auth-form__error">{saveError}</p>}
         <div className="onboarding-footer">
           <button className="btn-secondary" onClick={handleSkip} disabled={saving}>
             Skip for now

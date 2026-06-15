@@ -39,6 +39,17 @@ const NBA_HOME_TIMEZONES = {
   'San Antonio Spurs': 'America/Chicago',
 };
 
+// DST starts 2nd Sunday of March, ends 1st Sunday of November
+function isEDT(year, month, day) {
+  const marchDay1 = new Date(year, 2, 1).getDay();
+  const dstStart = 1 + (7 - marchDay1) % 7 + 7; // 2nd Sunday of March
+  const novDay1 = new Date(year, 10, 1).getDay();
+  const dstEnd = 1 + (7 - novDay1) % 7;          // 1st Sunday of November
+  if (month === 3) return day >= dstStart;
+  if (month === 11) return day < dstEnd;
+  return month > 3 && month < 11;
+}
+
 // Parse "7:00 pm ET" + BDL date string into a UTC ISO string
 function parseNBAGameTime(dateStr, statusStr) {
   if (!statusStr || statusStr === 'Final') return null;
@@ -51,8 +62,7 @@ function parseNBAGameTime(dateStr, statusStr) {
   if (ampm === 'am' && hours === 12) hours = 0;
   const dateOnly = dateStr.split('T')[0];
   const [year, month, day] = dateOnly.split('-').map(Number);
-  // EDT (UTC-4): Mar-Nov; EST (UTC-5): Dec-Feb
-  const etOffset = month >= 3 && month <= 11 ? 4 : 5;
+  const etOffset = isEDT(year, month, day) ? 4 : 5;
   return new Date(Date.UTC(year, month - 1, day, hours + etOffset, minutes)).toISOString();
 }
 
@@ -147,6 +157,8 @@ async function getNBATeamData(favourite) {
     getBDLStandings().catch(() => null),
   ]);
 
+  if (!pastRes.ok) throw new Error(`BDL games fetch failed: ${pastRes.status}`);
+  if (!futureRes.ok) throw new Error(`BDL games fetch failed: ${futureRes.status}`);
   const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
     pastRes.json(),
     futureRes.json(),
@@ -238,6 +250,8 @@ async function getNBALeagueGames() {
     bdlFetch(`/games?start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=15`),
     bdlFetch(`/games?start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=15`),
   ]);
+  if (!pastRes.ok) throw new Error(`BDL league games fetch failed: ${pastRes.status}`);
+  if (!futureRes.ok) throw new Error(`BDL league games fetch failed: ${futureRes.status}`);
   const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
     pastRes.json(),
     futureRes.json(),

@@ -103,6 +103,8 @@ async function getEPLTeamData(favourite) {
     fdFetch(`/teams/${fdTeam.id}/matches?competitions=PL&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
   ]);
 
+  if (!finishedRes.ok) throw new Error(`football-data.org team matches fetch failed: ${finishedRes.status}`);
+  if (!scheduledRes.ok) throw new Error(`football-data.org team matches fetch failed: ${scheduledRes.status}`);
   const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
     finishedRes.json(),
     scheduledRes.json(),
@@ -196,6 +198,8 @@ async function getEPLLeagueGames() {
     fdFetch(`/competitions/PL/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
     fdFetch(`/competitions/PL/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
   ]);
+  if (!finishedRes.ok) throw new Error(`football-data.org league matches fetch failed: ${finishedRes.status}`);
+  if (!scheduledRes.ok) throw new Error(`football-data.org league matches fetch failed: ${scheduledRes.status}`);
   const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
     finishedRes.json(),
     scheduledRes.json(),

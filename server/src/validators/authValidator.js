@@ -1,7 +1,7 @@
 const ApiError = require('../utils/apiError');
 
 function validateEmail(email) {
-  return typeof email === 'string' && /\S+@\S+\.\S+/.test(email);
+  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 }
 
 function validateRegisterPayload(req, res, next) {

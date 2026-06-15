@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Favourite = require('../models/Favourite');
 const asyncHandler = require('../utils/asyncHandler');
+const ApiError = require('../utils/apiError');
 
 const getFavourites = asyncHandler(async (req, res) => {
   const favourites = await Favourite.find({ user: req.user._id }).sort({
@@ -34,14 +35,14 @@ const saveFavourite = asyncHandler(async (req, res) => {
     }
   );
 
-  res.status(201).json({ favourite });
+  res.json({ favourite });
 });
 
 const deleteFavourite = asyncHandler(async (req, res) => {
   const { favouriteId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(favouriteId)) {
-    return res.status(404).json({ message: 'Favourite not found' });
+    throw new ApiError(404, 'Favourite not found');
   }
 
   const favourite = await Favourite.findOneAndDelete({
@@ -50,7 +51,7 @@ const deleteFavourite = asyncHandler(async (req, res) => {
   });
 
   if (!favourite) {
-    return res.status(404).json({ message: 'Favourite not found' });
+    throw new ApiError(404, 'Favourite not found');
   }
 
   res.json({ message: 'Favourite removed' });
