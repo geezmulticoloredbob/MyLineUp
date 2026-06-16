@@ -4,6 +4,29 @@ const { getEPLTeamData } = require('./footballService');
 
 const NBA_ESPN_OVERRIDES = { gsw: 'gs', nop: 'no', nyk: 'ny', sas: 'sa', uta: 'utah', was: 'wsh' };
 
+const EPL_ESPN_IDS = {
+  'epl-ars': 359,
+  'epl-avl': 362,
+  'epl-bou': 349,
+  'epl-bre': 337,
+  'epl-bha': 331,
+  'epl-che': 363,
+  'epl-cry': 384,
+  'epl-eve': 368,
+  'epl-ful': 370,
+  'epl-ips': 373,
+  'epl-lei': 375,
+  'epl-liv': 364,
+  'epl-mci': 382,
+  'epl-mun': 360,
+  'epl-new': 361,
+  'epl-nfo': 393,
+  'epl-sou': 376,
+  'epl-tot': 367,
+  'epl-whu': 371,
+  'epl-wol': 380,
+};
+
 function espnLogoFromTeamId(teamId) {
   if (teamId.startsWith('nba-')) {
     const abbr = teamId.replace('nba-', '');
@@ -12,6 +35,10 @@ function espnLogoFromTeamId(teamId) {
   if (teamId.startsWith('afl-')) {
     const abbr = teamId.replace('afl-', '');
     return `https://a.espncdn.com/i/teamlogos/afl/500/${abbr}.png`;
+  }
+  if (teamId.startsWith('epl-')) {
+    const id = EPL_ESPN_IDS[teamId];
+    return id ? `https://a.espncdn.com/i/teamlogos/soccer/500/${id}.png` : null;
   }
   return null;
 }

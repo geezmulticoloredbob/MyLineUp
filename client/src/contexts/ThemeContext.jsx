@@ -6,11 +6,11 @@ export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(
     () => localStorage.getItem('mylineup_theme') || 'dark'
   );
-  const [bgLogoUrl, setBgLogoUrlState] = useState(
-    () => localStorage.getItem('mylineup_bg_logo') || null
+  const [bgTeamId, setBgTeamIdState] = useState(
+    () => localStorage.getItem('mylineup_bg_team') || null
   );
-  const [bgLogoName, setBgLogoNameState] = useState(
-    () => localStorage.getItem('mylineup_bg_logo_name') || null
+  const [bgTeamName, setBgTeamNameState] = useState(
+    () => localStorage.getItem('mylineup_bg_team_name') || null
   );
 
   useEffect(() => {
@@ -22,20 +22,20 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('mylineup_theme', t);
   }
 
-  function setBgLogo(url, name) {
-    setBgLogoUrlState(url || null);
-    setBgLogoNameState(name || null);
-    if (url) {
-      localStorage.setItem('mylineup_bg_logo', url);
-      localStorage.setItem('mylineup_bg_logo_name', name || '');
+  function setBgTeam(teamId, teamName) {
+    setBgTeamIdState(teamId || null);
+    setBgTeamNameState(teamName || null);
+    if (teamId) {
+      localStorage.setItem('mylineup_bg_team', teamId);
+      localStorage.setItem('mylineup_bg_team_name', teamName || '');
     } else {
-      localStorage.removeItem('mylineup_bg_logo');
-      localStorage.removeItem('mylineup_bg_logo_name');
+      localStorage.removeItem('mylineup_bg_team');
+      localStorage.removeItem('mylineup_bg_team_name');
     }
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, bgLogoUrl, bgLogoName, setBgLogo }}>
+    <ThemeContext.Provider value={{ theme, setTheme, bgTeamId, bgTeamName, setBgTeam }}>
       {children}
     </ThemeContext.Provider>
   );
