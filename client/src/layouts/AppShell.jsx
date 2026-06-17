@@ -5,26 +5,28 @@ import { Moon, Settings, Sun, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { teamColors } from '../data/teamColors';
 import FavouritesManager from '../features/favourites/components/FavouritesManager';
 
-const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23333'/%3E%3Ccircle cx='20' cy='15' r='6' fill='%23555'/%3E%3Cpath d='M8 36c0-6.627 5.373-12 12-12s12 5.373 12 12' fill='%23555'/%3E%3C/svg%3E";
-
 function BgOverlay() {
-  const { bgLogoUrl } = useTheme();
+  const { bgTeamId } = useTheme();
   const bgRoot = document.getElementById('bg-root');
-  if (!bgLogoUrl || !bgRoot) return null;
+  const colors = bgTeamId ? teamColors[bgTeamId] : null;
+  if (!colors || !bgRoot) return null;
   return createPortal(
     <div
       className="bg-overlay"
-      style={{ backgroundImage: `url(${bgLogoUrl})` }}
+      style={{
+        background: `radial-gradient(ellipse at 70% 10%, ${colors.primary} 0%, ${colors.secondary} 50%, transparent 72%)`,
+      }}
       aria-hidden="true"
     />,
     bgRoot
   );
 }
 
-function SettingsPanel({ onClose }) {
-  const { theme, setTheme, bgLogoUrl, setBgLogo } = useTheme();
+function SettingsPanel() {
+  const { theme, setTheme, bgTeamId, setBgTeam } = useTheme();
 
   const savedTeams = (() => {
     try { return JSON.parse(localStorage.getItem('mylineup_bg_teams') || '[]'); }
@@ -58,28 +60,33 @@ function SettingsPanel({ onClose }) {
         <div className="settings-panel__bg-grid">
           <button
             type="button"
-            className={`settings-bg__item settings-bg__item--none${!bgLogoUrl ? ' settings-bg__item--active' : ''}`}
-            onClick={() => setBgLogo(null, null)}
+            className={`settings-bg__item settings-bg__item--none${!bgTeamId ? ' settings-bg__item--active' : ''}`}
+            onClick={() => setBgTeam(null, null)}
             title="No background"
           >
             <X size={14} />
           </button>
-          {savedTeams.map((team) => (
-            <button
-              key={team.teamName}
-              type="button"
-              className={`settings-bg__item${bgLogoUrl === team.teamLogoUrl ? ' settings-bg__item--active' : ''}`}
-              onClick={() => setBgLogo(team.teamLogoUrl, team.teamName)}
-              title={team.teamName}
-            >
-              <img
-                src={team.teamLogoUrl || LOGO_FALLBACK}
-                alt={team.teamName}
-                width={28}
-                height={28}
-              />
-            </button>
-          ))}
+          {savedTeams.map((team) => {
+            const colors = teamColors[team.teamId];
+            return (
+              <button
+                key={team.teamId}
+                type="button"
+                className={`settings-bg__item${bgTeamId === team.teamId ? ' settings-bg__item--active' : ''}`}
+                onClick={() => setBgTeam(team.teamId, team.teamName)}
+                title={team.teamName}
+              >
+                <div
+                  className="settings-bg__swatch"
+                  style={{
+                    background: colors
+                      ? `linear-gradient(135deg, ${colors.primary} 50%, ${colors.secondary} 50%)`
+                      : '#333',
+                  }}
+                />
+              </button>
+            );
+          })}
           {savedTeams.length === 0 && (
             <p className="settings-bg__empty">Load the dashboard to see your teams</p>
           )}
@@ -132,7 +139,7 @@ function AppShell({ children }) {
             >
               <Settings size={16} strokeWidth={2} />
             </button>
-            {settingsOpen && <SettingsPanel onClose={() => setSettingsOpen(false)} />}
+            {settingsOpen && <SettingsPanel />}
           </div>
           <button type="button" className="btn-secondary" onClick={handleLogout}>
             Log out

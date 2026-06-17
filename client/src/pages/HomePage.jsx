@@ -69,9 +69,7 @@ function HomePage() {
         setTeams(teams);
         setLeagueOverviews(leagueOverviews || []);
         setStatus(teams.length === 0 && (leagueOverviews?.length ?? 0) === 0 ? 'empty' : 'ready');
-        const bgTeams = teams
-          .filter((t) => t.teamLogoUrl)
-          .map(({ teamName, teamLogoUrl, league }) => ({ teamName, teamLogoUrl, league }));
+        const bgTeams = teams.map(({ teamName, teamId, league }) => ({ teamName, teamId, league }));
         localStorage.setItem('mylineup_bg_teams', JSON.stringify(bgTeams));
       })
       .catch((err) => { if (err.name !== 'AbortError') setStatus('error'); });
