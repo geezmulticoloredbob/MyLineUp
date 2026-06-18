@@ -11,30 +11,45 @@ import GamesFeed from '../features/dashboard/components/GamesFeed';
 
 const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23333'/%3E%3Ccircle cx='20' cy='15' r='6' fill='%23555'/%3E%3Cpath d='M8 36c0-6.627 5.373-12 12-12s12 5.373 12 12' fill='%23555'/%3E%3C/svg%3E";
 
+const LEAGUE_ORDER = ['NBA', 'EPL', 'AFL'];
+
 function TeamLogoStrip({ teams }) {
   function scrollToTeam(favouriteId) {
     document.getElementById(`team-${favouriteId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  const grouped = LEAGUE_ORDER.reduce((acc, league) => {
+    const leagueTeams = teams.filter((t) => t.league === league);
+    if (leagueTeams.length) acc[league] = leagueTeams;
+    return acc;
+  }, {});
+
   return (
     <div className="team-strip">
-      {teams.map((team) => (
-        <button
-          key={team.favouriteId}
-          type="button"
-          className={`team-strip__item team-strip__item--${team.league.toLowerCase()}`}
-          onClick={() => scrollToTeam(team.favouriteId)}
-          title={team.teamName}
-        >
-          <img
-            className="team-strip__logo"
-            src={team.teamLogoUrl || LOGO_FALLBACK}
-            alt={team.teamName}
-            width={40}
-            height={40}
-          />
-          <span className="team-strip__name">{team.teamName}</span>
-        </button>
+      {Object.entries(grouped).map(([league, leagueTeams]) => (
+        <div key={league} className="team-strip__group">
+          <span className="team-strip__league-label">{league}</span>
+          <div className="team-strip__items">
+            {leagueTeams.map((team) => (
+              <button
+                key={team.favouriteId}
+                type="button"
+                className={`team-strip__item team-strip__item--${league.toLowerCase()}`}
+                onClick={() => scrollToTeam(team.favouriteId)}
+                title={team.teamName}
+              >
+                <img
+                  className="team-strip__logo"
+                  src={team.teamLogoUrl || LOGO_FALLBACK}
+                  alt={team.teamName}
+                  width={40}
+                  height={40}
+                />
+                <span className="team-strip__name">{team.teamName}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );
