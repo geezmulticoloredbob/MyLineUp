@@ -21,3 +21,10 @@ export function fetchCurrentUser() {
 export function logoutUser() {
   return apiClient('/api/auth/logout', { method: 'POST' });
 }
+
+export function updateUserIcon(iconId) {
+  return apiClient('/api/auth/icon', {
+    method: 'PATCH',
+    body: JSON.stringify({ iconId }),
+  });
+}

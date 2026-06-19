@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    iconId: {
+      type: String,
+      default: 'football',
+    },
   },
   {
     timestamps: true,

@@ -6,6 +6,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { teamColors } from '../data/teamColors';
+import { updateUserIcon } from '../features/auth/services/authApi';
+import { USER_ICONS, getIcon } from '../constants/userIcons';
 import FavouritesManager from '../features/favourites/components/FavouritesManager';
 
 function BgOverlay() {
@@ -96,12 +98,37 @@ function SettingsPanel() {
   );
 }
 
+function IconPickerPanel({ currentIconId, onSelect }) {
+  return (
+    <div className="settings-panel icon-picker-panel" role="dialog" aria-label="Choose icon">
+      <span className="settings-panel__label">Choose icon</span>
+      <div className="icon-picker__grid">
+        {USER_ICONS.map((icon) => (
+          <button
+            key={icon.id}
+            type="button"
+            className={`icon-picker__item${currentIconId === icon.id ? ' icon-picker__item--active' : ''}`}
+            onClick={() => onSelect(icon.id)}
+            title={icon.label}
+            aria-label={icon.label}
+            aria-pressed={currentIconId === icon.id}
+          >
+            {icon.emoji}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function AppShell({ children }) {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const { managerOpen, openManager, closeManager } = useFavouritesRefresh();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
   const settingsWrapRef = useRef(null);
+  const iconWrapRef = useRef(null);
 
   useEffect(() => {
     if (!settingsOpen) return;
@@ -114,10 +141,33 @@ function AppShell({ children }) {
     return () => document.removeEventListener('mousedown', handler);
   }, [settingsOpen]);
 
+  useEffect(() => {
+    if (!iconPickerOpen) return;
+    function handler(e) {
+      if (iconWrapRef.current && !iconWrapRef.current.contains(e.target)) {
+        setIconPickerOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [iconPickerOpen]);
+
   async function handleLogout() {
     await logout();
     navigate('/login');
   }
+
+  async function handleSelectIcon(iconId) {
+    setIconPickerOpen(false);
+    try {
+      const { user: updated } = await updateUserIcon(iconId);
+      updateUser({ iconId: updated.iconId });
+    } catch {
+      // best-effort
+    }
+  }
+
+  const userIcon = getIcon(user?.iconId);
 
   return (
     <div className="app-shell">
@@ -125,7 +175,29 @@ function AppShell({ children }) {
       <header className="app-shell__header">
         <span className="app-shell__wordmark">My<span className="app-shell__wordmark-accent">LineUp</span></span>
         <div className="app-shell__header-actions">
-          {user && <span className="app-shell__username">{user.username}</span>}
+          {user && (
+            <div className="user-identity">
+              <div className="settings-wrap" ref={iconWrapRef}>
+                <button
+                  type="button"
+                  className="user-avatar"
+                  onClick={() => setIconPickerOpen((o) => !o)}
+                  aria-label="Change icon"
+                  aria-expanded={iconPickerOpen}
+                  title="Change icon"
+                >
+                  {userIcon.emoji}
+                </button>
+                {iconPickerOpen && (
+                  <IconPickerPanel
+                    currentIconId={user.iconId ?? 'football'}
+                    onSelect={handleSelectIcon}
+                  />
+                )}
+              </div>
+              <span className="app-shell__username">{user.username}</span>
+            </div>
+          )}
           <button type="button" className="btn-secondary" onClick={openManager}>
             Manage Favourites
           </button>

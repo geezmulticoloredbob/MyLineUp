@@ -5,6 +5,8 @@ const ApiError = require('../utils/apiError');
 const { signToken } = require('../utils/jwt');
 const env = require('../config/env');
 
+const VALID_ICON_IDS = ['football', 'basketball', 'rugby', 'trophy', 'star', 'flame', 'crown', 'shield', 'dart', 'lightning'];
+
 const COOKIE_BASE = {
   httpOnly: true,
   secure: env.nodeEnv === 'production',
@@ -23,6 +25,7 @@ function userShape(user) {
     email: user.email,
     followedLeagues: user.followedLeagues ?? [],
     onboardingComplete: user.onboardingComplete ?? false,
+    iconId: user.iconId ?? 'football',
   };
 }
 
@@ -73,9 +76,19 @@ const getCurrentUser = asyncHandler(async (req, res) => {
   res.json({ user: userShape(req.user) });
 });
 
+const updateIcon = asyncHandler(async (req, res) => {
+  const { iconId } = req.body;
+  if (!iconId || !VALID_ICON_IDS.includes(iconId)) {
+    throw new ApiError(400, 'Invalid icon');
+  }
+  const user = await User.findByIdAndUpdate(req.user._id, { iconId }, { returnDocument: 'after' });
+  res.json({ user: userShape(user) });
+});
+
 module.exports = {
   register,
   login,
   logout,
   getCurrentUser,
+  updateIcon,
 };
