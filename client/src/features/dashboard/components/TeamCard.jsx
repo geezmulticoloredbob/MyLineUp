@@ -50,7 +50,16 @@ function SportIcon({ league }) {
   return null;
 }
 
-function CardBanner({ teamName, league, logoUrl, ladderPosition, source }) {
+function ordinal(n) {
+  if (n >= 11 && n <= 13) return `${n}th`;
+  const rem = n % 10;
+  if (rem === 1) return `${n}st`;
+  if (rem === 2) return `${n}nd`;
+  if (rem === 3) return `${n}rd`;
+  return `${n}th`;
+}
+
+function CardBanner({ teamName, league, logoUrl, ladderPosition, source, seasonFinished, isChampion }) {
   return (
     <div className="team-card__banner">
       {logoUrl && (
@@ -58,12 +67,16 @@ function CardBanner({ teamName, league, logoUrl, ladderPosition, source }) {
       )}
       <div className="team-card__banner-overlay" />
       <SportIcon league={league} />
-      {source === 'unavailable' && (
+      {seasonFinished ? (
+        <div className={`team-card__status-badge${isChampion ? ' team-card__status-badge--champions' : ' team-card__status-badge--finished'}`}>
+          {isChampion ? '🏆 Champions' : 'Season Finished'}
+        </div>
+      ) : source === 'unavailable' ? (
         <div className="team-card__status-badge" title="Sports data could not be loaded">
           <WifiOff size={10} />
           No live data
         </div>
-      )}
+      ) : null}
       <div className="team-card__banner-content">
         <img
           className="team-card__banner-logo"
@@ -74,7 +87,14 @@ function CardBanner({ teamName, league, logoUrl, ladderPosition, source }) {
         />
         <div className="team-card__banner-info">
           <h2 className="team-card__title">{teamName}</h2>
-          <p className="team-card__meta">{league}{ladderPosition != null ? ` · #${ladderPosition}` : ''}</p>
+          <p className="team-card__meta">
+            {league}
+            {ladderPosition != null
+              ? seasonFinished
+                ? ` · Final: ${ordinal(ladderPosition)}`
+                : ` · #${ladderPosition}`
+              : ''}
+          </p>
         </div>
       </div>
     </div>
@@ -223,14 +243,25 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
     return <article className="team-card team-card--state">No favourite teams yet.</article>;
   }
 
+  const seasonFinished = team.seasonFinished === true;
+  const isChampion = seasonFinished && team.ladderPosition === 1;
+
+  const cardClass = [
+    'team-card',
+    seasonFinished ? 'team-card--season-done' : '',
+    isChampion ? 'team-card--champions' : '',
+  ].filter(Boolean).join(' ');
+
   return (
-    <article className="team-card">
+    <article className={cardClass}>
       <CardBanner
         teamName={team.teamName || 'Unknown Team'}
         league={team.league || 'League'}
         logoUrl={team.teamLogoUrl}
         ladderPosition={team.ladderPosition}
         source={team.source}
+        seasonFinished={seasonFinished}
+        isChampion={isChampion}
       />
       <MatchesSection team={team} />
       <TopScorersPanel scorers={team.topScorers} />

@@ -196,8 +196,9 @@ async function getAFLTeamData(favourite) {
     .slice(0, 2)
     .map(([name, goals]) => ({ name, stat: `${goals} goals` }));
 
+  const seasonFinished = completed.length > 0 && upcoming.length === 0;
   const logoUrl = AFL_ESPN_LOGOS[squiggleName] ?? null;
-  return { latestResult, nextFixture, ladderPosition, stats, logoUrl, topScorers };
+  return { latestResult, nextFixture, ladderPosition, stats, logoUrl, topScorers, seasonFinished };
 }
 
 async function getAFLStandings() {

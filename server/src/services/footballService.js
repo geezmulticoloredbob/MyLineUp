@@ -171,7 +171,8 @@ async function getEPLTeamData(favourite) {
     .slice(0, 2)
     .map((s) => ({ name: s.player.name, stat: `${s.goals} goals` }));
 
-  return { latestResult, nextFixture, ladderPosition, stats, logoUrl: fdTeam.crest || null, topScorers };
+  const seasonFinished = (finished || []).length > 0 && (scheduled || []).length === 0;
+  return { latestResult, nextFixture, ladderPosition, stats, logoUrl: fdTeam.crest || null, topScorers, seasonFinished };
 }
 
 async function getEPLStandings() {

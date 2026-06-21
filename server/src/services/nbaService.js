@@ -208,6 +208,11 @@ async function getNBATeamData(favourite) {
     ? { wins: standing.wins, losses: standing.losses }
     : {};
 
+  // NBA season runs Oct–June; July–Sept is definitely off-season
+  const offSeasonMonth = new Date().getMonth() + 1;
+  const isNBAOffSeason = offSeasonMonth >= 7 && offSeasonMonth <= 9;
+  const seasonFinished = isNBAOffSeason || ((futureGames || []).length === 0 && finished.length > 0);
+
   const players = await getBDLPlayers(bdlTeam.id).catch(() => []);
   const playerIds = players.map((p) => p.id);
   const avgs = playerIds.length ? await getBDLSeasonAvgs(bdlTeam.id, playerIds).catch(() => []) : [];
@@ -224,6 +229,7 @@ async function getNBATeamData(favourite) {
     stats,
     logoUrl: getNBALogoUrl(bdlTeam.abbreviation),
     topScorers,
+    seasonFinished,
   };
 }
 

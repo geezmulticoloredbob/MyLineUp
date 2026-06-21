@@ -70,6 +70,7 @@ async function hydrateTeam(favourite) {
     topScorers: sportData?.topScorers ?? [],
     dataAvailable: sportData !== null,
     source: sportData ? 'live' : 'unavailable',
+    seasonFinished: sportData?.seasonFinished ?? false,
   };
 }
 
