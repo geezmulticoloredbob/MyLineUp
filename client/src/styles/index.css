@@ -564,6 +564,10 @@ p {
   gap: var(--space-xs);
 }
 
+.settings-panel__toggle--col {
+  flex-direction: column;
+}
+
 .settings-toggle__btn {
   flex: 1;
   display: flex;

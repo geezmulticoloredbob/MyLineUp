@@ -1,4 +1,5 @@
 import { formatGameTime } from './formatGameTime';
+import { formatDate } from './formatDate';
 
 function parseDate(dateValue) {
   if (!dateValue) {
@@ -10,7 +11,7 @@ function parseDate(dateValue) {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function getLatestResultPanel(team, windowDays = 30) {
+function getLatestResultPanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') {
   const date = parseDate(team?.latestResult?.date);
 
   if (!date) {
@@ -24,23 +25,24 @@ function getLatestResultPanel(team, windowDays = 30) {
   const now = new Date();
   const diffDays = (now - date) / (1000 * 60 * 60 * 24);
   const isWithinWindow = diffDays >= 0 && diffDays <= windowDays;
+  const dateStr = formatDate(team?.latestResult?.date, dateFormat);
 
   if (!isWithinWindow) {
     return {
       title: 'Last Result',
       content: `No result in the last ${windowDays} days.`,
-      meta: team?.latestResult?.date,
+      meta: dateStr,
     };
   }
 
   return {
     title: 'Last Result',
     content: `${team?.latestResult?.outcome || '-'} vs ${team?.latestResult?.opponent || 'TBD'} (${team?.latestResult?.score || 'TBD'})`,
-    meta: team?.latestResult?.date,
+    meta: dateStr,
   };
 }
 
-function getNextGamePanel(team, windowDays = 30) {
+function getNextGamePanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') {
   const date = parseDate(team?.nextFixture?.date);
 
   if (!date) {
@@ -54,19 +56,20 @@ function getNextGamePanel(team, windowDays = 30) {
   const now = new Date();
   const diffDays = (date - now) / (1000 * 60 * 60 * 24);
   const isWithinWindow = diffDays >= 0 && diffDays <= windowDays;
+  const dateStr = formatDate(team?.nextFixture?.date, dateFormat);
 
   if (!isWithinWindow) {
     return {
       title: 'Next Game',
       content: `No game in the next ${windowDays} days.`,
       meta: formatGameTime(team?.nextFixture?.utcDate, team?.nextFixture?.venueTimezone) ||
-        `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim(),
+        `${dateStr} ${team?.nextFixture?.time || ''}`.trim(),
     };
   }
 
   const timeStr =
     formatGameTime(team?.nextFixture?.utcDate, team?.nextFixture?.venueTimezone) ||
-    `${team?.nextFixture?.date || ''} ${team?.nextFixture?.time || ''}`.trim();
+    `${dateStr} ${team?.nextFixture?.time || ''}`.trim();
 
   return {
     title: 'Next Game',

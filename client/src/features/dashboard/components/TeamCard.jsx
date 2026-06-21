@@ -1,5 +1,6 @@
 import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
 import { BarChart3, CalendarDays, Star, WifiOff } from 'lucide-react';
+import { useTheme } from '../../../contexts/ThemeContext';
 
 function SportIcon({ league }) {
   if (league === 'NBA') {
@@ -107,8 +108,9 @@ function MatchPanel({ panel, tone = 'neutral' }) {
 }
 
 function MatchesSection({ team }) {
-  const latestPanel = getLatestResultPanel(team, 30);
-  const nextPanel = getNextGamePanel(team, 30);
+  const { dateFormat } = useTheme();
+  const latestPanel = getLatestResultPanel(team, 30, dateFormat);
+  const nextPanel = getNextGamePanel(team, 30, dateFormat);
   const resultTone =
     team?.latestResult?.outcome === 'W'
       ? 'positive'

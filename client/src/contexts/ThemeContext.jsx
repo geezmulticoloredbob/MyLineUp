@@ -12,6 +12,9 @@ export function ThemeProvider({ children }) {
   const [bgTeamName, setBgTeamNameState] = useState(
     () => localStorage.getItem('mylineup_bg_team_name') || null
   );
+  const [dateFormat, setDateFormatState] = useState(
+    () => localStorage.getItem('mylineup_date_format') || 'DD-MM-YYYY'
+  );
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -20,6 +23,11 @@ export function ThemeProvider({ children }) {
   function setTheme(t) {
     setThemeState(t);
     localStorage.setItem('mylineup_theme', t);
+  }
+
+  function setDateFormat(f) {
+    setDateFormatState(f);
+    localStorage.setItem('mylineup_date_format', f);
   }
 
   function setBgTeam(teamId, teamName) {
@@ -35,7 +43,7 @@ export function ThemeProvider({ children }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, bgTeamId, bgTeamName, setBgTeam }}>
+    <ThemeContext.Provider value={{ theme, setTheme, bgTeamId, bgTeamName, setBgTeam, dateFormat, setDateFormat }}>
       {children}
     </ThemeContext.Provider>
   );

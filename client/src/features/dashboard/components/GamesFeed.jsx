@@ -1,27 +1,30 @@
 import { CalendarDays } from 'lucide-react';
 import { formatGameTime } from '../utils/formatGameTime';
+import { formatDate } from '../utils/formatDate';
+import { useTheme } from '../../../contexts/ThemeContext';
 
-function getDateLabel(date) {
+function getDateLabel(date, dateFormat) {
   const today = new Date();
   const tomorrow = new Date();
   tomorrow.setDate(today.getDate() + 1);
   if (date.toDateString() === today.toDateString()) return 'Today';
   if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
-  return date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short' });
+  return formatDate(date, dateFormat);
 }
 
-function groupByDate(teams) {
+function groupByDate(teams, dateFormat) {
   const map = new Map();
   for (const team of teams) {
     const date = new Date(team.nextFixture.date + 'T00:00:00');
     const key = date.toDateString();
-    if (!map.has(key)) map.set(key, { label: getDateLabel(date), teams: [] });
+    if (!map.has(key)) map.set(key, { label: getDateLabel(date, dateFormat), teams: [] });
     map.get(key).teams.push(team);
   }
   return [...map.values()];
 }
 
 function GamesFeed({ teams }) {
+  const { dateFormat } = useTheme();
   const now = new Date();
 
   const upcoming = teams
@@ -33,7 +36,7 @@ function GamesFeed({ teams }) {
 
   if (!upcoming.length) return null;
 
-  const groups = groupByDate(upcoming);
+  const groups = groupByDate(upcoming, dateFormat);
 
   return (
     <section className="games-feed">

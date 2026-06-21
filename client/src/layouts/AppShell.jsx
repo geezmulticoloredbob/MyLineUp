@@ -27,8 +27,10 @@ function BgOverlay() {
   );
 }
 
+const DATE_FORMATS = ['DD-MM-YYYY', 'MM-DD-YYYY', 'YYYY-MM-DD'];
+
 function SettingsPanel() {
-  const { theme, setTheme, bgTeamId, setBgTeam } = useTheme();
+  const { theme, setTheme, bgTeamId, setBgTeam, dateFormat, setDateFormat } = useTheme();
 
   const savedTeams = (() => {
     try { return JSON.parse(localStorage.getItem('mylineup_bg_teams') || '[]'); }
@@ -54,6 +56,22 @@ function SettingsPanel() {
           >
             <Sun size={13} strokeWidth={2} /> Light
           </button>
+        </div>
+      </div>
+
+      <div className="settings-panel__section">
+        <span className="settings-panel__label">Date Format</span>
+        <div className="settings-panel__toggle settings-panel__toggle--col">
+          {DATE_FORMATS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              className={`settings-toggle__btn${dateFormat === f ? ' settings-toggle__btn--active' : ''}`}
+              onClick={() => setDateFormat(f)}
+            >
+              {f}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -214,7 +232,7 @@ function AppShell({ children }) {
             {settingsOpen && <SettingsPanel />}
           </div>
           <button type="button" className="btn-secondary" onClick={handleLogout}>
-            Log out
+            Log Out
           </button>
         </div>
       </header>

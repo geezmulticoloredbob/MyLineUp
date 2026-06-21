@@ -14,9 +14,10 @@ export function formatGameTime(utcDate, venueTimezone) {
       ...(includeTZName && { timeZoneName: 'short' }),
     });
 
-  const localTime = fmt(userTZ, false);
+  const toUpper = (s) => s.replace(/\b(am|pm)\b/gi, (m) => m.toUpperCase());
+  const localTime = toUpper(fmt(userTZ, false));
   if (!venueTimezone || userTZ === venueTimezone) return localTime;
 
-  const venueTime = fmt(venueTimezone, true);
+  const venueTime = toUpper(fmt(venueTimezone, true));
   return `${localTime} · ${venueTime}`;
 }
