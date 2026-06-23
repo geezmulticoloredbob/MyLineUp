@@ -17,7 +17,7 @@ function getLatestResultPanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') 
   if (!date) {
     return {
       title: 'Last Result',
-      content: 'No recent result available.',
+      content: 'No recent result available',
       meta: 'Date unavailable',
     };
   }
@@ -30,7 +30,7 @@ function getLatestResultPanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') 
   if (!isWithinWindow) {
     return {
       title: 'Last Result',
-      content: `No result in the last ${windowDays} days.`,
+      content: `No result in the last ${windowDays} days`,
       meta: dateStr,
     };
   }
@@ -48,7 +48,7 @@ function getNextGamePanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') {
   if (!date) {
     return {
       title: 'Next Game',
-      content: 'No upcoming fixture available.',
+      content: 'No upcoming fixture available',
       meta: 'Date unavailable',
     };
   }
@@ -61,7 +61,7 @@ function getNextGamePanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') {
   if (!isWithinWindow) {
     return {
       title: 'Next Game',
-      content: `No game in the next ${windowDays} days.`,
+      content: `No game in the next ${windowDays} days`,
       meta: formatGameTime(team?.nextFixture?.utcDate, team?.nextFixture?.venueTimezone) ||
         `${dateStr} ${team?.nextFixture?.time || ''}`.trim(),
     };

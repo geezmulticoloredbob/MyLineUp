@@ -414,12 +414,14 @@ p {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  text-align: center;
 }
 
 .team-card__section-title {
   font-family: var(--font-heading);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-xs);
   font-size: var(--text-small);
   text-transform: uppercase;
@@ -435,6 +437,7 @@ p {
 .team-card__score-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-xs);
 }
 

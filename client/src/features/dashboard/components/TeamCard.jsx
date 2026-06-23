@@ -158,7 +158,7 @@ function StatsPanel({ stats }) {
           <BarChart3 size={14} strokeWidth={2} />
           Basic Stats
         </h3>
-        <p className="team-card__meta">No stats available yet.</p>
+        <p className="team-card__meta">No stats available yet</p>
       </section>
     );
   }
@@ -234,13 +234,13 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
   if (status === 'error') {
     return (
       <article className="team-card team-card--state">
-        Could not load team data. {errorMessage || 'Please try again.'}
+        Could not load team data{errorMessage ? ` — ${errorMessage}` : ''}
       </article>
     );
   }
 
   if (!team || status === 'empty') {
-    return <article className="team-card team-card--state">No favourite teams yet.</article>;
+    return <article className="team-card team-card--state">No favourite teams yet</article>;
   }
 
   const seasonFinished = team.seasonFinished === true;
