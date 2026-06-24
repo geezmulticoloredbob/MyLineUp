@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+
+const DEFAULT_LEAGUE_ORDER = ['NBA', 'EPL', 'AFL'];
+
+function readJson(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+  catch { return fallback; }
+}
 
 const ThemeContext = createContext(null);
 
@@ -14,6 +21,12 @@ export function ThemeProvider({ children }) {
   );
   const [dateFormat, setDateFormatState] = useState(
     () => localStorage.getItem('mylineup_date_format') || 'DD-MM-YYYY'
+  );
+  const [leagueOrder, setLeagueOrderState] = useState(
+    () => readJson('mylineup_league_order', DEFAULT_LEAGUE_ORDER)
+  );
+  const [teamOrder, setTeamOrderState] = useState(
+    () => readJson('mylineup_team_order', [])
   );
 
   useEffect(() => {
