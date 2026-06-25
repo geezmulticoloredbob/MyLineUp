@@ -43,6 +43,19 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('mylineup_date_format', f);
   }
 
+  function setLeagueOrder(order) {
+    setLeagueOrderState(order);
+    localStorage.setItem('mylineup_league_order', JSON.stringify(order));
+  }
+
+  const setTeamOrder = useCallback((updater) => {
+    setTeamOrderState(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      localStorage.setItem('mylineup_team_order', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   function setBgTeam(teamId, teamName) {
     setBgTeamIdState(teamId || null);
     setBgTeamNameState(teamName || null);
@@ -56,7 +69,7 @@ export function ThemeProvider({ children }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, bgTeamId, bgTeamName, setBgTeam, dateFormat, setDateFormat }}>
+    <ThemeContext.Provider value={{ theme, setTheme, bgTeamId, bgTeamName, setBgTeam, dateFormat, setDateFormat, leagueOrder, setLeagueOrder, teamOrder, setTeamOrder }}>
       {children}
     </ThemeContext.Provider>
   );
