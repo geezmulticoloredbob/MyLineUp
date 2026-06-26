@@ -171,14 +171,31 @@ p {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  border-radius: var(--radius-button);
+  transition: outline-color var(--motion-fast);
+  outline: 2px solid transparent;
+}
+
+.team-strip__group--drag-over {
+  outline-color: var(--focus-ring);
 }
 
 .team-strip__league-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--text-caption);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-secondary);
+  cursor: grab;
+  user-select: none;
+}
+
+.team-strip__drag-icon {
+  opacity: 0.4;
+  flex-shrink: 0;
 }
 
 .team-strip__items {
@@ -198,9 +215,15 @@ p {
   border-radius: var(--radius-button);
   background: var(--surface-card);
   border: 1px solid var(--border-default);
-  cursor: pointer;
+  cursor: grab;
   color: inherit;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.15s, background 0.15s, opacity 0.15s;
+  user-select: none;
+}
+
+.team-strip__item--drag-over {
+  opacity: 0.5;
+  border-color: var(--focus-ring);
 }
 
 /* NBA — basketball orange */
