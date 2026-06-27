@@ -147,7 +147,7 @@ async function getNBATeamData(favourite) {
 
   const now = new Date();
   const past = new Date(now);
-  past.setDate(past.getDate() - 14);
+  past.setDate(past.getDate() - 60);   // 60 days covers teams eliminated mid-playoffs
   const future = new Date(now);
   future.setDate(future.getDate() + 14);
 
@@ -211,7 +211,10 @@ async function getNBATeamData(favourite) {
   // NBA season runs Oct–June; July–Sept is definitely off-season
   const offSeasonMonth = new Date().getMonth() + 1;
   const isNBAOffSeason = offSeasonMonth >= 7 && offSeasonMonth <= 9;
-  const seasonFinished = isNBAOffSeason || ((futureGames || []).length === 0 && finished.length > 0);
+  // Use standings wins+losses as the "has played this season" signal — more reliable than
+  // the windowed finished[] array (eliminated teams have no games in the past 60 days by Finals time)
+  const hasPlayedThisSeason = ((standing?.wins || 0) + (standing?.losses || 0)) > 0;
+  const seasonFinished = isNBAOffSeason || ((futureGames || []).length === 0 && hasPlayedThisSeason);
 
   const players = await getBDLPlayers(bdlTeam.id).catch(() => []);
   const playerIds = players.map((p) => p.id);

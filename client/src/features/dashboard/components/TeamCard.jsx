@@ -129,7 +129,9 @@ function MatchPanel({ panel, tone = 'neutral' }) {
 
 function MatchesSection({ team }) {
   const { dateFormat } = useTheme();
-  const latestPanel = getLatestResultPanel(team, 30, dateFormat);
+  // Finished seasons: show last result regardless of age; no future games exist anyway
+  const resultWindowDays = team?.seasonFinished ? 365 : 30;
+  const latestPanel = getLatestResultPanel(team, resultWindowDays, dateFormat);
   const nextPanel = getNextGamePanel(team, 30, dateFormat);
   const resultTone =
     team?.latestResult?.outcome === 'W'

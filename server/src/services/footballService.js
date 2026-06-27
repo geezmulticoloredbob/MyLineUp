@@ -94,7 +94,7 @@ async function getEPLTeamData(favourite) {
 
   const now = new Date();
   const past = new Date(now);
-  past.setDate(past.getDate() - 30);
+  past.setDate(past.getDate() - 90);   // 90 days covers the full off-season gap
   const future = new Date(now);
   future.setDate(future.getDate() + 30);
 
