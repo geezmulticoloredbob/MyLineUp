@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     followedLeagues: {
       type: [String],
-      enum: ['NBA', 'EPL', 'AFL'],
+      enum: ['NBA', 'EPL', 'AFL', 'WC'],
       default: [],
     },
     onboardingComplete: {

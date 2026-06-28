@@ -1,2 +1,2 @@
-module.exports = ['NBA', 'EPL', 'AFL'];
+module.exports = ['NBA', 'EPL', 'AFL', 'WC'];
 

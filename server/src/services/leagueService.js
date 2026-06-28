@@ -1,11 +1,13 @@
 const { getNBAStandings, getNBALeagueGames } = require('./nbaService');
 const { getAFLStandings, getAFLLeagueGames } = require('./aflService');
 const { getEPLStandings, getEPLLeagueGames } = require('./footballService');
+const { getWCStandings, getWCLeagueGames } = require('./worldCupService');
 
 function getLeagueFetchers(league) {
   if (league === 'NBA') return { standings: getNBAStandings, games: getNBALeagueGames };
   if (league === 'AFL') return { standings: getAFLStandings, games: getAFLLeagueGames };
   if (league === 'EPL') return { standings: getEPLStandings, games: getEPLLeagueGames };
+  if (league === 'WC') return { standings: getWCStandings, games: getWCLeagueGames };
   return null;
 }
 

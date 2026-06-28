@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
-import { SUPPORTED_LEAGUES } from '../../../constants/leagues';
+import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
 import { teamsByLeague } from '../../../data/teamsByLeague';
 import { useFavourites } from '../hooks/useFavourites';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -18,8 +18,8 @@ function LeaguesPanel({ followedLeagues, onToggle, busy }) {
         return (
           <li key={league} className="team-list__item">
             <div>
-              <span className="team-list__name">{league}</span>
-              <p className="team-list__sub">Show {league} standings &amp; fixtures on your dashboard</p>
+              <span className="team-list__name">{LEAGUE_DISPLAY_NAMES[league] || league}</span>
+              <p className="team-list__sub">Show {LEAGUE_DISPLAY_NAMES[league] || league} standings &amp; fixtures on your dashboard</p>
             </div>
             <button
               type="button"
@@ -128,7 +128,7 @@ function FavouritesManager({ onClose }) {
               className={`league-tab${activeTab === league ? ' league-tab--active' : ''}`}
               onClick={() => setActiveTab(league)}
             >
-              {league}
+              {LEAGUE_DISPLAY_NAMES[league] || league}
             </button>
           ))}
         </div>

@@ -1,6 +1,7 @@
 const { getNBATeamData } = require('./nbaService');
 const { getAFLTeamData } = require('./aflService');
 const { getEPLTeamData } = require('./footballService');
+const { getWCTeamData } = require('./worldCupService');
 
 const NBA_ESPN_OVERRIDES = { gsw: 'gs', nop: 'no', nyk: 'ny', sas: 'sa', uta: 'utah', was: 'wsh' };
 
@@ -40,6 +41,10 @@ function espnLogoFromTeamId(teamId) {
     const id = EPL_ESPN_IDS[teamId];
     return id ? `https://a.espncdn.com/i/teamlogos/soccer/500/${id}.png` : null;
   }
+  if (teamId.startsWith('wc-')) {
+    const code = teamId.replace('wc-', '');
+    return `https://a.espncdn.com/i/teamlogos/countries/500/${code}.png`;
+  }
   return null;
 }
 
@@ -52,6 +57,8 @@ async function hydrateTeam(favourite) {
       sportData = await getAFLTeamData(favourite);
     } else if (favourite.league === 'EPL') {
       sportData = await getEPLTeamData(favourite);
+    } else if (favourite.league === 'WC') {
+      sportData = await getWCTeamData(favourite);
     }
   } catch (err) {
     console.error(`Sports data error for ${favourite.teamName}:`, err.message);

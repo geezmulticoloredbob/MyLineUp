@@ -1,4 +1,5 @@
 import { CalendarDays, ClipboardList, Trophy } from 'lucide-react';
+import { LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
 
 function LeagueSportIcon({ league }) {
   if (league === 'NBA') {
@@ -23,6 +24,19 @@ function LeagueSportIcon({ league }) {
         <polygon points="3.8,15.2 5.8,14.6 4.6,12.8" fill="#111" />
         <polygon points="2.6,6.4 4.4,7.2 4.8,5.2" fill="#111" />
         <circle cx="10" cy="10" r="9" fill="none" stroke="#555" strokeWidth="0.8" />
+      </svg>
+    );
+  }
+  if (league === 'WC') {
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="10" cy="10" r="9" fill="#1a6fb5" />
+        <ellipse cx="10" cy="10" rx="4" ry="9" fill="none" stroke="#7ec8e3" strokeWidth="0.8" />
+        <ellipse cx="10" cy="10" rx="7" ry="9" fill="none" stroke="#7ec8e3" strokeWidth="0.5" />
+        <line x1="1" y1="10" x2="19" y2="10" stroke="#7ec8e3" strokeWidth="0.8" />
+        <line x1="2.5" y1="5.5" x2="17.5" y2="5.5" stroke="#7ec8e3" strokeWidth="0.5" />
+        <line x1="2.5" y1="14.5" x2="17.5" y2="14.5" stroke="#7ec8e3" strokeWidth="0.5" />
+        <circle cx="10" cy="10" r="9" fill="none" stroke="#0d4a8a" strokeWidth="0.8" />
       </svg>
     );
   }
@@ -66,6 +80,7 @@ const STANDINGS_STATS = {
   NBA: ['wins', 'losses'],
   EPL: ['played', 'points', 'gd'],
   AFL: ['wins', 'losses', 'percentage'],
+  WC: ['played', 'points', 'gd'],
 };
 
 const STAT_LABELS = {
@@ -195,7 +210,7 @@ function LeagueCard({ league, standings, recentResults, upcomingFixtures }) {
     <article className={`league-card league-card--${league.toLowerCase()}`}>
       <header className="league-card__header">
         <LeagueSportIcon league={league} />
-        <h2 className="league-card__title">{league}</h2>
+        <h2 className="league-card__title">{LEAGUE_DISPLAY_NAMES[league] || league}</h2>
       </header>
       <div className="lc-grid">
         <StandingsSection league={league} standings={standings} seasonComplete={seasonComplete} />

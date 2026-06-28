@@ -2,7 +2,7 @@ const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/apiError');
 
-const VALID_LEAGUES = ['NBA', 'EPL', 'AFL'];
+const VALID_LEAGUES = require('../constants/leagues');
 
 const getFollowedLeagues = asyncHandler(async (req, res) => {
   res.json({ followedLeagues: req.user.followedLeagues });
@@ -11,7 +11,7 @@ const getFollowedLeagues = asyncHandler(async (req, res) => {
 const updateFollowedLeagues = asyncHandler(async (req, res) => {
   const { leagues } = req.body;
   if (!Array.isArray(leagues) || leagues.some((l) => !VALID_LEAGUES.includes(l))) {
-    throw new ApiError(400, 'leagues must be an array of valid league codes (NBA, EPL, AFL)');
+    throw new ApiError(400, `leagues must be an array of valid league codes (${VALID_LEAGUES.join(', ')})`);
   }
   const deduped = [...new Set(leagues)];
   const user = await User.findByIdAndUpdate(

@@ -256,6 +256,16 @@ p {
   border-color: rgba(0, 90, 230, 0.85);
 }
 
+/* World Cup — FIFA blue */
+.team-strip__item--wc {
+  background: rgba(0, 40, 130, 0.35);
+  border-color: rgba(26, 111, 181, 0.5);
+}
+.team-strip__item--wc:hover {
+  background: rgba(0, 40, 130, 0.5);
+  border-color: rgba(26, 111, 181, 0.85);
+}
+
 .team-strip__logo {
   width: 40px;
   height: 40px;
@@ -1309,6 +1319,7 @@ p {
 .league-card--nba { border-top-color: #c9510c; }
 .league-card--epl { border-top-color: #5b2d8e; }
 .league-card--afl { border-top-color: #003087; }
+.league-card--wc  { border-top-color: #1a6fb5; }
 
 .league-card__header {
   display: flex;

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GripVertical } from 'lucide-react';
+import { LEAGUE_DISPLAY_NAMES } from '../constants/leagues';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -104,7 +105,7 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
         >
           <span className="team-strip__league-label">
             <GripVertical size={11} className="team-strip__drag-icon" aria-hidden="true" />
-            {league}
+            {LEAGUE_DISPLAY_NAMES[league] || league}
           </span>
           <div className="team-strip__items">
             {leagueTeams.map((team) => (
