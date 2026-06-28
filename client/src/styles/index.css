@@ -266,6 +266,46 @@ p {
   border-color: rgba(26, 111, 181, 0.85);
 }
 
+/* La Liga — red */
+.team-strip__item--laliga {
+  background: rgba(140, 10, 10, 0.3);
+  border-color: rgba(200, 20, 20, 0.45);
+}
+.team-strip__item--laliga:hover {
+  background: rgba(140, 10, 10, 0.45);
+  border-color: rgba(200, 20, 20, 0.8);
+}
+
+/* Bundesliga — red + gold */
+.team-strip__item--bundesliga {
+  background: rgba(200, 20, 20, 0.28);
+  border-color: rgba(220, 30, 30, 0.45);
+}
+.team-strip__item--bundesliga:hover {
+  background: rgba(200, 20, 20, 0.42);
+  border-color: rgba(220, 30, 30, 0.8);
+}
+
+/* Serie A — navy */
+.team-strip__item--seriea {
+  background: rgba(0, 20, 100, 0.35);
+  border-color: rgba(10, 40, 160, 0.5);
+}
+.team-strip__item--seriea:hover {
+  background: rgba(0, 20, 100, 0.5);
+  border-color: rgba(10, 40, 160, 0.85);
+}
+
+/* Ligue 1 — navy + gold */
+.team-strip__item--ligue1 {
+  background: rgba(0, 30, 90, 0.35);
+  border-color: rgba(0, 50, 140, 0.5);
+}
+.team-strip__item--ligue1:hover {
+  background: rgba(0, 30, 90, 0.5);
+  border-color: rgba(0, 50, 140, 0.85);
+}
+
 .team-strip__logo {
   width: 40px;
   height: 40px;
@@ -1316,10 +1356,14 @@ p {
   box-shadow: var(--shadow-card);
 }
 
-.league-card--nba { border-top-color: #c9510c; }
-.league-card--epl { border-top-color: #5b2d8e; }
-.league-card--afl { border-top-color: #003087; }
-.league-card--wc  { border-top-color: #1a6fb5; }
+.league-card--nba        { border-top-color: #c9510c; }
+.league-card--epl        { border-top-color: #5b2d8e; }
+.league-card--afl        { border-top-color: #003087; }
+.league-card--wc         { border-top-color: #1a6fb5; }
+.league-card--laliga     { border-top-color: #c8102e; }
+.league-card--bundesliga { border-top-color: #d4000f; }
+.league-card--seriea     { border-top-color: #010e80; }
+.league-card--ligue1     { border-top-color: #002f87; }
 
 .league-card__header {
   display: flex;

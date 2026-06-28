@@ -1,6 +1,7 @@
 import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../utils/priority';
 import { BarChart3, CalendarDays, Star, WifiOff } from 'lucide-react';
 import { useTheme } from '../../../contexts/ThemeContext';
+import { LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
 
 function SportIcon({ league }) {
   if (league === 'NBA') {
@@ -15,7 +16,7 @@ function SportIcon({ league }) {
       </svg>
     );
   }
-  if (league === 'EPL') {
+  if (league === 'EPL' || league === 'LALIGA' || league === 'BUNDESLIGA' || league === 'SERIEA' || league === 'LIGUE1') {
     return (
       <svg className="team-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         {/* White soccer ball with classic black pentagon patches */}
@@ -102,7 +103,7 @@ function CardBanner({ teamName, league, logoUrl, ladderPosition, source, seasonF
         <div className="team-card__banner-info">
           <h2 className="team-card__title">{teamName}</h2>
           <p className="team-card__meta">
-            {league}
+            {LEAGUE_DISPLAY_NAMES[league] || league}
             {ladderPosition != null
               ? seasonFinished
                 ? ` · Final: ${ordinal(ladderPosition)}`

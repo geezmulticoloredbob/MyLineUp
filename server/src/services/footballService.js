@@ -13,31 +13,59 @@ function toDateStr(d) {
   return d.toISOString().split('T')[0];
 }
 
-// football-data.org shortNames don't always match our display names — override the tricky ones
+// Per-competition short-name overrides where our stored name differs from the API's shortName
 const SHORTNAME_OVERRIDES = {
-  'Manchester City': 'Man City',
-  'Manchester United': 'Man Utd',
-  'Newcastle United': 'Newcastle Utd',
-  'Tottenham Hotspur': 'Spurs',
-  'Nottingham Forest': "Nott'm Forest",
+  PL: {
+    'Manchester City': 'Man City',
+    'Manchester United': 'Man Utd',
+    'Newcastle United': 'Newcastle Utd',
+    'Tottenham Hotspur': 'Spurs',
+    "Nottingham Forest": "Nott'm Forest",
+  },
 };
 
-const TEAMS_TTL_MS = 24 * 60 * 60 * 1000;
-let _plTeamsCache = null;
-let _plTeamsCachedAt = 0;
+// --- Per-competition caches ---
+const _teamsCache = new Map();    // code → { data, at }
+const _standingsCache = new Map();
+const _scorersCache = new Map();
+const TEAMS_TTL    = 24 * 60 * 60 * 1000;
+const STANDINGS_TTL = 5 * 60 * 1000;
+const SCORERS_TTL  = 60 * 60 * 1000;
 
-async function getPLTeams() {
-  if (_plTeamsCache && Date.now() - _plTeamsCachedAt < TEAMS_TTL_MS) return _plTeamsCache;
-  const res = await fdFetch('/competitions/PL/teams');
-  if (!res.ok) throw new Error(`football-data.org /teams failed: ${res.status}`);
+async function getFDTeams(code) {
+  const cached = _teamsCache.get(code);
+  if (cached && Date.now() - cached.at < TEAMS_TTL) return cached.data;
+  const res = await fdFetch(`/competitions/${code}/teams`);
+  if (!res.ok) throw new Error(`football-data.org /${code}/teams failed: ${res.status}`);
   const { teams } = await res.json();
-  _plTeamsCache = teams;
-  _plTeamsCachedAt = Date.now();
-  return teams;
+  _teamsCache.set(code, { data: teams || [], at: Date.now() });
+  return teams || [];
 }
 
-function findFDTeam(allTeams, ourName) {
-  const target = (SHORTNAME_OVERRIDES[ourName] || ourName).toLowerCase();
+async function getFDStandings(code) {
+  const cached = _standingsCache.get(code);
+  if (cached && Date.now() - cached.at < STANDINGS_TTL) return cached.data;
+  const res = await fdFetch(`/competitions/${code}/standings`);
+  if (!res.ok) throw new Error(`football-data.org /${code}/standings failed: ${res.status}`);
+  const { standings } = await res.json();
+  const table = (standings || []).find((s) => s.type === 'TOTAL')?.table || [];
+  _standingsCache.set(code, { data: table, at: Date.now() });
+  return table;
+}
+
+async function getFDScorers(code) {
+  const cached = _scorersCache.get(code);
+  if (cached && Date.now() - cached.at < SCORERS_TTL) return cached.data;
+  const res = await fdFetch(`/competitions/${code}/scorers?limit=50`);
+  if (!res.ok) throw new Error(`football-data.org /${code}/scorers failed: ${res.status}`);
+  const { scorers } = await res.json();
+  _scorersCache.set(code, { data: scorers || [], at: Date.now() });
+  return scorers || [];
+}
+
+function findFDTeam(allTeams, ourName, code) {
+  const overrides = SHORTNAME_OVERRIDES[code] || {};
+  const target = (overrides[ourName] || ourName).toLowerCase();
   return allTeams.find(
     (t) =>
       (t.shortName || '').toLowerCase() === target ||
@@ -46,65 +74,33 @@ function findFDTeam(allTeams, ourName) {
   );
 }
 
-// --- Standings cache with 5-minute TTL ---
-let _standingsCache = null;
-let _standingsCachedAt = 0;
-const STANDINGS_TTL_MS = 5 * 60 * 1000;
-
-// --- Scorers cache with 1-hour TTL ---
-let _scorersCache = null;
-let _scorersCachedAt = 0;
-const SCORERS_TTL_MS = 60 * 60 * 1000;
-
-async function getPLScorers() {
-  if (_scorersCache && Date.now() - _scorersCachedAt < SCORERS_TTL_MS) return _scorersCache;
-  const res = await fdFetch('/competitions/PL/scorers?limit=50');
-  if (!res.ok) throw new Error(`football-data.org /scorers failed: ${res.status}`);
-  const { scorers } = await res.json();
-  _scorersCache = scorers || [];
-  _scorersCachedAt = Date.now();
-  return _scorersCache;
-}
-
-async function getPLStandings() {
-  if (_standingsCache && Date.now() - _standingsCachedAt < STANDINGS_TTL_MS) {
-    return _standingsCache;
-  }
-  const res = await fdFetch('/competitions/PL/standings');
-  if (!res.ok) throw new Error(`football-data.org /standings failed: ${res.status}`);
-  const { standings } = await res.json();
-  const table = standings.find((s) => s.type === 'TOTAL')?.table || [];
-  _standingsCache = table;
-  _standingsCachedAt = Date.now();
-  return table;
-}
-
-async function getEPLTeamData(favourite) {
+async function getFDTeamData(favourite, code) {
   const [allTeams, standings, allScorers] = await Promise.all([
-    getPLTeams(),
-    getPLStandings(),
-    getPLScorers().catch(() => []),
+    getFDTeams(code),
+    getFDStandings(code),
+    getFDScorers(code).catch(() => []),
   ]);
 
-  const fdTeam = findFDTeam(allTeams, favourite.teamName);
+  const fdTeam = findFDTeam(allTeams, favourite.teamName, code);
   if (!fdTeam) {
-    console.warn(`football-data.org: no match found for "${favourite.teamName}"`);
+    console.warn(`football-data.org ${code}: no match found for "${favourite.teamName}"`);
     return null;
   }
 
   const now = new Date();
   const past = new Date(now);
-  past.setDate(past.getDate() - 90);   // 90 days covers the full off-season gap
+  past.setDate(past.getDate() - 90); // 90 days covers full off-season gap
   const future = new Date(now);
   future.setDate(future.getDate() + 30);
 
   const [finishedRes, scheduledRes] = await Promise.all([
-    fdFetch(`/teams/${fdTeam.id}/matches?competitions=PL&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
-    fdFetch(`/teams/${fdTeam.id}/matches?competitions=PL&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
+    fdFetch(`/teams/${fdTeam.id}/matches?competitions=${code}&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
+    fdFetch(`/teams/${fdTeam.id}/matches?competitions=${code}&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
   ]);
 
-  if (!finishedRes.ok) throw new Error(`football-data.org team matches fetch failed: ${finishedRes.status}`);
-  if (!scheduledRes.ok) throw new Error(`football-data.org team matches fetch failed: ${scheduledRes.status}`);
+  if (!finishedRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${finishedRes.status}`);
+  if (!scheduledRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${scheduledRes.status}`);
+
   const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
     finishedRes.json(),
     scheduledRes.json(),
@@ -120,12 +116,7 @@ async function getEPLTeamData(favourite) {
       ? lastMatch.awayTeam.shortName || lastMatch.awayTeam.name
       : lastMatch.homeTeam.shortName || lastMatch.homeTeam.name;
     const winner = lastMatch.score.winner;
-    const outcome =
-      winner === null
-        ? 'D'
-        : (winner === 'HOME_TEAM') === isHome
-          ? 'W'
-          : 'L';
+    const outcome = winner === null ? 'D' : (winner === 'HOME_TEAM') === isHome ? 'W' : 'L';
     latestResult = {
       date: lastMatch.utcDate.split('T')[0],
       outcome,
@@ -141,12 +132,9 @@ async function getEPLTeamData(favourite) {
     const opponent = isHome
       ? nextMatch.awayTeam.shortName || nextMatch.awayTeam.name
       : nextMatch.homeTeam.shortName || nextMatch.homeTeam.name;
-    const opponentLogoUrl = isHome
-      ? nextMatch.awayTeam.crest || null
-      : nextMatch.homeTeam.crest || null;
-    const matchDate = new Date(nextMatch.utcDate);
+    const opponentLogoUrl = isHome ? nextMatch.awayTeam.crest || null : nextMatch.homeTeam.crest || null;
     nextFixture = {
-      date: toDateStr(matchDate),
+      date: toDateStr(new Date(nextMatch.utcDate)),
       utcDate: nextMatch.utcDate,
       venueTimezone: 'Europe/London',
       opponent,
@@ -158,25 +146,22 @@ async function getEPLTeamData(favourite) {
   const standingRow = (standings || []).find((s) => s.team.id === fdTeam.id);
   const ladderPosition = standingRow?.position ?? null;
   const stats = standingRow
-    ? {
-        played: standingRow.playedGames,
-        points: standingRow.points,
-        gd: standingRow.goalDifference,
-      }
+    ? { played: standingRow.playedGames, points: standingRow.points, gd: standingRow.goalDifference }
     : {};
 
-  const topScorers = allScorers
+  const topScorers = (allScorers || [])
     .filter((s) => s.team?.id === fdTeam.id)
     .sort((a, b) => (b.goals || 0) - (a.goals || 0))
     .slice(0, 2)
     .map((s) => ({ name: s.player.name, stat: `${s.goals} goals` }));
 
   const seasonFinished = (finished || []).length > 0 && (scheduled || []).length === 0;
+
   return { latestResult, nextFixture, ladderPosition, stats, logoUrl: fdTeam.crest || null, topScorers, seasonFinished };
 }
 
-async function getEPLStandings() {
-  const [allTeams, table] = await Promise.all([getPLTeams(), getPLStandings()]);
+async function getFDStandingsForOverview(code) {
+  const [allTeams, table] = await Promise.all([getFDTeams(code), getFDStandings(code)]);
   return (table || []).map((s) => {
     const team = allTeams.find((t) => t.id === s.team.id);
     return {
@@ -188,7 +173,7 @@ async function getEPLStandings() {
   });
 }
 
-async function getEPLLeagueGames() {
+async function getFDLeagueGames(code) {
   const now = new Date();
   const past = new Date(now);
   past.setDate(past.getDate() - 10);
@@ -196,11 +181,13 @@ async function getEPLLeagueGames() {
   future.setDate(future.getDate() + 14);
 
   const [finishedRes, scheduledRes] = await Promise.all([
-    fdFetch(`/competitions/PL/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
-    fdFetch(`/competitions/PL/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
+    fdFetch(`/competitions/${code}/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
+    fdFetch(`/competitions/${code}/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
   ]);
-  if (!finishedRes.ok) throw new Error(`football-data.org league matches fetch failed: ${finishedRes.status}`);
-  if (!scheduledRes.ok) throw new Error(`football-data.org league matches fetch failed: ${scheduledRes.status}`);
+
+  if (!finishedRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${finishedRes.status}`);
+  if (!scheduledRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${scheduledRes.status}`);
+
   const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
     finishedRes.json(),
     scheduledRes.json(),
@@ -234,4 +221,4 @@ async function getEPLLeagueGames() {
   return { recentResults, upcomingFixtures };
 }
 
-module.exports = { getEPLTeamData, getEPLStandings, getEPLLeagueGames };
+module.exports = { getFDTeamData, getFDStandingsForOverview, getFDLeagueGames };

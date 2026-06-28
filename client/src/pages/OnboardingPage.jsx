@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { SUPPORTED_LEAGUES } from '../constants/leagues';
+import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES } from '../constants/leagues';
 import { teamsByLeague } from '../data/teamsByLeague';
 import { saveFavouriteTeam } from '../features/favourites/services/favouritesApi';
 import { updateFollowedLeagues, completeOnboarding } from '../services/leagueApi';
@@ -96,7 +96,7 @@ function OnboardingPage() {
               className={`league-tab${activeLeague === l ? ' league-tab--active' : ''}`}
               onClick={() => setActiveLeague(l)}
             >
-              {l}
+              {LEAGUE_DISPLAY_NAMES[l] || l}
             </button>
           ))}
         </div>
@@ -108,7 +108,7 @@ function OnboardingPage() {
               checked={followedLeagues.has(activeLeague)}
               onChange={() => toggleLeague(activeLeague)}
             />
-            Follow {activeLeague} standings on dashboard
+            Follow {LEAGUE_DISPLAY_NAMES[activeLeague] || activeLeague} standings on dashboard
           </label>
         </div>
 

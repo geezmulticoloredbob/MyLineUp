@@ -40,6 +40,21 @@ function LeagueSportIcon({ league }) {
       </svg>
     );
   }
+  if (league === 'LALIGA' || league === 'BUNDESLIGA' || league === 'SERIEA' || league === 'LIGUE1') {
+    // Reuse soccer ball icon for all football leagues
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="10" cy="10" r="9" fill="#f0f0f0" />
+        <polygon points="10,6.8 12.1,8.4 11.3,10.9 8.7,10.9 7.9,8.4" fill="#111" />
+        <polygon points="10,1.2 11.2,3.2 8.8,3.2" fill="#111" />
+        <polygon points="17.4,6.4 15.6,7.2 15.2,5.2" fill="#111" />
+        <polygon points="16.2,15.2 14.2,14.6 15.4,12.8" fill="#111" />
+        <polygon points="3.8,15.2 5.8,14.6 4.6,12.8" fill="#111" />
+        <polygon points="2.6,6.4 4.4,7.2 4.8,5.2" fill="#111" />
+        <circle cx="10" cy="10" r="9" fill="none" stroke="#555" strokeWidth="0.8" />
+      </svg>
+    );
+  }
   if (league === 'AFL') {
     return (
       <svg className="league-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -76,11 +91,17 @@ export function SkeletonLeagueCard() {
   );
 }
 
+const FOOTBALL_STATS = ['played', 'points', 'gd'];
+
 const STANDINGS_STATS = {
   NBA: ['wins', 'losses'],
-  EPL: ['played', 'points', 'gd'],
+  EPL: FOOTBALL_STATS,
   AFL: ['wins', 'losses', 'percentage'],
-  WC: ['played', 'points', 'gd'],
+  WC: FOOTBALL_STATS,
+  LALIGA: FOOTBALL_STATS,
+  BUNDESLIGA: FOOTBALL_STATS,
+  SERIEA: FOOTBALL_STATS,
+  LIGUE1: FOOTBALL_STATS,
 };
 
 const STAT_LABELS = {
