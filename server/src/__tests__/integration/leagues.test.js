@@ -37,6 +37,20 @@ describe('PUT /api/leagues', () => {
     expect(res.body.followedLeagues).toHaveLength(2);
   });
 
+  it('accepts WC as a valid league code', async () => {
+    const agent = await registerAndGetAgent();
+    const res = await agent.put('/api/leagues').send({ leagues: ['WC'] });
+    expect(res.status).toBe(200);
+    expect(res.body.followedLeagues).toContain('WC');
+  });
+
+  it.each(['LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1'])('accepts %s as a valid league code', async (code) => {
+    const agent = await registerAndGetAgent();
+    const res = await agent.put('/api/leagues').send({ leagues: [code] });
+    expect(res.status).toBe(200);
+    expect(res.body.followedLeagues).toContain(code);
+  });
+
   it('accepts an empty array to unfollow all leagues', async () => {
     const agent = await registerAndGetAgent();
     await agent.put('/api/leagues').send({ leagues: ['NBA'] });

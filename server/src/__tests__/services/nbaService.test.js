@@ -23,8 +23,8 @@ const MOCK_FINISHED_GAME = {
   id: 101,
   date: '2024-01-15T00:00:00.000Z',
   status: 'Final',
-  home_team: { id: 1, full_name: 'Atlanta Hawks' },
-  visitor_team: { id: 2, full_name: 'Boston Celtics' },
+  home_team: { id: 1, abbreviation: 'ATL', full_name: 'Atlanta Hawks' },
+  visitor_team: { id: 2, abbreviation: 'BOS', full_name: 'Boston Celtics' },
   home_team_score: 110,
   visitor_team_score: 105,
 };
@@ -33,8 +33,8 @@ const MOCK_UPCOMING_GAME = {
   id: 102,
   date: '2024-01-22T00:00:00.000Z',
   status: '7:30 PM ET',
-  home_team: { id: 1, full_name: 'Atlanta Hawks' },
-  visitor_team: { id: 2, full_name: 'Boston Celtics' },
+  home_team: { id: 1, abbreviation: 'ATL', full_name: 'Atlanta Hawks' },
+  visitor_team: { id: 2, abbreviation: 'BOS', full_name: 'Boston Celtics' },
   home_team_score: 0,
   visitor_team_score: 0,
 };

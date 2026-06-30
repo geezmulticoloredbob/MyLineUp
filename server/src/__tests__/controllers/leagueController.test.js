@@ -48,6 +48,20 @@ describe('leagueController', () => {
       expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
     });
 
+    it('accepts WC as a valid league code', async () => {
+      User.findByIdAndUpdate.mockResolvedValue({ followedLeagues: ['WC'] });
+      const res = makeRes();
+      await updateFollowedLeagues({ user: mockUser, body: { leagues: ['WC'] } }, res, jest.fn());
+      expect(res.json).toHaveBeenCalledWith({ followedLeagues: ['WC'] });
+    });
+
+    it.each(['LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1'])('accepts %s as a valid league code', async (code) => {
+      User.findByIdAndUpdate.mockResolvedValue({ followedLeagues: [code] });
+      const res = makeRes();
+      await updateFollowedLeagues({ user: mockUser, body: { leagues: [code] } }, res, jest.fn());
+      expect(res.json).toHaveBeenCalledWith({ followedLeagues: [code] });
+    });
+
     it('accepts an empty array to unfollow all leagues', async () => {
       User.findByIdAndUpdate.mockResolvedValue({ followedLeagues: [] });
       const res = makeRes();

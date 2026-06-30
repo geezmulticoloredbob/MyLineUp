@@ -7,14 +7,19 @@ jest.mock('../../services/aflService', () => ({
   getAFLLeagueGames: jest.fn(),
 }));
 jest.mock('../../services/footballService', () => ({
-  getEPLStandings: jest.fn(),
-  getEPLLeagueGames: jest.fn(),
+  getFDStandingsForOverview: jest.fn(),
+  getFDLeagueGames: jest.fn(),
+}));
+jest.mock('../../services/worldCupService', () => ({
+  getWCStandings: jest.fn(),
+  getWCLeagueGames: jest.fn(),
 }));
 
 const { hydrateFollowedLeagues } = require('../../services/leagueService');
 const { getNBAStandings, getNBALeagueGames } = require('../../services/nbaService');
 const { getAFLStandings, getAFLLeagueGames } = require('../../services/aflService');
-const { getEPLStandings, getEPLLeagueGames } = require('../../services/footballService');
+const { getFDStandingsForOverview, getFDLeagueGames } = require('../../services/footballService');
+const { getWCStandings, getWCLeagueGames } = require('../../services/worldCupService');
 
 const mockStandings = [{ position: 1, teamName: 'Team A' }];
 const mockGames = { recentResults: [], upcomingFixtures: [] };
@@ -22,8 +27,7 @@ const mockGames = { recentResults: [], upcomingFixtures: [] };
 describe('leagueService', () => {
   describe('hydrateFollowedLeagues', () => {
     it('returns an empty array when no leagues are followed', async () => {
-      const result = await hydrateFollowedLeagues([]);
-      expect(result).toEqual([]);
+      expect(await hydrateFollowedLeagues([])).toEqual([]);
     });
 
     it('returns empty array for null/undefined input', async () => {
@@ -47,11 +51,56 @@ describe('leagueService', () => {
       expect(result.standings).toEqual(mockStandings);
     });
 
-    it('dispatches to footballService for EPL', async () => {
-      getEPLStandings.mockResolvedValue(mockStandings);
-      getEPLLeagueGames.mockResolvedValue(mockGames);
+    it('dispatches to getFDStandingsForOverview/getFDLeagueGames with PL for EPL', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
       const [result] = await hydrateFollowedLeagues(['EPL']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('PL');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('PL');
       expect(result.league).toBe('EPL');
+      expect(result.standings).toEqual(mockStandings);
+    });
+
+    it('dispatches with PD for LALIGA', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
+      const [result] = await hydrateFollowedLeagues(['LALIGA']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('PD');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('PD');
+      expect(result.league).toBe('LALIGA');
+    });
+
+    it('dispatches with BL1 for BUNDESLIGA', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['BUNDESLIGA']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('BL1');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('BL1');
+    });
+
+    it('dispatches with SA for SERIEA', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['SERIEA']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('SA');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('SA');
+    });
+
+    it('dispatches with FL1 for LIGUE1', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['LIGUE1']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('FL1');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('FL1');
+    });
+
+    it('dispatches to worldCupService for WC', async () => {
+      getWCStandings.mockResolvedValue(mockStandings);
+      getWCLeagueGames.mockResolvedValue(mockGames);
+      const [result] = await hydrateFollowedLeagues(['WC']);
+      expect(getWCStandings).toHaveBeenCalled();
+      expect(getWCLeagueGames).toHaveBeenCalled();
+      expect(result.league).toBe('WC');
       expect(result.standings).toEqual(mockStandings);
     });
 

@@ -35,7 +35,7 @@ const saveFavourite = asyncHandler(async (req, res) => {
     }
   );
 
-  res.json({ favourite });
+  res.status(201).json({ favourite });
 });
 
 const deleteFavourite = asyncHandler(async (req, res) => {

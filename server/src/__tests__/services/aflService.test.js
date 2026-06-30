@@ -72,7 +72,7 @@ describe('getAFLStandings', () => {
       return mockOk({ teams: MOCK_TEAMS });
     });
     const result = await aflService.getAFLStandings();
-    expect(result[0].logoUrl).toContain('squiggle.com.au');
+    expect(result[0].logoUrl).toContain('espncdn.com');
   });
 
   it('throws when the standings API call fails', async () => {
@@ -152,7 +152,7 @@ describe('getAFLTeamData', () => {
     expect(result.latestResult.outcome).toBe('W');
     expect(result.latestResult.opponent).toBe('Melbourne');
     expect(result.ladderPosition).toBe(1);
-    expect(result.logoUrl).toContain('squiggle.com.au');
+    expect(result.logoUrl).toContain('espncdn.com');
   });
 
   it('returns null nextFixture when no upcoming games', async () => {

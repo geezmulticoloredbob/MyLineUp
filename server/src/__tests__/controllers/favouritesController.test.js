@@ -80,20 +80,20 @@ describe('favouritesController', () => {
       mongoose.Types.ObjectId.isValid.mockReturnValue(true);
       Favourite.findOneAndDelete.mockResolvedValue(null);
 
-      const res = makeRes();
-      await deleteFavourite({ user: mockUser, params: { favouriteId: 'other-fav' } }, res, jest.fn());
+      const next = jest.fn();
+      await deleteFavourite({ user: mockUser, params: { favouriteId: 'other-fav' } }, makeRes(), next);
 
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 404 }));
     });
 
     it('responds 404 without hitting the DB when the id is not a valid ObjectId', async () => {
       mongoose.Types.ObjectId.isValid.mockReturnValue(false);
 
-      const res = makeRes();
-      await deleteFavourite({ user: mockUser, params: { favouriteId: 'not-an-id' } }, res, jest.fn());
+      const next = jest.fn();
+      await deleteFavourite({ user: mockUser, params: { favouriteId: 'not-an-id' } }, makeRes(), next);
 
       expect(Favourite.findOneAndDelete).not.toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(404);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 404 }));
     });
   });
 });
