@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Moon, Settings, Sun, X } from 'lucide-react';
@@ -32,10 +32,10 @@ const DATE_FORMATS = ['DD-MM-YYYY', 'MM-DD-YYYY', 'YYYY-MM-DD'];
 function SettingsPanel() {
   const { theme, setTheme, bgTeamId, setBgTeam, dateFormat, setDateFormat } = useTheme();
 
-  const savedTeams = (() => {
+  const savedTeams = useMemo(() => {
     try { return JSON.parse(localStorage.getItem('mylineup_bg_teams') || '[]'); }
     catch { return []; }
-  })();
+  }, []);
 
   return (
     <div className="settings-panel" role="dialog" aria-label="Settings">

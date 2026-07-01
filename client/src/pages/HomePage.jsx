@@ -24,14 +24,8 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
     document.getElementById(`team-${favouriteId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  const sortedTeams = [...teams].sort((a, b) => {
-    const ai = teamOrder.indexOf(a.favouriteId);
-    const bi = teamOrder.indexOf(b.favouriteId);
-    return (ai === -1 ? 9999 : ai) - (bi === -1 ? 9999 : bi);
-  });
-
   const grouped = leagueOrder.reduce((acc, league) => {
-    const leagueTeams = sortedTeams.filter((t) => t.league === league);
+    const leagueTeams = teams.filter((t) => t.league === league);
     if (leagueTeams.length) acc[league] = leagueTeams;
     return acc;
   }, {});
