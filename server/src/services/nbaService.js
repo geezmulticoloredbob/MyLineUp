@@ -79,33 +79,45 @@ function bdlFetch(path) {
 
 let _teamsCache = null;
 let _teamsCachedAt = 0;
+let _teamsInFlight = null;
 const TEAMS_TTL_MS = 24 * 60 * 60 * 1000;
 
 async function getBDLTeams() {
   if (_teamsCache && Date.now() - _teamsCachedAt < TEAMS_TTL_MS) return _teamsCache;
-  const res = await bdlFetch('/teams?per_page=100');
-  if (!res.ok) throw new Error(`BallDontLie teams fetch failed: ${res.status}`);
-  const { data } = await res.json();
-  _teamsCache = data;
-  _teamsCachedAt = Date.now();
-  return data;
+  if (_teamsInFlight) return _teamsInFlight;
+  _teamsInFlight = bdlFetch('/teams?per_page=100')
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`BallDontLie teams fetch failed: ${res.status}`);
+      const { data } = await res.json();
+      _teamsCache = data;
+      _teamsCachedAt = Date.now();
+      _teamsInFlight = null;
+      return data;
+    })
+    .catch((err) => { _teamsInFlight = null; throw err; });
+  return _teamsInFlight;
 }
 
 let _standingsCache = null;
 let _standingsCachedAt = 0;
+let _standingsInFlight = null;
 const STANDINGS_TTL_MS = 5 * 60 * 1000;
 
 async function getBDLStandings() {
-  if (_standingsCache && Date.now() - _standingsCachedAt < STANDINGS_TTL_MS) {
-    return _standingsCache;
-  }
+  if (_standingsCache && Date.now() - _standingsCachedAt < STANDINGS_TTL_MS) return _standingsCache;
+  if (_standingsInFlight) return _standingsInFlight;
   const season = new Date().getFullYear() - (new Date().getMonth() < 9 ? 1 : 0);
-  const res = await bdlFetch(`/standings?season=${season}`);
-  if (!res.ok) throw new Error(`BallDontLie standings fetch failed: ${res.status}`);
-  const { data } = await res.json();
-  _standingsCache = data;
-  _standingsCachedAt = Date.now();
-  return data;
+  _standingsInFlight = bdlFetch(`/standings?season=${season}`)
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`BallDontLie standings fetch failed: ${res.status}`);
+      const { data } = await res.json();
+      _standingsCache = data;
+      _standingsCachedAt = Date.now();
+      _standingsInFlight = null;
+      return data;
+    })
+    .catch((err) => { _standingsInFlight = null; throw err; });
+  return _standingsInFlight;
 }
 
 function toDateStr(d) {

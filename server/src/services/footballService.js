@@ -32,35 +32,61 @@ const TEAMS_TTL    = 24 * 60 * 60 * 1000;
 const STANDINGS_TTL = 5 * 60 * 1000;
 const SCORERS_TTL  = 60 * 60 * 1000;
 
+// In-flight promise deduplication — concurrent cold-start calls share one request
+const _teamsInFlight = new Map();
+const _standingsInFlight = new Map();
+const _scorersInFlight = new Map();
+
 async function getFDTeams(code) {
   const cached = _teamsCache.get(code);
   if (cached && Date.now() - cached.at < TEAMS_TTL) return cached.data;
-  const res = await fdFetch(`/competitions/${code}/teams`);
-  if (!res.ok) throw new Error(`football-data.org /${code}/teams failed: ${res.status}`);
-  const { teams } = await res.json();
-  _teamsCache.set(code, { data: teams || [], at: Date.now() });
-  return teams || [];
+  if (_teamsInFlight.has(code)) return _teamsInFlight.get(code);
+  const promise = fdFetch(`/competitions/${code}/teams`)
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`football-data.org /${code}/teams failed: ${res.status}`);
+      const { teams } = await res.json();
+      _teamsCache.set(code, { data: teams || [], at: Date.now() });
+      _teamsInFlight.delete(code);
+      return teams || [];
+    })
+    .catch((err) => { _teamsInFlight.delete(code); throw err; });
+  _teamsInFlight.set(code, promise);
+  return promise;
 }
 
 async function getFDStandings(code) {
   const cached = _standingsCache.get(code);
   if (cached && Date.now() - cached.at < STANDINGS_TTL) return cached.data;
-  const res = await fdFetch(`/competitions/${code}/standings`);
-  if (!res.ok) throw new Error(`football-data.org /${code}/standings failed: ${res.status}`);
-  const { standings } = await res.json();
-  const table = (standings || []).find((s) => s.type === 'TOTAL')?.table || [];
-  _standingsCache.set(code, { data: table, at: Date.now() });
-  return table;
+  if (_standingsInFlight.has(code)) return _standingsInFlight.get(code);
+  const promise = fdFetch(`/competitions/${code}/standings`)
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`football-data.org /${code}/standings failed: ${res.status}`);
+      const { standings } = await res.json();
+      const table = (standings || []).find((s) => s.type === 'TOTAL')?.table || [];
+      _standingsCache.set(code, { data: table, at: Date.now() });
+      _standingsInFlight.delete(code);
+      return table;
+    })
+    .catch((err) => { _standingsInFlight.delete(code); throw err; });
+  _standingsInFlight.set(code, promise);
+  return promise;
 }
 
 async function getFDScorers(code) {
   const cached = _scorersCache.get(code);
   if (cached && Date.now() - cached.at < SCORERS_TTL) return cached.data;
-  const res = await fdFetch(`/competitions/${code}/scorers?limit=50`);
-  if (!res.ok) throw new Error(`football-data.org /${code}/scorers failed: ${res.status}`);
-  const { scorers } = await res.json();
-  _scorersCache.set(code, { data: scorers || [], at: Date.now() });
-  return scorers || [];
+  if (_scorersInFlight.has(code)) return _scorersInFlight.get(code);
+  const promise = fdFetch(`/competitions/${code}/scorers?limit=50`)
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`football-data.org /${code}/scorers failed: ${res.status}`);
+      const { scorers } = await res.json();
+      _scorersCache.set(code, { data: scorers || [], at: Date.now() });
+      _scorersInFlight.delete(code);
+      return scorers || [];
+    })
+    .catch((err) => { _scorersInFlight.delete(code); throw err; });
+  _scorersInFlight.set(code, promise);
+  return promise;
 }
 
 function findFDTeam(allTeams, ourName, code) {

@@ -202,12 +202,14 @@ function HomePage() {
 
   if (status === 'loading') {
     const followedLeagues = user?.followedLeagues ?? [];
+    const cachedTeamCount = (() => {
+      try { return JSON.parse(localStorage.getItem('mylineup_bg_teams') || '[]').length || 3; }
+      catch { return 3; }
+    })();
     return (
       <PageContainer title="Your Teams">
         <div className="team-card-grid">
-          <TeamCard status="loading" />
-          <TeamCard status="loading" />
-          <TeamCard status="loading" />
+          {Array.from({ length: cachedTeamCount }, (_, i) => <TeamCard key={i} status="loading" />)}
         </div>
         {followedLeagues.length > 0 && (
           <div className="league-card-grid">
