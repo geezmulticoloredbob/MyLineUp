@@ -79,49 +79,70 @@ const AFL_ESPN_LOGOS = {
 
 let _standingsCache = null;
 let _standingsCachedAt = 0;
+let _standingsInFlight = null;
 let _gamesCache = null;
 let _gamesCachedAt = 0;
+let _gamesInFlight = null;
 let _playerStatsCache = null;
 let _playerStatsCachedAt = 0;
+let _playerStatsInFlight = null;
 const PLAYER_STATS_TTL_MS = 60 * 60 * 1000;
 
 async function getCachedStandings() {
   if (_standingsCache && Date.now() - _standingsCachedAt < TTL_MS) return _standingsCache;
+  if (_standingsInFlight) return _standingsInFlight;
   const year = new Date().getFullYear();
-  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
+  _standingsInFlight = fetchWithTimeout(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
     headers: { 'User-Agent': USER_AGENT },
-  });
-  if (!res.ok) throw new Error(`Squiggle standings fetch failed: ${res.status}`);
-  const { standings } = await res.json();
-  _standingsCache = standings || [];
-  _standingsCachedAt = Date.now();
-  return _standingsCache;
+  })
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`Squiggle standings fetch failed: ${res.status}`);
+      const { standings } = await res.json();
+      _standingsCache = standings || [];
+      _standingsCachedAt = Date.now();
+      _standingsInFlight = null;
+      return _standingsCache;
+    })
+    .catch((err) => { _standingsInFlight = null; throw err; });
+  return _standingsInFlight;
 }
 
 async function getCachedGames() {
   if (_gamesCache && Date.now() - _gamesCachedAt < TTL_MS) return _gamesCache;
+  if (_gamesInFlight) return _gamesInFlight;
   const year = new Date().getFullYear();
-  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
+  _gamesInFlight = fetchWithTimeout(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
     headers: { 'User-Agent': USER_AGENT },
-  });
-  if (!res.ok) throw new Error(`Squiggle league games fetch failed: ${res.status}`);
-  const { games } = await res.json();
-  _gamesCache = games || [];
-  _gamesCachedAt = Date.now();
-  return _gamesCache;
+  })
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`Squiggle league games fetch failed: ${res.status}`);
+      const { games } = await res.json();
+      _gamesCache = games || [];
+      _gamesCachedAt = Date.now();
+      _gamesInFlight = null;
+      return _gamesCache;
+    })
+    .catch((err) => { _gamesInFlight = null; throw err; });
+  return _gamesInFlight;
 }
 
 async function getCachedPlayerStats() {
   if (_playerStatsCache && Date.now() - _playerStatsCachedAt < PLAYER_STATS_TTL_MS) return _playerStatsCache;
+  if (_playerStatsInFlight) return _playerStatsInFlight;
   const year = new Date().getFullYear();
-  const res = await fetchWithTimeout(`${SQUIGGLE_BASE}/?q=playerstats&year=${year}`, {
+  _playerStatsInFlight = fetchWithTimeout(`${SQUIGGLE_BASE}/?q=playerstats&year=${year}`, {
     headers: { 'User-Agent': USER_AGENT },
-  });
-  if (!res.ok) throw new Error(`Squiggle player stats failed: ${res.status}`);
-  const { playerstats } = await res.json();
-  _playerStatsCache = playerstats || [];
-  _playerStatsCachedAt = Date.now();
-  return _playerStatsCache;
+  })
+    .then(async (res) => {
+      if (!res.ok) throw new Error(`Squiggle player stats failed: ${res.status}`);
+      const { playerstats } = await res.json();
+      _playerStatsCache = playerstats || [];
+      _playerStatsCachedAt = Date.now();
+      _playerStatsInFlight = null;
+      return _playerStatsCache;
+    })
+    .catch((err) => { _playerStatsInFlight = null; throw err; });
+  return _playerStatsInFlight;
 }
 
 async function getAFLTeamData(favourite) {
