@@ -2,6 +2,7 @@ import { formatStatLabel, getLatestResultPanel, getNextGamePanel } from '../util
 import { BarChart3, CalendarDays, Star, WifiOff } from 'lucide-react';
 import { useTheme } from '../../../contexts/ThemeContext';
 import { LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
+import { teamColors } from '../../../data/teamColors';
 
 function SportIcon({ league }) {
   if (league === 'NBA') {
@@ -270,8 +271,13 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
     isChampion ? 'team-card--champions' : '',
   ].filter(Boolean).join(' ');
 
+  const colors = teamColors[team.teamId];
+  const colorVars = colors
+    ? { '--team-primary': colors.primary, '--team-secondary': colors.secondary }
+    : {};
+
   return (
-    <article className={cardClass}>
+    <article className={cardClass} style={colorVars}>
       <CardBanner
         teamName={team.teamName || 'Unknown Team'}
         league={team.league || 'League'}

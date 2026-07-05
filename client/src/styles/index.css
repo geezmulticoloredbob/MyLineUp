@@ -332,7 +332,7 @@ p {
 
 .team-card {
   background: var(--surface-card);
-  border: 1px solid var(--border-default);
+  border: 1px solid color-mix(in srgb, var(--team-primary, var(--border-default)) 45%, var(--border-default));
   border-radius: var(--radius-card);
   padding: var(--space-md);
   box-shadow: var(--shadow-card);
@@ -344,7 +344,9 @@ p {
 
 .team-card:hover {
   background: var(--surface-card-hover);
-  box-shadow: var(--shadow-hover);
+  box-shadow:
+    var(--shadow-hover),
+    0 0 18px color-mix(in srgb, var(--team-primary, transparent) 20%, transparent);
 }
 
 .team-card--state {
@@ -378,8 +380,8 @@ p {
   inset: 0;
   background: linear-gradient(
     135deg,
-    rgba(18, 18, 18, 0.75) 0%,
-    rgba(18, 18, 18, 0.4) 100%
+    color-mix(in srgb, var(--team-primary, #121212) 55%, #111) 0%,
+    rgba(17, 17, 17, 0.45) 100%
   );
 }
 
