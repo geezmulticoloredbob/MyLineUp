@@ -2,6 +2,7 @@ const { getNBATeamData } = require('./nbaService');
 const { getAFLTeamData } = require('./aflService');
 const { getFDTeamData } = require('./footballService');
 const { getWCTeamData } = require('./worldCupService');
+const { getTeamColours } = require('./espnColourService');
 
 // competition code for each football-data.org league
 const FD_COMPETITION_CODES = {
@@ -42,21 +43,22 @@ function espnLogoFromTeamId(teamId) {
 }
 
 async function hydrateTeam(favourite) {
-  let sportData = null;
-  try {
+  const fetchSportData = async () => {
     const fdCode = FD_COMPETITION_CODES[favourite.league];
-    if (favourite.league === 'NBA') {
-      sportData = await getNBATeamData(favourite);
-    } else if (favourite.league === 'AFL') {
-      sportData = await getAFLTeamData(favourite);
-    } else if (favourite.league === 'WC') {
-      sportData = await getWCTeamData(favourite);
-    } else if (fdCode) {
-      sportData = await getFDTeamData(favourite, fdCode);
-    }
-  } catch (err) {
-    console.error(`Sports data error for ${favourite.teamName}:`, err.message);
-  }
+    if (favourite.league === 'NBA') return getNBATeamData(favourite);
+    if (favourite.league === 'AFL') return getAFLTeamData(favourite);
+    if (favourite.league === 'WC') return getWCTeamData(favourite);
+    if (fdCode) return getFDTeamData(favourite, fdCode);
+    return null;
+  };
+
+  const [sportData, colours] = await Promise.all([
+    fetchSportData().catch((err) => {
+      console.error(`Sports data error for ${favourite.teamName}:`, err.message);
+      return null;
+    }),
+    getTeamColours(favourite.teamName, favourite.league),
+  ]);
 
   return {
     favouriteId: favourite._id,
@@ -72,6 +74,8 @@ async function hydrateTeam(favourite) {
     dataAvailable: sportData !== null,
     source: sportData ? 'live' : 'unavailable',
     seasonFinished: sportData?.seasonFinished ?? false,
+    primaryColor: colours?.primary ?? null,
+    secondaryColor: colours?.secondary ?? null,
   };
 }
 

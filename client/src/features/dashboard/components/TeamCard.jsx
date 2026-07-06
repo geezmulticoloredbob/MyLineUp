@@ -271,7 +271,9 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
     isChampion ? 'team-card--champions' : '',
   ].filter(Boolean).join(' ');
 
-  const colors = teamColors[team.teamId];
+  const colors = (team.primaryColor && team.secondaryColor)
+    ? { primary: team.primaryColor, secondary: team.secondaryColor }
+    : teamColors[team.teamId];
   const colorVars = colors
     ? { '--team-primary': colors.primary, '--team-secondary': colors.secondary }
     : {};
