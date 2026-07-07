@@ -76,6 +76,7 @@ async function hydrateTeam(favourite) {
     seasonFinished: sportData?.seasonFinished ?? false,
     primaryColor: colours?.primary ?? null,
     secondaryColor: colours?.secondary ?? null,
+    darkLogoUrl: colours?.darkLogoUrl ?? null,
   };
 }
 

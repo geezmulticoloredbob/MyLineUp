@@ -75,13 +75,16 @@ function ordinal(n) {
   return `${n}th`;
 }
 
-function CardBanner({ teamName, league, logoUrl, ladderPosition, source, seasonFinished, isChampion }) {
+function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, source, seasonFinished, isChampion }) {
   return (
     <div className="team-card__banner">
-      {logoUrl && (
+      {!darkLogoUrl && logoUrl && (
         <img className="team-card__banner-bg" src={logoUrl} alt="" aria-hidden="true" />
       )}
       <div className="team-card__banner-overlay" />
+      {darkLogoUrl && (
+        <img className="team-card__banner-dark-logo" src={darkLogoUrl} alt="" aria-hidden="true" />
+      )}
       <SportIcon league={league} />
       {seasonFinished ? (
         <div className={`team-card__status-badge${isChampion ? ' team-card__status-badge--champions' : ' team-card__status-badge--finished'}`}>
@@ -284,6 +287,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         teamName={team.teamName || 'Unknown Team'}
         league={team.league || 'League'}
         logoUrl={team.teamLogoUrl}
+        darkLogoUrl={team.darkLogoUrl}
         ladderPosition={team.ladderPosition}
         source={team.source}
         seasonFinished={seasonFinished}

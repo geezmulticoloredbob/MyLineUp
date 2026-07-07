@@ -48,9 +48,11 @@ async function fetchLeagueColours(league) {
       for (const entry of raw) {
         const t = entry.team ?? entry;
         if (!t.color) continue;
+        const darkLogo = t.logos?.find((l) => l.rel?.includes('dark') && l.rel?.includes('full'));
         const colours = {
           primary: `#${t.color}`,
           secondary: `#${t.alternateColor || t.color}`,
+          darkLogoUrl: darkLogo?.href ?? null,
         };
         // Index by every name variant ESPN provides so fuzzy matching is more likely to hit
         for (const name of [t.displayName, t.name, t.shortDisplayName, t.nickname, t.abbreviation]) {

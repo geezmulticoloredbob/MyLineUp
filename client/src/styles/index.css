@@ -385,6 +385,18 @@ p {
   );
 }
 
+.team-card__banner-dark-logo {
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
 .team-card--season-done {
   opacity: 0.78;
 }
