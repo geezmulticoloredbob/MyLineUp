@@ -270,6 +270,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
 
   const cardClass = [
     'team-card',
+    team.league === 'WC' ? 'team-card--nation' : '',
     seasonFinished ? 'team-card--season-done' : '',
     isChampion ? 'team-card--champions' : '',
   ].filter(Boolean).join(' ');
@@ -278,7 +279,11 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
     ? { primary: team.primaryColor, secondary: team.secondaryColor }
     : teamColors[team.teamId];
   const colorVars = colors
-    ? { '--team-primary': colors.primary, '--team-secondary': colors.secondary }
+    ? {
+        '--team-primary': colors.primary,
+        '--team-secondary': colors.secondary,
+        ...(colors.tertiary ? { '--team-tertiary': colors.tertiary } : {}),
+      }
     : {};
 
   return (

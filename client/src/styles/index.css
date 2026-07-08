@@ -385,6 +385,15 @@ p {
   );
 }
 
+.team-card--nation .team-card__banner-overlay {
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--team-primary) 65%, #111) 0%,
+    color-mix(in srgb, var(--team-secondary) 60%, #111) 50%,
+    color-mix(in srgb, var(--team-tertiary, var(--team-secondary)) 55%, #111) 100%
+  );
+}
+
 .team-card__banner-dark-logo {
   position: absolute;
   right: -12px;
