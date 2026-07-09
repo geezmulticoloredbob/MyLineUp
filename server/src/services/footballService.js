@@ -172,7 +172,7 @@ async function getFDTeamData(favourite, code) {
   const standingRow = (standings || []).find((s) => s.team.id === fdTeam.id);
   const ladderPosition = standingRow?.position ?? null;
   const stats = standingRow
-    ? { played: standingRow.playedGames, points: standingRow.points, gd: standingRow.goalDifference }
+    ? { won: standingRow.won, drawn: standingRow.draw, lost: standingRow.lost, played: standingRow.playedGames, points: standingRow.points, gd: standingRow.goalDifference }
     : {};
 
   const topScorers = (allScorers || [])

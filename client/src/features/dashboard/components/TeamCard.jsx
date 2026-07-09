@@ -75,7 +75,26 @@ function ordinal(n) {
   return `${n}th`;
 }
 
-function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, source, seasonFinished, isChampion }) {
+function formatRecord(stats, league) {
+  if (!stats) return null;
+  if (stats.won != null) {
+    // Football: W-D-L
+    return `${stats.won}W ${stats.drawn ?? 0}D ${stats.lost ?? 0}L`;
+  }
+  if (stats.wins != null && stats.losses != null) {
+    // NBA, AFL: W-L
+    return `${stats.wins}-${stats.losses}`;
+  }
+  return null;
+}
+
+function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, stats, source, seasonFinished, isChampion }) {
+  const record = formatRecord(stats, league);
+  const positionLabel = ladderPosition != null
+    ? seasonFinished ? `Final: ${ordinal(ladderPosition)}` : `#${ladderPosition}`
+    : null;
+  const recordLine = [positionLabel, record].filter(Boolean).join(' · ');
+
   return (
     <div className="team-card__banner">
       {!darkLogoUrl && logoUrl && (
@@ -106,14 +125,8 @@ function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, so
         />
         <div className="team-card__banner-info">
           <h2 className="team-card__title">{teamName}</h2>
-          <p className="team-card__meta">
-            {LEAGUE_DISPLAY_NAMES[league] || league}
-            {ladderPosition != null
-              ? seasonFinished
-                ? ` · Final: ${ordinal(ladderPosition)}`
-                : ` · #${ladderPosition}`
-              : ''}
-          </p>
+          <p className="team-card__meta">{LEAGUE_DISPLAY_NAMES[league] || league}</p>
+          {recordLine && <p className="team-card__banner-record">{recordLine}</p>}
         </div>
       </div>
     </div>
@@ -294,6 +307,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         logoUrl={team.teamLogoUrl}
         darkLogoUrl={team.darkLogoUrl}
         ladderPosition={team.ladderPosition}
+        stats={team.stats}
         source={team.source}
         seasonFinished={seasonFinished}
         isChampion={isChampion}
