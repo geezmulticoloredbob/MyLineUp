@@ -79,7 +79,10 @@ function getNextGamePanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') {
   };
 }
 
+const STAT_LABEL_OVERRIDES = { gd: 'Goal Diff', ppg: 'PPG' };
+
 function formatStatLabel(label) {
+  if (STAT_LABEL_OVERRIDES[label]) return STAT_LABEL_OVERRIDES[label];
   return label
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, (char) => char.toUpperCase());

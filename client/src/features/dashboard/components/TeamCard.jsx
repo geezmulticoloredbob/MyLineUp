@@ -124,7 +124,7 @@ function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, st
           height={52}
         />
         <div className="team-card__banner-info">
-          <h2 className="team-card__title">{teamName}</h2>
+          <h2 className="team-card__title" title={teamName}>{teamName}</h2>
           <p className="team-card__meta">{LEAGUE_DISPLAY_NAMES[league] || league}</p>
           {recordLine && <p className="team-card__banner-record">{recordLine}</p>}
         </div>
