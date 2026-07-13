@@ -788,48 +788,192 @@ p {
   margin: 0;
 }
 
-.app-shell__username {
-  font-size: var(--text-small);
-  color: var(--text-secondary);
-  font-family: var(--font-body);
-}
+/* ── User menu trigger ── */
 
-/* ── User identity (avatar + username) ── */
-
-.user-identity {
+.user-menu-trigger {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
+  background: transparent;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-button);
+  padding: 5px var(--space-sm);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-small);
+  cursor: pointer;
+  transition: background var(--motion-fast), border-color var(--motion-fast);
 }
 
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.user-menu-trigger:hover {
+  background: var(--surface-card);
+  border-color: var(--text-secondary);
+}
+
+.user-menu-trigger__icon {
   font-size: 18px;
+  line-height: 1;
+}
+
+.user-menu-trigger__chevron {
+  transition: transform var(--motion-fast);
+}
+
+.user-menu-trigger__chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ── Account menu ── */
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + var(--space-sm));
+  right: 0;
+  z-index: 200;
+  width: 300px;
   background: var(--surface-card);
   border: 1px solid var(--border-default);
-  border-radius: 50%;
-  cursor: pointer;
-  transition: border-color var(--motion-fast), background var(--motion-fast);
+  border-radius: var(--radius-card);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  overflow-y: auto;
+  max-height: calc(100vh - 80px);
+}
+
+.account-menu__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.account-menu__avatar {
+  font-size: 32px;
   line-height: 1;
+  flex-shrink: 0;
+}
+
+.account-menu__display-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+.account-menu__display-email {
+  margin: 2px 0 0;
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.account-menu__section {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.account-menu__section-title {
+  font-size: var(--text-caption);
+  font-family: var(--font-heading);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.account-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-form__field label {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.account-form__field input {
+  background: var(--bg-app);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-button);
+  padding: 7px var(--space-sm);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-small);
+  transition: border-color var(--motion-fast);
+}
+
+.account-form__field input:focus {
+  outline: none;
+  border-color: var(--focus-ring);
+}
+
+.account-form__hint {
+  font-size: var(--text-caption);
+  color: var(--text-secondary);
+}
+
+.account-form__feedback {
+  margin: 0;
+  font-size: var(--text-caption);
+}
+
+.account-form__feedback--error { color: var(--accent-error); }
+.account-form__feedback--success { color: var(--focus-ring); }
+
+.account-form__save {
+  align-self: flex-start;
+  font-size: var(--text-small);
+  padding: 6px var(--space-md);
+}
+
+.account-menu__pw-toggle {
+  background: none;
+  border: none;
   padding: 0;
+  color: var(--focus-ring);
+  font: inherit;
+  font-size: var(--text-small);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.user-avatar:hover {
-  border-color: var(--text-secondary);
-  background: var(--surface-card-hover);
+.account-menu__pw-toggle:hover {
+  color: var(--text-primary);
 }
 
-/* ── Icon picker panel ── */
-
-.icon-picker-panel {
-  left: 0;
-  right: auto;
-  min-width: 180px;
+.account-menu__footer {
+  padding: var(--space-sm) var(--space-md);
 }
+
+.account-menu__logout {
+  width: 100%;
+  background: none;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-button);
+  padding: 7px var(--space-md);
+  color: var(--accent-error);
+  font: inherit;
+  font-size: var(--text-small);
+  cursor: pointer;
+  transition: background var(--motion-fast), border-color var(--motion-fast);
+}
+
+.account-menu__logout:hover {
+  background: rgba(211, 47, 47, 0.1);
+  border-color: var(--accent-error);
+}
+
+/* ── Icon picker ── */
 
 .icon-picker__grid {
   display: grid;

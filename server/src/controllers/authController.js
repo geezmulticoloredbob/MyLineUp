@@ -85,10 +85,57 @@ const updateIcon = asyncHandler(async (req, res) => {
   res.json({ user: userShape(user) });
 });
 
+const updateProfile = asyncHandler(async (req, res) => {
+  const { username, email } = req.body;
+  const updates = {};
+
+  if (username !== undefined) {
+    if (typeof username !== 'string' || username.trim().length < 2 || username.trim().length > 30) {
+      throw new ApiError(400, 'Username must be between 2 and 30 characters');
+    }
+    updates.username = username.trim();
+  }
+
+  if (email !== undefined) {
+    if (typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      throw new ApiError(400, 'A valid email is required');
+    }
+    const taken = await User.findOne({ email: email.toLowerCase(), _id: { $ne: req.user._id } });
+    if (taken) throw new ApiError(409, 'That email is already in use');
+    updates.email = email.toLowerCase();
+  }
+
+  if (!Object.keys(updates).length) throw new ApiError(400, 'No valid fields provided');
+
+  const user = await User.findByIdAndUpdate(req.user._id, updates, { returnDocument: 'after' });
+  res.json({ user: userShape(user) });
+});
+
+const updatePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    throw new ApiError(400, 'Current password and new password are required');
+  }
+  if (typeof newPassword !== 'string' || newPassword.length < 8) {
+    throw new ApiError(400, 'New password must be at least 8 characters');
+  }
+  if (!/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+    throw new ApiError(400, 'New password must contain at least one uppercase letter and one number');
+  }
+  const user = await User.findById(req.user._id);
+  const valid = await bcrypt.compare(currentPassword, user.password);
+  if (!valid) throw new ApiError(401, 'Current password is incorrect');
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await User.findByIdAndUpdate(req.user._id, { password: hashed });
+  res.json({ message: 'Password updated' });
+});
+
 module.exports = {
   register,
   login,
   logout,
   getCurrentUser,
   updateIcon,
+  updateProfile,
+  updatePassword,
 };

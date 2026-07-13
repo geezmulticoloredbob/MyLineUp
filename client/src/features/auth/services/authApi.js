@@ -28,3 +28,17 @@ export function updateUserIcon(iconId) {
     body: JSON.stringify({ iconId }),
   });
 }
+
+export function updateProfile(updates) {
+  return apiClient('/api/auth/profile', {
+    method: 'PATCH',
+    body: JSON.stringify(updates),
+  });
+}
+
+export function updatePassword(payload) {
+  return apiClient('/api/auth/password', {
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+  });
+}
