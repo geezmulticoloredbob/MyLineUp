@@ -120,8 +120,8 @@ function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, st
           className="team-card__banner-logo"
           src={logoUrl || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Crect width='52' height='52' fill='%23333'/%3E%3Ccircle cx='26' cy='20' r='8' fill='%23555'/%3E%3Cpath d='M10 44c0-8.837 7.163-16 16-16s16 7.163 16 16' fill='%23555'/%3E%3C/svg%3E"}
           alt={`${teamName} logo`}
-          width={52}
-          height={52}
+          width={40}
+          height={40}
         />
         <div className="team-card__banner-info">
           <h2 className="team-card__title" title={teamName}>{teamName}</h2>
