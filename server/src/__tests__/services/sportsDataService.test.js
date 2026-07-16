@@ -27,6 +27,9 @@ const laligaFav   = { _id: 'f5', teamId: 'lla-rma',  teamName: 'Real Madrid',   
 const bundesFav   = { _id: 'f6', teamId: 'bun-bay',  teamName: 'Bayern Munich',       league: 'BUNDESLIGA', teamLogoUrl: '' };
 const serieaFav   = { _id: 'f7', teamId: 'ser-juv',  teamName: 'Juventus',            league: 'SERIEA',     teamLogoUrl: '' };
 const ligue1Fav   = { _id: 'f8', teamId: 'l1-psg',   teamName: 'Paris Saint-Germain', league: 'LIGUE1',     teamLogoUrl: '' };
+const champFav    = { _id: 'f9', teamId: 'cha-lei',  teamName: 'Leicester City',      league: 'CHAMPIONSHIP', teamLogoUrl: '' };
+const eredivFav   = { _id: 'f10', teamId: 'ere-ajx', teamName: 'Ajax',                league: 'EREDIVISIE', teamLogoUrl: '' };
+const uclFav      = { _id: 'f11', teamId: 'ucl-rma', teamName: 'Real Madrid',         league: 'UCL',        teamLogoUrl: '' };
 
 describe('sportsDataService', () => {
   describe('hydrateFavouriteTeams — routing', () => {
@@ -83,6 +86,27 @@ describe('sportsDataService', () => {
       getFDTeamData.mockResolvedValue(liveSportData);
       const [result] = await hydrateFavouriteTeams([ligue1Fav]);
       expect(getFDTeamData).toHaveBeenCalledWith(ligue1Fav, 'FL1');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getFDTeamData with code ELC for CHAMPIONSHIP', async () => {
+      getFDTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([champFav]);
+      expect(getFDTeamData).toHaveBeenCalledWith(champFav, 'ELC');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getFDTeamData with code DED for EREDIVISIE', async () => {
+      getFDTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([eredivFav]);
+      expect(getFDTeamData).toHaveBeenCalledWith(eredivFav, 'DED');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getFDTeamData with code CL for UCL', async () => {
+      getFDTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([uclFav]);
+      expect(getFDTeamData).toHaveBeenCalledWith(uclFav, 'CL');
       expect(result.source).toBe('live');
     });
 

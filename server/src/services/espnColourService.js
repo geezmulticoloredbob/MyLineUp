@@ -8,6 +8,9 @@ const ESPN_LEAGUE_URLS = {
   BUNDESLIGA: 'https://site.api.espn.com/apis/site/v2/sports/soccer/ger.1/teams',
   SERIEA:     'https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/teams',
   LIGUE1:     'https://site.api.espn.com/apis/site/v2/sports/soccer/fra.1/teams',
+  CHAMPIONSHIP: 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/teams',
+  EREDIVISIE: 'https://site.api.espn.com/apis/site/v2/sports/soccer/ned.1/teams',
+  UCL:        'https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/teams',
 };
 
 // Our stored team names that differ from ESPN's displayName / shortDisplayName

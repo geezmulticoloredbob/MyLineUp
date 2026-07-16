@@ -11,6 +11,9 @@ const FD_COMPETITION_CODES = {
   BUNDESLIGA: 'BL1',
   SERIEA: 'SA',
   LIGUE1: 'FL1',
+  CHAMPIONSHIP: 'ELC',
+  EREDIVISIE: 'DED',
+  UCL: 'CL',
 };
 
 const NBA_ESPN_OVERRIDES = { gsw: 'gs', nop: 'no', nyk: 'ny', sas: 'sa', uta: 'utah', was: 'wsh' };
