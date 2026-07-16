@@ -17,7 +17,7 @@ function SportIcon({ league }) {
       </svg>
     );
   }
-  if (league === 'EPL' || league === 'LALIGA' || league === 'BUNDESLIGA' || league === 'SERIEA' || league === 'LIGUE1') {
+  if (league === 'EPL' || league === 'LALIGA' || league === 'BUNDESLIGA' || league === 'SERIEA' || league === 'LIGUE1' || league === 'CHAMPIONSHIP' || league === 'EREDIVISIE' || league === 'UCL') {
     return (
       <svg className="team-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         {/* White soccer ball with classic black pentagon patches */}

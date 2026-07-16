@@ -55,7 +55,7 @@ describe('leagueController', () => {
       expect(res.json).toHaveBeenCalledWith({ followedLeagues: ['WC'] });
     });
 
-    it.each(['LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1'])('accepts %s as a valid league code', async (code) => {
+    it.each(['LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL'])('accepts %s as a valid league code', async (code) => {
       User.findByIdAndUpdate.mockResolvedValue({ followedLeagues: [code] });
       const res = makeRes();
       await updateFollowedLeagues({ user: mockUser, body: { leagues: [code] } }, res, jest.fn());

@@ -40,7 +40,7 @@ function LeagueSportIcon({ league }) {
       </svg>
     );
   }
-  if (league === 'LALIGA' || league === 'BUNDESLIGA' || league === 'SERIEA' || league === 'LIGUE1') {
+  if (league === 'LALIGA' || league === 'BUNDESLIGA' || league === 'SERIEA' || league === 'LIGUE1' || league === 'CHAMPIONSHIP' || league === 'EREDIVISIE' || league === 'UCL') {
     // Reuse soccer ball icon for all football leagues
     return (
       <svg className="league-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -102,6 +102,9 @@ const STANDINGS_STATS = {
   BUNDESLIGA: FOOTBALL_STATS,
   SERIEA: FOOTBALL_STATS,
   LIGUE1: FOOTBALL_STATS,
+  CHAMPIONSHIP: FOOTBALL_STATS,
+  EREDIVISIE: FOOTBALL_STATS,
+  UCL: FOOTBALL_STATS,
 };
 
 const STAT_LABELS = {

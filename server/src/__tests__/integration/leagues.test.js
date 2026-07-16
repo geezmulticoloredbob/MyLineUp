@@ -44,7 +44,7 @@ describe('PUT /api/leagues', () => {
     expect(res.body.followedLeagues).toContain('WC');
   });
 
-  it.each(['LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1'])('accepts %s as a valid league code', async (code) => {
+  it.each(['LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL'])('accepts %s as a valid league code', async (code) => {
     const agent = await registerAndGetAgent();
     const res = await agent.put('/api/leagues').send({ leagues: [code] });
     expect(res.status).toBe(200);

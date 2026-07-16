@@ -94,6 +94,30 @@ describe('leagueService', () => {
       expect(getFDLeagueGames).toHaveBeenCalledWith('FL1');
     });
 
+    it('dispatches with ELC for CHAMPIONSHIP', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['CHAMPIONSHIP']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('ELC');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('ELC');
+    });
+
+    it('dispatches with DED for EREDIVISIE', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['EREDIVISIE']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('DED');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('DED');
+    });
+
+    it('dispatches with CL for UCL', async () => {
+      getFDStandingsForOverview.mockResolvedValue(mockStandings);
+      getFDLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['UCL']);
+      expect(getFDStandingsForOverview).toHaveBeenCalledWith('CL');
+      expect(getFDLeagueGames).toHaveBeenCalledWith('CL');
+    });
+
     it('dispatches to worldCupService for WC', async () => {
       getWCStandings.mockResolvedValue(mockStandings);
       getWCLeagueGames.mockResolvedValue(mockGames);

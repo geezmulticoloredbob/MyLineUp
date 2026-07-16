@@ -11,6 +11,9 @@ const LEAGUE_FETCHERS = {
   BUNDESLIGA: { standings: () => getFDStandingsForOverview('BL1'),     games: () => getFDLeagueGames('BL1') },
   SERIEA:     { standings: () => getFDStandingsForOverview('SA'),      games: () => getFDLeagueGames('SA') },
   LIGUE1:     { standings: () => getFDStandingsForOverview('FL1'),     games: () => getFDLeagueGames('FL1') },
+  CHAMPIONSHIP: { standings: () => getFDStandingsForOverview('ELC'),   games: () => getFDLeagueGames('ELC') },
+  EREDIVISIE: { standings: () => getFDStandingsForOverview('DED'),     games: () => getFDLeagueGames('DED') },
+  UCL:        { standings: () => getFDStandingsForOverview('CL'),      games: () => getFDLeagueGames('CL') },
   WC:         { standings: getWCStandings,                             games: getWCLeagueGames },
 };
 

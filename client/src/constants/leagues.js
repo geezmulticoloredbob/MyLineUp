@@ -7,6 +7,9 @@ export const LEAGUES = {
   BUNDESLIGA: 'BUNDESLIGA',
   SERIEA: 'SERIEA',
   LIGUE1: 'LIGUE1',
+  CHAMPIONSHIP: 'CHAMPIONSHIP',
+  EREDIVISIE: 'EREDIVISIE',
+  UCL: 'UCL',
 };
 
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
@@ -20,4 +23,7 @@ export const LEAGUE_DISPLAY_NAMES = {
   BUNDESLIGA: 'Bundesliga',
   SERIEA: 'Serie A',
   LIGUE1: 'Ligue 1',
+  CHAMPIONSHIP: 'Championship',
+  EREDIVISIE: 'Eredivisie',
+  UCL: 'Champions League',
 };
