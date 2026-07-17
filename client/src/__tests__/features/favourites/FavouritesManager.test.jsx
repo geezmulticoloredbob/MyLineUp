@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import FavouritesManager from '../../../features/favourites/components/FavouritesManager';
+import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
 
 vi.mock('../../../features/favourites/hooks/useFavourites');
 vi.mock('../../../contexts/AuthContext');
@@ -34,9 +35,9 @@ describe('FavouritesManager', () => {
   it('renders the Leagues tab and one tab per supported league', () => {
     render(<FavouritesManager onClose={mockOnClose} />);
     expect(screen.getByRole('button', { name: 'Leagues' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'NBA' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'EPL' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'AFL' })).toBeInTheDocument();
+    SUPPORTED_LEAGUES.forEach((league) => {
+      expect(screen.getByRole('button', { name: LEAGUE_DISPLAY_NAMES[league] || league })).toBeInTheDocument();
+    });
   });
 
   it('shows Follow/Unfollow buttons for each league on the Leagues panel by default', () => {
@@ -52,7 +53,7 @@ describe('FavouritesManager', () => {
     });
     render(<FavouritesManager onClose={mockOnClose} />);
     expect(screen.getAllByRole('button', { name: 'Unfollow' })).toHaveLength(1);
-    expect(screen.getAllByRole('button', { name: 'Follow' })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: 'Follow' })).toHaveLength(SUPPORTED_LEAGUES.length - 1);
   });
 
   it('switches to a team list when a league tab is clicked', () => {
