@@ -20,7 +20,8 @@
       "Bash(Select-String -Pattern \"npm audit\" -NotMatch)",
       "WebSearch",
       "PowerShell(cd \"C:\\\\Users\\\\coenw\\\\source\\\\repos\\\\MyLineUp\"; $env:DEMO_PASSWORD = \"Password1\"; node smoke.mjs 2>&1)",
-      "Bash(npx jest *)"
+      "Bash(npx jest *)",
+      "mcp__Claude_Code_Remote__send_later"
     ],
     "additionalDirectories": [
       "c:\\Users\\coenw\\.claude\\projects\\c--Users-coenw-source-repos-MyLineUp\\memory"
