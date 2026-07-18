@@ -10,7 +10,7 @@ const VALID_ICON_IDS = ['football', 'basketball', 'rugby', 'trophy', 'star', 'fl
 const COOKIE_BASE = {
   httpOnly: true,
   secure: env.nodeEnv === 'production',
-  sameSite: 'lax',
+  sameSite: env.nodeEnv === 'production' ? 'none' : 'lax',
 };
 
 const COOKIE_OPTIONS = {
