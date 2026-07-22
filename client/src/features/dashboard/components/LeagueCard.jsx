@@ -68,6 +68,36 @@ function LeagueSportIcon({ league }) {
       </svg>
     );
   }
+  if (league === 'NFL') {
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="10" cy="10" rx="9" ry="5.5" fill="#7b4a2d" />
+        <line x1="6" y1="10" x2="14" y2="10" stroke="#fff" strokeWidth="1.2" />
+        <line x1="8.5" y1="8" x2="8.5" y2="12" stroke="#fff" strokeWidth="0.8" />
+        <line x1="10" y1="7.6" x2="10" y2="12.4" stroke="#fff" strokeWidth="0.8" />
+        <line x1="11.5" y1="8" x2="11.5" y2="12" stroke="#fff" strokeWidth="0.8" />
+        <ellipse cx="10" cy="10" rx="9" ry="5.5" fill="none" stroke="#4a2c18" strokeWidth="0.8" />
+      </svg>
+    );
+  }
+  if (league === 'NHL') {
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <ellipse cx="10" cy="9.5" rx="9" ry="3.2" fill="#2b2b2b" />
+        <ellipse cx="10" cy="9.5" rx="9" ry="3.2" fill="none" stroke="#000" strokeWidth="0.6" />
+      </svg>
+    );
+  }
+  if (league === 'MLB') {
+    return (
+      <svg className="league-card__sport-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="10" cy="10" r="9" fill="#f7f3e8" />
+        <path d="M4,3 Q9,10 4,17" stroke="#c8102e" strokeWidth="0.8" fill="none" />
+        <path d="M16,3 Q11,10 16,17" stroke="#c8102e" strokeWidth="0.8" fill="none" />
+        <circle cx="10" cy="10" r="9" fill="none" stroke="#999" strokeWidth="0.6" />
+      </svg>
+    );
+  }
   return null;
 }
 
@@ -105,6 +135,9 @@ const STANDINGS_STATS = {
   CHAMPIONSHIP: FOOTBALL_STATS,
   EREDIVISIE: FOOTBALL_STATS,
   UCL: FOOTBALL_STATS,
+  NFL: ['wins', 'losses'],
+  NHL: ['wins', 'losses'],
+  MLB: ['wins', 'losses'],
 };
 
 const STAT_LABELS = {

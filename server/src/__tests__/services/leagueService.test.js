@@ -14,12 +14,17 @@ jest.mock('../../services/worldCupService', () => ({
   getWCStandings: jest.fn(),
   getWCLeagueGames: jest.fn(),
 }));
+jest.mock('../../services/espnTeamSportService', () => ({
+  getESPNStandingsOverview: jest.fn(),
+  getESPNLeagueGames: jest.fn(),
+}));
 
 const { hydrateFollowedLeagues } = require('../../services/leagueService');
 const { getNBAStandings, getNBALeagueGames } = require('../../services/nbaService');
 const { getAFLStandings, getAFLLeagueGames } = require('../../services/aflService');
 const { getFDStandingsForOverview, getFDLeagueGames } = require('../../services/footballService');
 const { getWCStandings, getWCLeagueGames } = require('../../services/worldCupService');
+const { getESPNStandingsOverview, getESPNLeagueGames } = require('../../services/espnTeamSportService');
 
 const mockStandings = [{ position: 1, teamName: 'Team A' }];
 const mockGames = { recentResults: [], upcomingFixtures: [] };
@@ -116,6 +121,30 @@ describe('leagueService', () => {
       await hydrateFollowedLeagues(['UCL']);
       expect(getFDStandingsForOverview).toHaveBeenCalledWith('CL');
       expect(getFDLeagueGames).toHaveBeenCalledWith('CL');
+    });
+
+    it('dispatches to espnTeamSportService with league NFL for NFL', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['NFL']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('NFL');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('NFL');
+    });
+
+    it('dispatches to espnTeamSportService with league NHL for NHL', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['NHL']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('NHL');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('NHL');
+    });
+
+    it('dispatches to espnTeamSportService with league MLB for MLB', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['MLB']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('MLB');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('MLB');
     });
 
     it('dispatches to worldCupService for WC', async () => {
