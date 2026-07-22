@@ -1,2 +1,2 @@
-module.exports = ['NBA', 'EPL', 'AFL', 'WC', 'LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL'];
+module.exports = ['NBA', 'EPL', 'AFL', 'WC', 'LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL', 'NFL', 'NHL', 'MLB'];
 

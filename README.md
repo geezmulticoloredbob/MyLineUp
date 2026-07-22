@@ -30,6 +30,12 @@ Supported leagues:
 - Bundesliga
 - Serie A
 - Ligue 1
+- Championship
+- Eredivisie
+- Champions League
+- NFL
+- NHL
+- MLB
 
 ## 🚀 Tech Stack
 
@@ -46,9 +52,9 @@ Supported leagues:
 
 **External data**
 - BallDontLie API (NBA)
-- football-data.org (EPL, La Liga, Bundesliga, Serie A, Ligue 1, World Cup)
-- AFL data source
-- ESPN CDN for team logos and brand colours
+- football-data.org (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, Champions League, World Cup)
+- Squiggle (AFL)
+- ESPN's public site API (NFL, NHL, MLB) and CDN (team logos and brand colours across all leagues)
 
 ## 🧠 Core Features
 
@@ -74,7 +80,7 @@ Supported leagues:
 
 **User**
 - `username`, `email`, `password` (bcrypt-hashed)
-- `followedLeagues[]` — one or more of `NBA`, `EPL`, `AFL`, `WC`, `LALIGA`, `BUNDESLIGA`, `SERIEA`, `LIGUE1`
+- `followedLeagues[]` — one or more of `NBA`, `EPL`, `AFL`, `WC`, `LALIGA`, `BUNDESLIGA`, `SERIEA`, `LIGUE1`, `CHAMPIONSHIP`, `EREDIVISIE`, `UCL`, `NFL`, `NHL`, `MLB`
 - `onboardingComplete`
 - `iconId` — selected avatar icon
 

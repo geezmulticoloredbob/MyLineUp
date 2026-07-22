@@ -23,7 +23,8 @@
       "Bash(npx jest *)",
       "mcp__Claude_Code_Remote__send_later",
       "Bash(echo \"exit: $?\")",
-      "Bash(echo \"exit:$?\")"
+      "Bash(echo \"exit:$?\")",
+      "mcp__Claude_Code_Remote__subscribe_pr_activity"
     ],
     "additionalDirectories": [
       "c:\\Users\\coenw\\.claude\\projects\\c--Users-coenw-source-repos-MyLineUp\\memory"

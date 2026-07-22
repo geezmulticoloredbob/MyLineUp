@@ -2,7 +2,10 @@ const { getNBATeamData } = require('./nbaService');
 const { getAFLTeamData } = require('./aflService');
 const { getFDTeamData } = require('./footballService');
 const { getWCTeamData } = require('./worldCupService');
+const { getESPNTeamData } = require('./espnTeamSportService');
 const { getTeamColours } = require('./espnColourService');
+
+const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB'];
 
 // competition code for each football-data.org league
 const FD_COMPETITION_CODES = {
@@ -42,6 +45,15 @@ function espnLogoFromTeamId(teamId) {
     const code = teamId.replace('wc-', '');
     return `https://a.espncdn.com/i/teamlogos/countries/500/${code}.png`;
   }
+  if (teamId.startsWith('nfl-')) {
+    return `https://a.espncdn.com/i/teamlogos/nfl/500/${teamId.replace('nfl-', '')}.png`;
+  }
+  if (teamId.startsWith('nhl-')) {
+    return `https://a.espncdn.com/i/teamlogos/nhl/500/${teamId.replace('nhl-', '')}.png`;
+  }
+  if (teamId.startsWith('mlb-')) {
+    return `https://a.espncdn.com/i/teamlogos/mlb/500/${teamId.replace('mlb-', '')}.png`;
+  }
   return null;
 }
 
@@ -51,6 +63,7 @@ async function hydrateTeam(favourite) {
     if (favourite.league === 'NBA') return getNBATeamData(favourite);
     if (favourite.league === 'AFL') return getAFLTeamData(favourite);
     if (favourite.league === 'WC') return getWCTeamData(favourite);
+    if (ESPN_TEAM_SPORT_LEAGUES.includes(favourite.league)) return getESPNTeamData(favourite, favourite.league);
     if (fdCode) return getFDTeamData(favourite, fdCode);
     return null;
   };
