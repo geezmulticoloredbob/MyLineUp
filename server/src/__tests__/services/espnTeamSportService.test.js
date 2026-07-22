@@ -125,6 +125,30 @@ describe('getESPNStandingsOverview', () => {
     expect(result[0]).toMatchObject({ position: 1, teamName: 'Kansas City Chiefs', stats: { wins: 12, losses: 5 } });
     expect(result[0].logoUrl).toBe('https://espn.com/kc.png');
   });
+
+  it('dedupes teams that appear in both a conference-level and division-level standings block', async () => {
+    const nestedStandings = {
+      children: [
+        {
+          name: 'AFC',
+          standings: { entries: MOCK_STANDINGS_RESPONSE.children[0].standings.entries },
+          children: [
+            { name: 'AFC West', standings: { entries: [MOCK_STANDINGS_RESPONSE.children[0].standings.entries[0]] } },
+          ],
+        },
+      ],
+    };
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/standings')) return mockOk(nestedStandings);
+      if (url.includes('/teams')) return mockOk(MOCK_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNStandingsOverview('NFL');
+
+    expect(result).toHaveLength(2);
+    expect(result.filter((r) => r.teamName === 'Kansas City Chiefs')).toHaveLength(1);
+  });
 });
 
 describe('getESPNLeagueGames', () => {

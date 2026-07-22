@@ -227,7 +227,17 @@ async function getESPNStandingsOverview(sportKey) {
     getESPNStandingsEntries(sportKey),
   ]);
 
-  return entries
+  // ESPN sometimes nests a conference-level standings block alongside per-division
+  // ones — flattening can see the same team twice, so dedupe by team id.
+  const seenTeamIds = new Set();
+  const uniqueEntries = entries.filter((entry) => {
+    const id = String(entry.team?.id);
+    if (seenTeamIds.has(id)) return false;
+    seenTeamIds.add(id);
+    return true;
+  });
+
+  return uniqueEntries
     .map((entry) => {
       const team = teams.find((t) => String(t.id) === String(entry.team?.id));
       const wins = statValue(entry, 'wins');
