@@ -38,7 +38,7 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 - **Errors** thrown as `new ApiError(statusCode, message)` — caught by `errorHandler` middleware
 - **Auth middleware** (`middleware/authMiddleware.js`): Bearer token → DB user lookup → `req.user`
 - **Config**: all env vars centralised in `config/env.js`; never read `process.env` directly elsewhere
-- **Sports data**: three league services (`nbaService`, `aflService`, `footballService`) are orchestrated by `sportsDataService.hydrateTeam()`. Each service returns `{ logoUrl, latestResult, nextFixture, ladderPosition, stats, topScorers }` or throws. On error, `sportsDataService` falls back to `source: 'unavailable'` rather than failing the whole request.
+- **Sports data**: league services (`nbaService`, `aflService`, `footballService`, `worldCupService`, `espnTeamSportService`) are orchestrated by `sportsDataService.hydrateTeam()`. `espnTeamSportService` is a single config-driven service covering NFL/NHL/MLB via ESPN's public site API (no key required). Each service returns `{ logoUrl, latestResult, nextFixture, ladderPosition, stats, topScorers }` or throws. On error, `sportsDataService` falls back to `source: 'unavailable'` rather than failing the whole request. `leagueService.js` holds the equivalent per-league dispatch table (`standings`/`games`) for the today's-games feed and league overview.
 - **Caching**: standings responses have a 5-min in-memory TTL inside each league service
 - **Team IDs** follow the pattern `{league}-{abbr}` (e.g. `nba-gsw`, `epl-ars`, `afl-haw`)
 - **Integration tests** use `mongodb-memory-server` (see `__tests__/integration/dbSetup.js`); unit tests mock the DB

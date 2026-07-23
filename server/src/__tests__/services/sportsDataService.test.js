@@ -2,12 +2,14 @@ jest.mock('../../services/nbaService', () => ({ getNBATeamData: jest.fn() }));
 jest.mock('../../services/aflService', () => ({ getAFLTeamData: jest.fn() }));
 jest.mock('../../services/footballService', () => ({ getFDTeamData: jest.fn() }));
 jest.mock('../../services/worldCupService', () => ({ getWCTeamData: jest.fn() }));
+jest.mock('../../services/espnTeamSportService', () => ({ getESPNTeamData: jest.fn() }));
 
 const { hydrateFavouriteTeams } = require('../../services/sportsDataService');
 const { getNBATeamData } = require('../../services/nbaService');
 const { getAFLTeamData } = require('../../services/aflService');
 const { getFDTeamData } = require('../../services/footballService');
 const { getWCTeamData } = require('../../services/worldCupService');
+const { getESPNTeamData } = require('../../services/espnTeamSportService');
 
 const liveSportData = {
   logoUrl: 'https://example.com/logo.png',
@@ -30,6 +32,9 @@ const ligue1Fav   = { _id: 'f8', teamId: 'l1-psg',   teamName: 'Paris Saint-Germ
 const champFav    = { _id: 'f9', teamId: 'cha-lei',  teamName: 'Leicester City',      league: 'CHAMPIONSHIP', teamLogoUrl: '' };
 const eredivFav   = { _id: 'f10', teamId: 'ere-ajx', teamName: 'Ajax',                league: 'EREDIVISIE', teamLogoUrl: '' };
 const uclFav      = { _id: 'f11', teamId: 'ucl-rma', teamName: 'Real Madrid',         league: 'UCL',        teamLogoUrl: '' };
+const nflFav      = { _id: 'f12', teamId: 'nfl-kc',  teamName: 'Kansas City Chiefs',  league: 'NFL',        teamLogoUrl: '' };
+const nhlFav      = { _id: 'f13', teamId: 'nhl-bos',  teamName: 'Boston Bruins',      league: 'NHL',        teamLogoUrl: '' };
+const mlbFav      = { _id: 'f14', teamId: 'mlb-nyy',  teamName: 'New York Yankees',   league: 'MLB',        teamLogoUrl: '' };
 
 describe('sportsDataService', () => {
   describe('hydrateFavouriteTeams — routing', () => {
@@ -110,6 +115,27 @@ describe('sportsDataService', () => {
       expect(result.source).toBe('live');
     });
 
+    it('dispatches to getESPNTeamData with league NFL for NFL', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([nflFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(nflFav, 'NFL');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getESPNTeamData with league NHL for NHL', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([nhlFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(nhlFav, 'NHL');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getESPNTeamData with league MLB for MLB', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([mlbFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(mlbFav, 'MLB');
+      expect(result.source).toBe('live');
+    });
+
     it('returns source=unavailable for an unknown league without throwing', async () => {
       const unknownFav = { _id: 'fx', teamId: 'other-x', teamName: 'Unknown FC', league: 'UNKNOWN', teamLogoUrl: '' };
       const [result] = await hydrateFavouriteTeams([unknownFav]);
@@ -178,6 +204,13 @@ describe('sportsDataService', () => {
       const [result] = await hydrateFavouriteTeams([{ ...wcFav, teamLogoUrl: '' }]);
       expect(result.teamLogoUrl).toMatch(/espncdn\.com/);
       expect(result.teamLogoUrl).toContain('/eng.png');
+    });
+
+    it('uses ESPN CDN logo fallback for NFL when the service provides no logo', async () => {
+      getESPNTeamData.mockResolvedValue({ ...liveSportData, logoUrl: null });
+      const [result] = await hydrateFavouriteTeams([{ ...nflFav, teamLogoUrl: '' }]);
+      expect(result.teamLogoUrl).toMatch(/espncdn\.com/);
+      expect(result.teamLogoUrl).toContain('/kc.png');
     });
   });
 });

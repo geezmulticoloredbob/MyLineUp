@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
-const DEFAULT_LEAGUE_ORDER = ['NBA', 'EPL', 'AFL', 'WC', 'LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL'];
+const DEFAULT_LEAGUE_ORDER = ['NBA', 'EPL', 'AFL', 'WC', 'LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL', 'NFL', 'NHL', 'MLB'];
 
 function readJson(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }

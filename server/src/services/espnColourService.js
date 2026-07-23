@@ -11,6 +11,9 @@ const ESPN_LEAGUE_URLS = {
   CHAMPIONSHIP: 'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.2/teams',
   EREDIVISIE: 'https://site.api.espn.com/apis/site/v2/sports/soccer/ned.1/teams',
   UCL:        'https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/teams',
+  NFL:        'https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams',
+  NHL:        'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/teams',
+  MLB:        'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/teams',
 };
 
 // Our stored team names that differ from ESPN's displayName / shortDisplayName

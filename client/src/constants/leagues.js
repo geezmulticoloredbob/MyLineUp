@@ -10,6 +10,9 @@ export const LEAGUES = {
   CHAMPIONSHIP: 'CHAMPIONSHIP',
   EREDIVISIE: 'EREDIVISIE',
   UCL: 'UCL',
+  NFL: 'NFL',
+  NHL: 'NHL',
+  MLB: 'MLB',
 };
 
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
@@ -26,4 +29,7 @@ export const LEAGUE_DISPLAY_NAMES = {
   CHAMPIONSHIP: 'Championship',
   EREDIVISIE: 'Eredivisie',
   UCL: 'Champions League',
+  NFL: 'NFL',
+  NHL: 'NHL',
+  MLB: 'MLB',
 };
