@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
 import { teamsByLeague } from '../../../data/teamsByLeague';
 import { useFavourites } from '../hooks/useFavourites';
@@ -41,7 +41,10 @@ function FavouritesManager({ onClose }) {
   const [busy, setBusy] = useState({});
   const [leagueBusy, setLeagueBusy] = useState({});
   const [error, setError] = useState(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const dirtyRef = useRef(false);
+  const tabsRef = useRef(null);
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -50,6 +53,28 @@ function FavouritesManager({ onClose }) {
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
+
+  const updateScrollState = useCallback(() => {
+    const el = tabsRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = tabsRef.current;
+    if (!el) return;
+    const onResize = () => updateScrollState();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [updateScrollState]);
+
+  function scrollTabs(direction) {
+    const el = tabsRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * el.clientWidth * 0.6, behavior: 'smooth' });
+  }
   const { favourites, loading, addFavourite, removeFavourite } = useFavourites();
   const { user, updateUser } = useAuth();
 
@@ -113,24 +138,44 @@ function FavouritesManager({ onClose }) {
 
         {error && <p className="modal__error" role="alert">{error}</p>}
 
-        <div className="league-tabs">
+        <div className="league-tabs-row">
           <button
             type="button"
-            className={`league-tab${activeTab === TAB_LEAGUES ? ' league-tab--active' : ''}`}
-            onClick={() => setActiveTab(TAB_LEAGUES)}
+            className="league-tabs-arrow"
+            onClick={() => scrollTabs(-1)}
+            disabled={!canScrollLeft}
+            aria-label="Scroll leagues left"
           >
-            Leagues
+            <ChevronLeft size={18} />
           </button>
-          {SUPPORTED_LEAGUES.map((league) => (
+          <div className="league-tabs" ref={tabsRef} onScroll={updateScrollState}>
             <button
-              key={league}
               type="button"
-              className={`league-tab${activeTab === league ? ' league-tab--active' : ''}`}
-              onClick={() => setActiveTab(league)}
+              className={`league-tab${activeTab === TAB_LEAGUES ? ' league-tab--active' : ''}`}
+              onClick={() => setActiveTab(TAB_LEAGUES)}
             >
-              {LEAGUE_DISPLAY_NAMES[league] || league}
+              Leagues
             </button>
-          ))}
+            {SUPPORTED_LEAGUES.map((league) => (
+              <button
+                key={league}
+                type="button"
+                className={`league-tab${activeTab === league ? ' league-tab--active' : ''}`}
+                onClick={() => setActiveTab(league)}
+              >
+                {LEAGUE_DISPLAY_NAMES[league] || league}
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="league-tabs-arrow"
+            onClick={() => scrollTabs(1)}
+            disabled={!canScrollRight}
+            aria-label="Scroll leagues right"
+          >
+            <ChevronRight size={18} />
+          </button>
         </div>
 
         {activeTab === TAB_LEAGUES ? (

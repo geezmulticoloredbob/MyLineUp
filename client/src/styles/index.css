@@ -1230,15 +1230,52 @@ p {
 
 /* ── League tabs ── */
 
-.league-tabs {
+.league-tabs-row {
   display: flex;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-lg);
+  align-items: center;
+  gap: var(--space-xs);
   border-bottom: 1px solid var(--border-default);
   flex-shrink: 0;
 }
 
+.league-tabs-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--space-sm);
+  transition: color var(--motion-fast) ease;
+}
+
+.league-tabs-arrow:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
+.league-tabs-arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.league-tabs {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-sm);
+  flex: 1;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.league-tabs::-webkit-scrollbar {
+  display: none;
+}
+
 .league-tab {
+  flex-shrink: 0;
   background: transparent;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
