@@ -334,6 +334,7 @@ p {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: var(--space-md);
+  align-items: start;
 }
 
 .team-card {
@@ -365,7 +366,7 @@ p {
   overflow: hidden;
   margin: -12px -12px 12px;
   border-radius: var(--radius-card) var(--radius-card) 0 0;
-  height: 80px;
+  height: 108px;
 }
 
 .team-card__banner-bg {
@@ -483,11 +484,11 @@ p {
 }
 
 .team-card__banner-logo {
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
   object-fit: contain;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.65));
 }
 
 .team-card__banner-info {
@@ -498,9 +499,12 @@ p {
 .team-card__title {
   font-family: var(--font-heading);
   font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.15;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .team-card__meta {
@@ -530,6 +534,12 @@ p {
   text-align: center;
 }
 
+.team-card__section + .team-card__section {
+  margin-top: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-default);
+}
+
 .team-card__section-title {
   font-family: var(--font-heading);
   display: flex;
@@ -543,20 +553,21 @@ p {
 }
 
 .team-card__score {
-  font-size: var(--text-h3);
+  font-size: var(--text-h2);
   font-family: var(--font-heading);
+  font-weight: 600;
 }
 
 .team-card__score-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
 }
 
 .team-card__opp-logo {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -565,18 +576,34 @@ p {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: var(--space-xs);
 }
 
 .team-card__stats li {
   display: flex;
-  justify-content: space-between;
-  padding: var(--space-xs) 0;
-  border-bottom: 1px solid var(--border-default);
-  font-size: var(--text-small);
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-xs) 2px;
+  border-radius: var(--radius-button);
+  background: color-mix(in srgb, var(--border-default) 55%, transparent);
 }
 
-.team-card__stats li:last-child {
-  border-bottom: 0;
+.team-card__stats li span {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.team-card__stats li strong {
+  font-family: var(--font-heading);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .team-card__scorers {
