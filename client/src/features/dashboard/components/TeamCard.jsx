@@ -99,6 +99,13 @@ function SportIcon({ league }) {
   return null;
 }
 
+const PLACEHOLDER_LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Crect width='52' height='52' fill='%23333'/%3E%3Ccircle cx='26' cy='20' r='8' fill='%23555'/%3E%3Cpath d='M10 44c0-8.837 7.163-16 16-16s16 7.163 16 16' fill='%23555'/%3E%3C/svg%3E";
+
+function handleLogoError(e) {
+  e.target.onerror = null;
+  e.target.src = PLACEHOLDER_LOGO;
+}
+
 function ordinal(n) {
   if (n >= 11 && n <= 13) return `${n}th`;
   const rem = n % 10;
@@ -131,11 +138,23 @@ function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, st
   return (
     <div className="team-card__banner">
       {!darkLogoUrl && logoUrl && (
-        <img className="team-card__banner-bg" src={logoUrl} alt="" aria-hidden="true" />
+        <img
+          className="team-card__banner-bg"
+          src={logoUrl}
+          alt=""
+          aria-hidden="true"
+          onError={(e) => { e.target.style.display = 'none'; }}
+        />
       )}
       <div className="team-card__banner-overlay" />
       {darkLogoUrl && (
-        <img className="team-card__banner-dark-logo" src={darkLogoUrl} alt="" aria-hidden="true" />
+        <img
+          className="team-card__banner-dark-logo"
+          src={darkLogoUrl}
+          alt=""
+          aria-hidden="true"
+          onError={(e) => { e.target.style.display = 'none'; }}
+        />
       )}
       <SportIcon league={league} />
       {seasonFinished ? (
@@ -151,10 +170,11 @@ function CardBanner({ teamName, league, logoUrl, darkLogoUrl, ladderPosition, st
       <div className="team-card__banner-content">
         <img
           className="team-card__banner-logo"
-          src={logoUrl || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Crect width='52' height='52' fill='%23333'/%3E%3Ccircle cx='26' cy='20' r='8' fill='%23555'/%3E%3Cpath d='M10 44c0-8.837 7.163-16 16-16s16 7.163 16 16' fill='%23555'/%3E%3C/svg%3E"}
+          src={logoUrl || PLACEHOLDER_LOGO}
           alt={`${teamName} logo`}
-          width={40}
-          height={40}
+          width={46}
+          height={46}
+          onError={handleLogoError}
         />
         <div className="team-card__banner-info">
           <h2 className="team-card__title" title={teamName}>{teamName}</h2>
@@ -181,8 +201,9 @@ function MatchPanel({ panel, tone = 'neutral' }) {
             src={panel.opponentLogoUrl}
             alt=""
             className="team-card__opp-logo"
-            width={22}
-            height={22}
+            width={26}
+            height={26}
+            onError={(e) => { e.target.style.display = 'none'; }}
           />
         )}
         <p className={`team-card__score ${toneClassName}`}>{panel.content}</p>
