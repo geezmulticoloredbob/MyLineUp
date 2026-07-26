@@ -187,7 +187,16 @@ function StandingsSection({ league, standings, seasonComplete }) {
               <tr key={row.teamName}>
                 <td>{row.position ?? '-'}</td>
                 <td className="lc-table__team">
-                  {row.logoUrl && <img src={row.logoUrl} alt="" width={16} height={16} className="lc-table__logo" />}
+                  {row.logoUrl && (
+                    <img
+                      src={row.logoUrl}
+                      alt=""
+                      width={16}
+                      height={16}
+                      className="lc-table__logo"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  )}
                   <span>{row.teamName}</span>
                   {seasonComplete && row.position === 1 && (
                     <Trophy size={12} strokeWidth={2} className="lc-table__champion-icon" aria-label="Season champion" />
