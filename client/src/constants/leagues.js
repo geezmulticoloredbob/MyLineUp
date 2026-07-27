@@ -33,3 +33,39 @@ export const LEAGUE_DISPLAY_NAMES = {
   NHL: 'NHL',
   MLB: 'MLB',
 };
+
+// Groups the many soccer competitions under one heading; each other league is its own sport
+export const SPORTS = {
+  BASKETBALL: 'BASKETBALL',
+  SOCCER: 'SOCCER',
+  AFL: 'AFL',
+  GRIDIRON: 'GRIDIRON',
+  HOCKEY: 'HOCKEY',
+  BASEBALL: 'BASEBALL',
+};
+
+export const LEAGUE_SPORT = {
+  NBA: SPORTS.BASKETBALL,
+  EPL: SPORTS.SOCCER,
+  WC: SPORTS.SOCCER,
+  LALIGA: SPORTS.SOCCER,
+  BUNDESLIGA: SPORTS.SOCCER,
+  SERIEA: SPORTS.SOCCER,
+  LIGUE1: SPORTS.SOCCER,
+  CHAMPIONSHIP: SPORTS.SOCCER,
+  EREDIVISIE: SPORTS.SOCCER,
+  UCL: SPORTS.SOCCER,
+  AFL: SPORTS.AFL,
+  NFL: SPORTS.GRIDIRON,
+  NHL: SPORTS.HOCKEY,
+  MLB: SPORTS.BASEBALL,
+};
+
+export const SPORT_DISPLAY_NAMES = {
+  BASKETBALL: 'Basketball',
+  SOCCER: 'Soccer',
+  AFL: 'AFL',
+  GRIDIRON: 'NFL',
+  HOCKEY: 'NHL',
+  BASEBALL: 'MLB',
+};

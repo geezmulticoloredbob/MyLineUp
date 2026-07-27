@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GripVertical } from 'lucide-react';
-import { LEAGUE_DISPLAY_NAMES } from '../constants/leagues';
+import { LEAGUE_SPORT, SPORT_DISPLAY_NAMES } from '../constants/leagues';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,54 +14,82 @@ import GamesFeed from '../features/dashboard/components/GamesFeed';
 
 const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23333'/%3E%3Ccircle cx='20' cy='15' r='6' fill='%23555'/%3E%3Cpath d='M8 36c0-6.627 5.373-12 12-12s12 5.373 12 12' fill='%23555'/%3E%3C/svg%3E";
 
+function sportOf(league) {
+  return LEAGUE_SPORT[league] || league;
+}
+
+// Moves every league belonging to `fromSport` as a contiguous block to sit
+// where `toSport`'s leagues are, preserving order within each sport otherwise.
+function moveSportBlock(leagueOrder, fromSport, toSport) {
+  if (fromSport === toSport) return leagueOrder;
+  const sportsInOrder = [];
+  leagueOrder.forEach((l) => {
+    const s = sportOf(l);
+    if (!sportsInOrder.includes(s)) sportsInOrder.push(s);
+  });
+  const nextSports = [...sportsInOrder];
+  nextSports.splice(nextSports.indexOf(fromSport), 1);
+  nextSports.splice(nextSports.indexOf(toSport), 0, fromSport);
+
+  const bySport = {};
+  leagueOrder.forEach((l) => {
+    const s = sportOf(l);
+    (bySport[s] = bySport[s] || []).push(l);
+  });
+  return nextSports.flatMap((s) => bySport[s]);
+}
+
 function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamReorder }) {
-  const dragLeague = useRef(null);
+  const dragSport = useRef(null);
   const dragTeam = useRef(null);
-  const [dragOverLeague, setDragOverLeague] = useState(null);
+  const [dragOverSport, setDragOverSport] = useState(null);
   const [dragOverTeam, setDragOverTeam] = useState(null);
 
   function scrollToTeam(favouriteId) {
     document.getElementById(`team-${favouriteId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  const grouped = leagueOrder.reduce((acc, league) => {
-    const leagueTeams = teams.filter((t) => t.league === league);
-    if (leagueTeams.length) acc[league] = leagueTeams;
+  const sportsInOrder = [];
+  leagueOrder.forEach((l) => {
+    const s = sportOf(l);
+    if (!sportsInOrder.includes(s)) sportsInOrder.push(s);
+  });
+
+  const grouped = sportsInOrder.reduce((acc, sport) => {
+    const sportTeams = teams.filter((t) => sportOf(t.league) === sport);
+    if (sportTeams.length) acc[sport] = sportTeams;
     return acc;
   }, {});
 
-  function onLeagueDragStart(e, league) {
-    dragLeague.current = league;
+  function onSportDragStart(e, sport) {
+    dragSport.current = sport;
     e.dataTransfer.effectAllowed = 'move';
   }
-  function onLeagueDragOver(e, league) {
+  function onSportDragOver(e, sport) {
     e.preventDefault();
-    if (dragLeague.current && dragLeague.current !== league) setDragOverLeague(league);
+    if (dragSport.current && dragSport.current !== sport) setDragOverSport(sport);
   }
-  function onLeagueDrop(e, targetLeague) {
+  function onSportDrop(e, targetSport) {
     e.preventDefault();
-    if (!dragLeague.current || dragLeague.current === targetLeague) return;
-    const next = [...leagueOrder];
-    next.splice(next.indexOf(dragLeague.current), 1);
-    next.splice(next.indexOf(targetLeague), 0, dragLeague.current);
-    onLeagueReorder(next);
-    dragLeague.current = null;
-    setDragOverLeague(null);
+    if (!dragSport.current || dragSport.current === targetSport) return;
+    onLeagueReorder(moveSportBlock(leagueOrder, dragSport.current, targetSport));
+    dragSport.current = null;
+    setDragOverSport(null);
   }
-  function onLeagueDragEnd() {
-    dragLeague.current = null;
-    setDragOverLeague(null);
+  function onSportDragEnd() {
+    dragSport.current = null;
+    setDragOverSport(null);
   }
 
-  function onTeamDragStart(e, teamId, league) {
+  function onTeamDragStart(e, teamId, sport) {
     e.stopPropagation();
-    dragTeam.current = { id: teamId, league };
+    dragTeam.current = { id: teamId, sport };
     e.dataTransfer.effectAllowed = 'move';
   }
-  function onTeamDragOver(e, teamId, league) {
+  function onTeamDragOver(e, teamId, sport) {
     e.preventDefault();
     e.stopPropagation();
-    if (dragTeam.current?.id !== teamId && dragTeam.current?.league === league) {
+    if (dragTeam.current?.id !== teamId && dragTeam.current?.sport === sport) {
       setDragOverTeam(teamId);
     }
   }
@@ -87,30 +115,30 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
 
   return (
     <div className="team-strip">
-      {Object.entries(grouped).map(([league, leagueTeams]) => (
+      {Object.entries(grouped).map(([sport, sportTeams]) => (
         <div
-          key={league}
-          className={`team-strip__group${dragOverLeague === league ? ' team-strip__group--drag-over' : ''}`}
+          key={sport}
+          className={`team-strip__group${dragOverSport === sport ? ' team-strip__group--drag-over' : ''}`}
           draggable
-          onDragStart={(e) => onLeagueDragStart(e, league)}
-          onDragOver={(e) => onLeagueDragOver(e, league)}
-          onDrop={(e) => onLeagueDrop(e, league)}
-          onDragEnd={onLeagueDragEnd}
+          onDragStart={(e) => onSportDragStart(e, sport)}
+          onDragOver={(e) => onSportDragOver(e, sport)}
+          onDrop={(e) => onSportDrop(e, sport)}
+          onDragEnd={onSportDragEnd}
         >
           <span className="team-strip__league-label">
             <GripVertical size={11} className="team-strip__drag-icon" aria-hidden="true" />
-            {LEAGUE_DISPLAY_NAMES[league] || league}
+            {SPORT_DISPLAY_NAMES[sport] || sport}
           </span>
           <div className="team-strip__items">
-            {leagueTeams.map((team) => (
+            {sportTeams.map((team) => (
               <button
                 key={team.favouriteId}
                 type="button"
                 draggable
-                className={`team-strip__item team-strip__item--${league.toLowerCase()}${dragOverTeam === team.favouriteId ? ' team-strip__item--drag-over' : ''}`}
+                className={`team-strip__item team-strip__item--${team.league.toLowerCase()}${dragOverTeam === team.favouriteId ? ' team-strip__item--drag-over' : ''}`}
                 onClick={() => scrollToTeam(team.favouriteId)}
-                onDragStart={(e) => onTeamDragStart(e, team.favouriteId, league)}
-                onDragOver={(e) => onTeamDragOver(e, team.favouriteId, league)}
+                onDragStart={(e) => onTeamDragStart(e, team.favouriteId, sport)}
+                onDragOver={(e) => onTeamDragOver(e, team.favouriteId, sport)}
                 onDrop={(e) => onTeamDrop(e, team.favouriteId)}
                 onDragEnd={onTeamDragEnd}
                 title={team.teamName}
