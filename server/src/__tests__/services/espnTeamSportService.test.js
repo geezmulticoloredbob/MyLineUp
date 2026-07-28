@@ -15,8 +15,8 @@ const MOCK_TEAMS_RESPONSE = {
       leagues: [
         {
           teams: [
-            { team: { id: '1', abbreviation: 'KC', displayName: 'Kansas City Chiefs', logos: [{ href: 'https://espn.com/kc.png', rel: ['full'] }] } },
-            { team: { id: '2', abbreviation: 'BUF', displayName: 'Buffalo Bills', logos: [{ href: 'https://espn.com/buf.png', rel: ['full'] }] } },
+            { team: { id: '1', abbreviation: 'KC', displayName: 'Kansas City Chiefs' } },
+            { team: { id: '2', abbreviation: 'BUF', displayName: 'Buffalo Bills' } },
           ],
         },
       ],
@@ -44,8 +44,15 @@ const MOCK_STANDINGS_RESPONSE = {
   ],
 };
 
+const ABBR_BY_TEAM_ID = { '1': 'KC', '2': 'BUF' };
+
 function competitor(teamId, displayName, homeAway, score, winner) {
-  return { team: { id: teamId, displayName, shortDisplayName: displayName, logos: [] }, homeAway, score: { value: score }, winner };
+  return {
+    team: { id: teamId, abbreviation: ABBR_BY_TEAM_ID[teamId], displayName, shortDisplayName: displayName },
+    homeAway,
+    score: { value: score },
+    winner,
+  };
 }
 
 const FINISHED_EVENT = {
@@ -99,9 +106,10 @@ describe('getESPNTeamData', () => {
 
     expect(result.latestResult).toEqual({ date: '2024-01-15', outcome: 'W', opponent: 'Buffalo Bills', score: '27-20' });
     expect(result.nextFixture).toMatchObject({ opponent: 'Buffalo Bills', venue: 'Away' });
+    expect(result.nextFixture.opponentLogoUrl).toBe('https://a.espncdn.com/i/teamlogos/nfl/500/buf.png');
     expect(result.ladderPosition).toBe(1);
     expect(result.stats).toEqual({ wins: 12, losses: 5 });
-    expect(result.logoUrl).toBe('https://espn.com/kc.png');
+    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/nfl/500/kc.png');
     expect(result.seasonFinished).toBe(false);
   });
 
@@ -123,7 +131,7 @@ describe('getESPNStandingsOverview', () => {
 
     expect(result).toHaveLength(2);
     expect(result[0]).toMatchObject({ position: 1, teamName: 'Kansas City Chiefs', stats: { wins: 12, losses: 5 } });
-    expect(result[0].logoUrl).toBe('https://espn.com/kc.png');
+    expect(result[0].logoUrl).toBe('https://a.espncdn.com/i/teamlogos/nfl/500/kc.png');
   });
 
   it('dedupes teams that appear in both a conference-level and division-level standings block', async () => {

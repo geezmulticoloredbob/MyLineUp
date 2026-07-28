@@ -24,10 +24,12 @@ function toCompactDate(d) {
   return toDateStr(d).replace(/-/g, '');
 }
 
-function pickLogoUrl(team) {
-  const logos = team?.logos || [];
-  const full = logos.find((l) => l.rel?.includes('full') && !l.rel?.includes('dark'));
-  return full?.href || logos[0]?.href || null;
+// Build the crest URL directly from ESPN's CDN convention rather than trusting the
+// shape of the `logos` array in the JSON response — same reliable pattern already
+// used for NBA/AFL/WC in sportsDataService.espnLogoFromTeamId.
+function cdnLogoUrl(sportKey, abbr) {
+  if (!abbr) return null;
+  return `https://a.espncdn.com/i/teamlogos/${sportKey.toLowerCase()}/500/${abbr.toLowerCase()}.png`;
 }
 
 // --- Teams (per-league, 24h cache) ---
@@ -143,7 +145,7 @@ function eventDate(event) {
 }
 
 // Build a normalised result/fixture entry for `teamEspnId` out of a schedule event
-function describeEvent(event, teamEspnId) {
+function describeEvent(event, teamEspnId, sportKey) {
   const competitors = eventCompetitors(event);
   const mine = competitors.find((c) => String(c.team?.id) === String(teamEspnId));
   const opponent = competitors.find((c) => String(c.team?.id) !== String(teamEspnId));
@@ -154,7 +156,7 @@ function describeEvent(event, teamEspnId) {
     myScore: mine.score?.value ?? mine.score ?? null,
     oppScore: opponent.score?.value ?? opponent.score ?? null,
     opponentName: opponent.team?.shortDisplayName || opponent.team?.displayName || opponent.team?.name,
-    opponentLogoUrl: pickLogoUrl(opponent.team),
+    opponentLogoUrl: cdnLogoUrl(sportKey, opponent.team?.abbreviation),
     won: mine.winner === true,
     lost: opponent.winner === true,
   };
@@ -182,7 +184,7 @@ async function getESPNTeamData(favourite, sportKey) {
     .sort((a, b) => new Date(eventDate(a)) - new Date(eventDate(b)));
 
   let latestResult = null;
-  const lastEvent = finished[0] && describeEvent(finished[0], team.id);
+  const lastEvent = finished[0] && describeEvent(finished[0], team.id, sportKey);
   if (lastEvent) {
     latestResult = {
       date: lastEvent.date.split('T')[0],
@@ -193,7 +195,7 @@ async function getESPNTeamData(favourite, sportKey) {
   }
 
   let nextFixture = null;
-  const nextEvent = upcoming[0] && describeEvent(upcoming[0], team.id);
+  const nextEvent = upcoming[0] && describeEvent(upcoming[0], team.id, sportKey);
   if (nextEvent) {
     nextFixture = {
       date: nextEvent.date.split('T')[0],
@@ -215,7 +217,7 @@ async function getESPNTeamData(favourite, sportKey) {
     nextFixture,
     ladderPosition: rank !== null && rank !== undefined ? Number(rank) : null,
     stats: wins !== null ? { wins: Number(wins), losses: Number(losses) } : {},
-    logoUrl: pickLogoUrl(team),
+    logoUrl: cdnLogoUrl(sportKey, team.abbreviation),
     topScorers: [],
     seasonFinished: finished.length > 0 && upcoming.length === 0,
   };
@@ -246,7 +248,7 @@ async function getESPNStandingsOverview(sportKey) {
       return {
         position: rank !== null && rank !== undefined ? Number(rank) : null,
         teamName: team?.displayName || entry.team?.displayName || 'Unknown',
-        logoUrl: pickLogoUrl(team) || pickLogoUrl(entry.team),
+        logoUrl: cdnLogoUrl(sportKey, team?.abbreviation || entry.team?.abbreviation),
         stats: wins !== null ? { wins: Number(wins), losses: Number(losses) } : {},
       };
     })
