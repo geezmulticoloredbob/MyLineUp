@@ -228,8 +228,28 @@ function HomePage() {
     })
   ), [leagueOverviews, leagueOrder]);
 
+  // Cluster league cards by sport (same grouping as TeamLogoStrip) so the
+  // section reads as a handful of sport groups rather than one long flat
+  // list now that there are 14 leagues across 6 sports.
+  const groupedLeagueOverviews = useMemo(() => {
+    const sportsInOrder = [];
+    sortedLeagueOverviews.forEach((o) => {
+      const s = sportOf(o.league);
+      if (!sportsInOrder.includes(s)) sportsInOrder.push(s);
+    });
+    return sportsInOrder.map((sport) => ({
+      sport,
+      overviews: sortedLeagueOverviews.filter((o) => sportOf(o.league) === sport),
+    }));
+  }, [sortedLeagueOverviews]);
+
   if (status === 'loading') {
     const followedLeagues = user?.followedLeagues ?? [];
+    const followedSports = [];
+    followedLeagues.forEach((l) => {
+      const s = sportOf(l);
+      if (!followedSports.includes(s)) followedSports.push(s);
+    });
     const cachedTeamCount = (() => {
       try { return JSON.parse(localStorage.getItem('mylineup_bg_teams') || '[]').length || 3; }
       catch { return 3; }
@@ -240,8 +260,15 @@ function HomePage() {
           {Array.from({ length: cachedTeamCount }, (_, i) => <TeamCard key={i} status="loading" />)}
         </div>
         {followedLeagues.length > 0 && (
-          <div className="league-card-grid">
-            {followedLeagues.map((l) => <SkeletonLeagueCard key={l} />)}
+          <div className="league-groups">
+            {followedSports.map((sport) => (
+              <div key={sport} className="league-group">
+                <h2 className="league-group__title">{SPORT_DISPLAY_NAMES[sport] || sport}</h2>
+                <div className="league-card-grid">
+                  {followedLeagues.filter((l) => sportOf(l) === sport).map((l) => <SkeletonLeagueCard key={l} />)}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </PageContainer>
@@ -295,9 +322,16 @@ function HomePage() {
       )}
       {sortedLeagueOverviews.length > 0 && (
         <ErrorBoundary>
-          <div className="league-card-grid">
-            {sortedLeagueOverviews.map((overview) => (
-              <LeagueCard key={overview.league} {...overview} />
+          <div className="league-groups">
+            {groupedLeagueOverviews.map(({ sport, overviews }) => (
+              <div key={sport} className="league-group">
+                <h2 className="league-group__title">{SPORT_DISPLAY_NAMES[sport] || sport}</h2>
+                <div className="league-card-grid">
+                  {overviews.map((overview) => (
+                    <LeagueCard key={overview.league} {...overview} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </ErrorBoundary>
