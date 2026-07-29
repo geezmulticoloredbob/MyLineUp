@@ -1666,6 +1666,7 @@ p {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
+  align-items: start;
 }
 
 @media (max-width: 680px) {
@@ -1722,6 +1723,25 @@ p {
 
 .lc-table tbody tr:last-child td {
   border-bottom: none;
+}
+
+.lc-table__toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-xs);
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.lc-table__toggle:hover {
+  color: var(--focus-ring);
 }
 
 .lc-table__team {
