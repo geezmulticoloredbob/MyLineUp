@@ -108,6 +108,13 @@ describe('getNBALeagueGames', () => {
     const { recentResults } = await nbaService.getNBALeagueGames();
     expect(recentResults.length).toBeLessThanOrEqual(5);
   });
+
+  it('uses cache on second call (games fetched only once)', async () => {
+    await nbaService.getNBALeagueGames();
+    await nbaService.getNBALeagueGames();
+    const gamesCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/games'));
+    expect(gamesCalls.length).toBe(2); // one past + one future window fetch, not doubled
+  });
 });
 
 describe('getNBATeamData', () => {
@@ -140,5 +147,29 @@ describe('getNBATeamData', () => {
     const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
     expect(result.latestResult).toBeNull();
     expect(result.nextFixture).toBeNull();
+  });
+
+  it('uses cache on second call for the same team (games fetched only once)', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      return mockOk({ data: [MOCK_FINISHED_GAME] });
+    });
+    await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    const gamesCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/games'));
+    expect(gamesCalls.length).toBe(2); // one past + one future window fetch, not doubled
+  });
+
+  it('keeps separate game caches per team', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      return mockOk({ data: [MOCK_FINISHED_GAME] });
+    });
+    await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    await nbaService.getNBATeamData({ teamId: 'nba-bos' });
+    const gamesCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/games'));
+    expect(gamesCalls.length).toBe(4);
   });
 });

@@ -177,4 +177,26 @@ describe('getESPNLeagueGames', () => {
     mockFetch.mockImplementation(() => mockFail(503));
     await expect(espnTeamSportService.getESPNLeagueGames('NFL')).rejects.toThrow();
   });
+
+  it('uses cache on second call for the same league (scoreboard fetched only once)', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/scoreboard')) return mockOk({ events: [FINISHED_EVENT, UPCOMING_EVENT] });
+      return mockOk({});
+    });
+    await espnTeamSportService.getESPNLeagueGames('NFL');
+    await espnTeamSportService.getESPNLeagueGames('NFL');
+    const scoreboardCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/scoreboard'));
+    expect(scoreboardCalls.length).toBe(1);
+  });
+
+  it('keeps separate scoreboard caches per league', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/scoreboard')) return mockOk({ events: [FINISHED_EVENT, UPCOMING_EVENT] });
+      return mockOk({});
+    });
+    await espnTeamSportService.getESPNLeagueGames('NFL');
+    await espnTeamSportService.getESPNLeagueGames('NHL');
+    const scoreboardCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/scoreboard'));
+    expect(scoreboardCalls.length).toBe(2);
+  });
 });

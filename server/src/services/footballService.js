@@ -100,6 +100,49 @@ function findFDTeam(allTeams, ourName, code) {
   );
 }
 
+// Per-team matches — cached so N favourites of the same team, or repeated
+// dashboard loads, don't each trigger a fresh call within the TTL window.
+// football-data.org's free tier is tightly rate-limited, so this matters most here.
+const _teamMatchesCache = new Map();
+const _teamMatchesInFlight = new Map();
+const TEAM_MATCHES_TTL = 5 * 60 * 1000;
+
+async function getFDTeamMatches(code, teamId) {
+  const cacheKey = `${code}-${teamId}`;
+  const cached = _teamMatchesCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < TEAM_MATCHES_TTL) return cached.data;
+  if (_teamMatchesInFlight.has(cacheKey)) return _teamMatchesInFlight.get(cacheKey);
+
+  const promise = (async () => {
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 90); // 90 days covers full off-season gap
+    const future = new Date(now);
+    future.setDate(future.getDate() + 30);
+
+    const [finishedRes, scheduledRes] = await Promise.all([
+      fdFetch(`/teams/${teamId}/matches?competitions=${code}&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
+      fdFetch(`/teams/${teamId}/matches?competitions=${code}&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
+    ]);
+    if (!finishedRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${finishedRes.status}`);
+    if (!scheduledRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${scheduledRes.status}`);
+    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
+      finishedRes.json(),
+      scheduledRes.json(),
+    ]);
+    return { finished: finished || [], scheduled: scheduled || [] };
+  })()
+    .then((data) => {
+      _teamMatchesCache.set(cacheKey, { data, at: Date.now() });
+      _teamMatchesInFlight.delete(cacheKey);
+      return data;
+    })
+    .catch((err) => { _teamMatchesInFlight.delete(cacheKey); throw err; });
+
+  _teamMatchesInFlight.set(cacheKey, promise);
+  return promise;
+}
+
 async function getFDTeamData(favourite, code) {
   const [allTeams, standings, allScorers] = await Promise.all([
     getFDTeams(code),
@@ -113,24 +156,7 @@ async function getFDTeamData(favourite, code) {
     return null;
   }
 
-  const now = new Date();
-  const past = new Date(now);
-  past.setDate(past.getDate() - 90); // 90 days covers full off-season gap
-  const future = new Date(now);
-  future.setDate(future.getDate() + 30);
-
-  const [finishedRes, scheduledRes] = await Promise.all([
-    fdFetch(`/teams/${fdTeam.id}/matches?competitions=${code}&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
-    fdFetch(`/teams/${fdTeam.id}/matches?competitions=${code}&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
-  ]);
-
-  if (!finishedRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${finishedRes.status}`);
-  if (!scheduledRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${scheduledRes.status}`);
-
-  const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-    finishedRes.json(),
-    scheduledRes.json(),
-  ]);
+  const { finished, scheduled } = await getFDTeamMatches(code, fdTeam.id);
 
   let latestResult = null;
   const lastMatch = (finished || []).sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate))[0];
@@ -199,25 +225,47 @@ async function getFDStandingsForOverview(code) {
   });
 }
 
+const _leagueMatchesCache = new Map();
+const _leagueMatchesInFlight = new Map();
+const LEAGUE_MATCHES_TTL = 5 * 60 * 1000;
+
+async function getFDLeagueMatches(code) {
+  const cached = _leagueMatchesCache.get(code);
+  if (cached && Date.now() - cached.at < LEAGUE_MATCHES_TTL) return cached.data;
+  if (_leagueMatchesInFlight.has(code)) return _leagueMatchesInFlight.get(code);
+
+  const promise = (async () => {
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 10);
+    const future = new Date(now);
+    future.setDate(future.getDate() + 14);
+
+    const [finishedRes, scheduledRes] = await Promise.all([
+      fdFetch(`/competitions/${code}/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
+      fdFetch(`/competitions/${code}/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
+    ]);
+    if (!finishedRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${finishedRes.status}`);
+    if (!scheduledRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${scheduledRes.status}`);
+    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
+      finishedRes.json(),
+      scheduledRes.json(),
+    ]);
+    return { finished: finished || [], scheduled: scheduled || [] };
+  })()
+    .then((data) => {
+      _leagueMatchesCache.set(code, { data, at: Date.now() });
+      _leagueMatchesInFlight.delete(code);
+      return data;
+    })
+    .catch((err) => { _leagueMatchesInFlight.delete(code); throw err; });
+
+  _leagueMatchesInFlight.set(code, promise);
+  return promise;
+}
+
 async function getFDLeagueGames(code) {
-  const now = new Date();
-  const past = new Date(now);
-  past.setDate(past.getDate() - 10);
-  const future = new Date(now);
-  future.setDate(future.getDate() + 14);
-
-  const [finishedRes, scheduledRes] = await Promise.all([
-    fdFetch(`/competitions/${code}/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
-    fdFetch(`/competitions/${code}/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
-  ]);
-
-  if (!finishedRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${finishedRes.status}`);
-  if (!scheduledRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${scheduledRes.status}`);
-
-  const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-    finishedRes.json(),
-    scheduledRes.json(),
-  ]);
+  const { finished, scheduled } = await getFDLeagueMatches(code);
 
   const recentResults = (finished || [])
     .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate))
