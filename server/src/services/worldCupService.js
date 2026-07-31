@@ -52,6 +52,45 @@ function findWCTeam(allTeams, ourName) {
   );
 }
 
+const _wcTeamMatchesCache = new Map();
+const _wcTeamMatchesInFlight = new Map();
+const TEAM_MATCHES_TTL_MS = 5 * 60 * 1000;
+
+async function getWCTeamMatches(teamId) {
+  const cached = _wcTeamMatchesCache.get(teamId);
+  if (cached && Date.now() - cached.at < TEAM_MATCHES_TTL_MS) return cached.data;
+  if (_wcTeamMatchesInFlight.has(teamId)) return _wcTeamMatchesInFlight.get(teamId);
+
+  const promise = (async () => {
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 60);
+    const future = new Date(now);
+    future.setDate(future.getDate() + 30);
+
+    const [finishedRes, scheduledRes] = await Promise.all([
+      fdFetch(`/teams/${teamId}/matches?competitions=WC&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
+      fdFetch(`/teams/${teamId}/matches?competitions=WC&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
+    ]);
+    if (!finishedRes.ok) throw new Error(`WC team matches failed: ${finishedRes.status}`);
+    if (!scheduledRes.ok) throw new Error(`WC team matches failed: ${scheduledRes.status}`);
+    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
+      finishedRes.json(),
+      scheduledRes.json(),
+    ]);
+    return { finished: finished || [], scheduled: scheduled || [] };
+  })()
+    .then((data) => {
+      _wcTeamMatchesCache.set(teamId, { data, at: Date.now() });
+      _wcTeamMatchesInFlight.delete(teamId);
+      return data;
+    })
+    .catch((err) => { _wcTeamMatchesInFlight.delete(teamId); throw err; });
+
+  _wcTeamMatchesInFlight.set(teamId, promise);
+  return promise;
+}
+
 async function getWCTeamData(favourite) {
   const [allTeams, standings] = await Promise.all([
     getWCTeams(),
@@ -64,24 +103,7 @@ async function getWCTeamData(favourite) {
     return null;
   }
 
-  const now = new Date();
-  const past = new Date(now);
-  past.setDate(past.getDate() - 60);
-  const future = new Date(now);
-  future.setDate(future.getDate() + 30);
-
-  const [finishedRes, scheduledRes] = await Promise.all([
-    fdFetch(`/teams/${fdTeam.id}/matches?competitions=WC&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
-    fdFetch(`/teams/${fdTeam.id}/matches?competitions=WC&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
-  ]);
-
-  if (!finishedRes.ok) throw new Error(`WC team matches failed: ${finishedRes.status}`);
-  if (!scheduledRes.ok) throw new Error(`WC team matches failed: ${scheduledRes.status}`);
-
-  const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-    finishedRes.json(),
-    scheduledRes.json(),
-  ]);
+  const { finished, scheduled } = await getWCTeamMatches(fdTeam.id);
 
   let latestResult = null;
   const lastMatch = (finished || []).sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate))[0];
@@ -175,25 +197,47 @@ async function getWCStandings() {
   return allRows.sort((a, b) => (b.stats.points - a.stats.points) || (b.stats.gd - a.stats.gd));
 }
 
+let _wcLeagueMatchesCache = null;
+let _wcLeagueMatchesCachedAt = 0;
+let _wcLeagueMatchesInFlight = null;
+const LEAGUE_MATCHES_TTL_MS = 5 * 60 * 1000;
+
+async function getWCLeagueMatches() {
+  if (_wcLeagueMatchesCache && Date.now() - _wcLeagueMatchesCachedAt < LEAGUE_MATCHES_TTL_MS) return _wcLeagueMatchesCache;
+  if (_wcLeagueMatchesInFlight) return _wcLeagueMatchesInFlight;
+
+  _wcLeagueMatchesInFlight = (async () => {
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 3);
+    const future = new Date(now);
+    future.setDate(future.getDate() + 7);
+
+    const [finishedRes, scheduledRes] = await Promise.all([
+      fdFetch(`/competitions/WC/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
+      fdFetch(`/competitions/WC/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
+    ]);
+    if (!finishedRes.ok) throw new Error(`WC league games fetch failed: ${finishedRes.status}`);
+    if (!scheduledRes.ok) throw new Error(`WC league games fetch failed: ${scheduledRes.status}`);
+    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
+      finishedRes.json(),
+      scheduledRes.json(),
+    ]);
+    return { finished: finished || [], scheduled: scheduled || [] };
+  })()
+    .then((data) => {
+      _wcLeagueMatchesCache = data;
+      _wcLeagueMatchesCachedAt = Date.now();
+      _wcLeagueMatchesInFlight = null;
+      return data;
+    })
+    .catch((err) => { _wcLeagueMatchesInFlight = null; throw err; });
+
+  return _wcLeagueMatchesInFlight;
+}
+
 async function getWCLeagueGames() {
-  const now = new Date();
-  const past = new Date(now);
-  past.setDate(past.getDate() - 3);
-  const future = new Date(now);
-  future.setDate(future.getDate() + 7);
-
-  const [finishedRes, scheduledRes] = await Promise.all([
-    fdFetch(`/competitions/WC/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
-    fdFetch(`/competitions/WC/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
-  ]);
-
-  if (!finishedRes.ok) throw new Error(`WC league games fetch failed: ${finishedRes.status}`);
-  if (!scheduledRes.ok) throw new Error(`WC league games fetch failed: ${scheduledRes.status}`);
-
-  const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-    finishedRes.json(),
-    scheduledRes.json(),
-  ]);
+  const { finished, scheduled } = await getWCLeagueMatches();
 
   const recentResults = (finished || [])
     .sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate))

@@ -151,29 +151,57 @@ async function getBDLSeasonAvgs(teamId, playerIds) {
   return data || [];
 }
 
+// Per-team games (60d back / 14d forward) — cached so N favourites of the same
+// team, or the same user reloading the dashboard, don't each trigger a fresh
+// BallDontLie call within the TTL window.
+const _nbaTeamGamesCache = new Map();
+const _nbaTeamGamesInFlight = new Map();
+const TEAM_GAMES_TTL_MS = 5 * 60 * 1000;
+
+async function getBDLTeamGames(bdlTeamId) {
+  const cached = _nbaTeamGamesCache.get(bdlTeamId);
+  if (cached && Date.now() - cached.at < TEAM_GAMES_TTL_MS) return cached.data;
+  if (_nbaTeamGamesInFlight.has(bdlTeamId)) return _nbaTeamGamesInFlight.get(bdlTeamId);
+
+  const promise = (async () => {
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 60);   // 60 days covers teams eliminated mid-playoffs
+    const future = new Date(now);
+    future.setDate(future.getDate() + 14);
+
+    const [pastRes, futureRes] = await Promise.all([
+      bdlFetch(`/games?team_ids[]=${bdlTeamId}&start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=10`),
+      bdlFetch(`/games?team_ids[]=${bdlTeamId}&start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=5`),
+    ]);
+    if (!pastRes.ok) throw new Error(`BDL games fetch failed: ${pastRes.status}`);
+    if (!futureRes.ok) throw new Error(`BDL games fetch failed: ${futureRes.status}`);
+    const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
+      pastRes.json(),
+      futureRes.json(),
+    ]);
+    return { pastGames: pastGames || [], futureGames: futureGames || [] };
+  })()
+    .then((data) => {
+      _nbaTeamGamesCache.set(bdlTeamId, { data, at: Date.now() });
+      _nbaTeamGamesInFlight.delete(bdlTeamId);
+      return data;
+    })
+    .catch((err) => { _nbaTeamGamesInFlight.delete(bdlTeamId); throw err; });
+
+  _nbaTeamGamesInFlight.set(bdlTeamId, promise);
+  return promise;
+}
+
 async function getNBATeamData(favourite) {
   const abbr = favourite.teamId.replace('nba-', '').toUpperCase();
   const teams = await getBDLTeams();
   const bdlTeam = teams.find((t) => t.abbreviation === abbr);
   if (!bdlTeam) return null;
 
-  const now = new Date();
-  const past = new Date(now);
-  past.setDate(past.getDate() - 60);   // 60 days covers teams eliminated mid-playoffs
-  const future = new Date(now);
-  future.setDate(future.getDate() + 14);
-
-  const [pastRes, futureRes, allStandings] = await Promise.all([
-    bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=10`),
-    bdlFetch(`/games?team_ids[]=${bdlTeam.id}&start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=5`),
+  const [{ pastGames, futureGames }, allStandings] = await Promise.all([
+    getBDLTeamGames(bdlTeam.id),
     getBDLStandings().catch(() => null),
-  ]);
-
-  if (!pastRes.ok) throw new Error(`BDL games fetch failed: ${pastRes.status}`);
-  if (!futureRes.ok) throw new Error(`BDL games fetch failed: ${futureRes.status}`);
-  const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
-    pastRes.json(),
-    futureRes.json(),
   ]);
 
   const finished = (pastGames || [])
@@ -260,23 +288,47 @@ async function getNBAStandings() {
     }));
 }
 
-async function getNBALeagueGames() {
-  const now = new Date();
-  const past = new Date(now);
-  past.setDate(past.getDate() - 7);
-  const future = new Date(now);
-  future.setDate(future.getDate() + 7);
+let _nbaAllGamesCache = null;
+let _nbaAllGamesCachedAt = 0;
+let _nbaAllGamesInFlight = null;
+const ALL_GAMES_TTL_MS = 5 * 60 * 1000;
 
-  const [pastRes, futureRes] = await Promise.all([
-    bdlFetch(`/games?start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=15`),
-    bdlFetch(`/games?start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=15`),
-  ]);
-  if (!pastRes.ok) throw new Error(`BDL league games fetch failed: ${pastRes.status}`);
-  if (!futureRes.ok) throw new Error(`BDL league games fetch failed: ${futureRes.status}`);
-  const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
-    pastRes.json(),
-    futureRes.json(),
-  ]);
+async function getBDLAllGames() {
+  if (_nbaAllGamesCache && Date.now() - _nbaAllGamesCachedAt < ALL_GAMES_TTL_MS) return _nbaAllGamesCache;
+  if (_nbaAllGamesInFlight) return _nbaAllGamesInFlight;
+
+  _nbaAllGamesInFlight = (async () => {
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 7);
+    const future = new Date(now);
+    future.setDate(future.getDate() + 7);
+
+    const [pastRes, futureRes] = await Promise.all([
+      bdlFetch(`/games?start_date=${toDateStr(past)}&end_date=${toDateStr(now)}&per_page=15`),
+      bdlFetch(`/games?start_date=${toDateStr(now)}&end_date=${toDateStr(future)}&per_page=15`),
+    ]);
+    if (!pastRes.ok) throw new Error(`BDL league games fetch failed: ${pastRes.status}`);
+    if (!futureRes.ok) throw new Error(`BDL league games fetch failed: ${futureRes.status}`);
+    const [{ data: pastGames }, { data: futureGames }] = await Promise.all([
+      pastRes.json(),
+      futureRes.json(),
+    ]);
+    return { pastGames: pastGames || [], futureGames: futureGames || [] };
+  })()
+    .then((data) => {
+      _nbaAllGamesCache = data;
+      _nbaAllGamesCachedAt = Date.now();
+      _nbaAllGamesInFlight = null;
+      return data;
+    })
+    .catch((err) => { _nbaAllGamesInFlight = null; throw err; });
+
+  return _nbaAllGamesInFlight;
+}
+
+async function getNBALeagueGames() {
+  const { pastGames, futureGames } = await getBDLAllGames();
 
   const recentResults = (pastGames || [])
     .filter((g) => g.status === 'Final')

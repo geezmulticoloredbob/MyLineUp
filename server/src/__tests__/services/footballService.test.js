@@ -143,6 +143,20 @@ describe('getFDLeagueGames', () => {
     const { recentResults } = await footballService.getFDLeagueGames('PL');
     expect(recentResults.length).toBeLessThanOrEqual(5);
   });
+
+  it('uses cache on second call for the same code (matches fetched only once)', async () => {
+    await footballService.getFDLeagueGames('PL');
+    await footballService.getFDLeagueGames('PL');
+    const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/competitions/PL/matches'));
+    expect(matchCalls.length).toBe(2); // one FINISHED + one SCHEDULED fetch, not doubled
+  });
+
+  it('keeps separate match caches per competition code', async () => {
+    await footballService.getFDLeagueGames('PL');
+    await footballService.getFDLeagueGames('BL1');
+    const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/matches'));
+    expect(matchCalls.length).toBe(4);
+  });
 });
 
 // ─── getFDTeamData ────────────────────────────────────────────────────────────
@@ -211,5 +225,21 @@ describe('getFDTeamData', () => {
     expect(result).not.toBeNull();
     const urls = mockFetch.mock.calls.map(([url]) => url);
     expect(urls.some((u) => u.includes('/competitions/PD/'))).toBe(true);
+  });
+
+  it('uses cache on second call for the same team (matches fetched only once)', async () => {
+    mockFetch.mockImplementation(standardMock([MOCK_FINISHED_MATCH], []));
+    await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');
+    await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');
+    const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/teams/57/matches'));
+    expect(matchCalls.length).toBe(2); // one FINISHED + one SCHEDULED fetch, not doubled
+  });
+
+  it('keeps separate match caches per team/competition pair', async () => {
+    mockFetch.mockImplementation(standardMock([MOCK_FINISHED_MATCH], []));
+    await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');
+    await footballService.getFDTeamData({ teamName: 'Chelsea' }, 'PL');
+    const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/matches') && url.includes('/teams/'));
+    expect(matchCalls.length).toBe(4);
   });
 });

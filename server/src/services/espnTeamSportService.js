@@ -255,19 +255,43 @@ async function getESPNStandingsOverview(sportKey) {
     .sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
 }
 
-async function getESPNLeagueGames(sportKey) {
-  const config = ESPN_SPORT_CONFIG[sportKey];
-  const now = new Date();
-  const past = new Date(now);
-  past.setDate(past.getDate() - 7);
-  const future = new Date(now);
-  future.setDate(future.getDate() + 7);
+const _leagueGamesCache = new Map();
+const _leagueGamesInFlight = new Map();
+const LEAGUE_GAMES_TTL_MS = 5 * 60 * 1000;
 
-  const res = await espnFetch(
-    `/${config.sport}/${config.league}/scoreboard?dates=${toCompactDate(past)}-${toCompactDate(future)}`,
-  );
-  if (!res.ok) throw new Error(`ESPN ${sportKey} scoreboard fetch failed: ${res.status}`);
-  const { events } = await res.json();
+async function fetchESPNScoreboard(sportKey) {
+  const cached = _leagueGamesCache.get(sportKey);
+  if (cached && Date.now() - cached.at < LEAGUE_GAMES_TTL_MS) return cached.data;
+  if (_leagueGamesInFlight.has(sportKey)) return _leagueGamesInFlight.get(sportKey);
+
+  const config = ESPN_SPORT_CONFIG[sportKey];
+  const promise = (async () => {
+    const now = new Date();
+    const past = new Date(now);
+    past.setDate(past.getDate() - 7);
+    const future = new Date(now);
+    future.setDate(future.getDate() + 7);
+
+    const res = await espnFetch(
+      `/${config.sport}/${config.league}/scoreboard?dates=${toCompactDate(past)}-${toCompactDate(future)}`,
+    );
+    if (!res.ok) throw new Error(`ESPN ${sportKey} scoreboard fetch failed: ${res.status}`);
+    const { events } = await res.json();
+    return events || [];
+  })()
+    .then((data) => {
+      _leagueGamesCache.set(sportKey, { data, at: Date.now() });
+      _leagueGamesInFlight.delete(sportKey);
+      return data;
+    })
+    .catch((err) => { _leagueGamesInFlight.delete(sportKey); throw err; });
+
+  _leagueGamesInFlight.set(sportKey, promise);
+  return promise;
+}
+
+async function getESPNLeagueGames(sportKey) {
+  const events = await fetchESPNScoreboard(sportKey);
 
   const finished = (events || []).filter(isEventCompleted);
   const scheduled = (events || []).filter((e) => !isEventCompleted(e));
