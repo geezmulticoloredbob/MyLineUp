@@ -36,7 +36,7 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 - **Request flow**: routes → controllers → services → models
 - **All controllers** are wrapped with `asyncHandler` (no try/catch needed in controllers)
 - **Errors** thrown as `new ApiError(statusCode, message)` — caught by `errorHandler` middleware
-- **Auth middleware** (`middleware/authMiddleware.js`): Bearer token → DB user lookup → `req.user`
+- **Auth middleware** (`middleware/authMiddleware.js`): httpOnly `token` cookie → DB user lookup → `req.user`
 - **Config**: all env vars centralised in `config/env.js`; never read `process.env` directly elsewhere
 - **Sports data**: league services (`nbaService`, `aflService`, `footballService`, `worldCupService`, `espnTeamSportService`) are orchestrated by `sportsDataService.hydrateTeam()`. `espnTeamSportService` is a single config-driven service covering NFL/NHL/MLB via ESPN's public site API (no key required). Each service returns `{ logoUrl, latestResult, nextFixture, ladderPosition, stats, topScorers }` or throws. On error, `sportsDataService` falls back to `source: 'unavailable'` rather than failing the whole request. `leagueService.js` holds the equivalent per-league dispatch table (`standings`/`games`) for the today's-games feed and league overview.
 - **Caching**: standings responses have a 5-min in-memory TTL inside each league service
@@ -46,7 +46,7 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 ### Client
 - **Entry**: `src/main.jsx` → `src/App.jsx` → `src/routes/AppRouter.jsx`
 - **Context stack** (outermost → innermost): `ErrorBoundary` → `ThemeProvider` → `AuthProvider` → `FavouritesProvider`
-- **Auth**: JWT stored in `localStorage`; `AuthContext` manages user state; `apiClient.js` injects the Bearer token on every request
+- **Auth**: JWT lives in an httpOnly cookie set by the server (not accessible to client JS); `AuthContext` manages user state; `apiClient.js` sends `credentials: 'include'` on every request so the cookie goes along automatically — there's no client-side token to store or inject
 - **ProtectedRoute**: unauthenticated → `/login`; authenticated but `onboardingComplete: false` → `/onboarding`; `forOnboarding` prop inverts this (lets through non-onboarded users only)
 - **Dashboard refresh**: `FavouritesContext` exposes `triggerRefresh()` which bumps a `refreshTick`; `HomePage` re-fetches when tick changes
 - **Theme**: `ThemeProvider` stores `data-theme` attribute on `<html>` and persists to `localStorage` (`mylineup_theme`, `mylineup_bg_team`)
