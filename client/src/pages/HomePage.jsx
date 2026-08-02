@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GripVertical } from 'lucide-react';
-import { LEAGUE_SPORT, SPORT_DISPLAY_NAMES } from '../constants/leagues';
+import { LEAGUE_SPORT, LEAGUE_DISPLAY_NAMES, SPORT_DISPLAY_NAMES } from '../constants/leagues';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,15 +18,23 @@ function sportOf(league) {
   return LEAGUE_SPORT[league] || league;
 }
 
+// Unique sports in first-seen order, derived from a list of leagues (or objects
+// via `getLeague`) — keeps sport/league group ordering consistent across the strip,
+// the team grid, and the league-overview cards.
+function uniqueSportsInOrder(items, getLeague = (x) => x) {
+  const sports = [];
+  items.forEach((item) => {
+    const s = sportOf(getLeague(item));
+    if (!sports.includes(s)) sports.push(s);
+  });
+  return sports;
+}
+
 // Moves every league belonging to `fromSport` as a contiguous block to sit
 // where `toSport`'s leagues are, preserving order within each sport otherwise.
 function moveSportBlock(leagueOrder, fromSport, toSport) {
   if (fromSport === toSport) return leagueOrder;
-  const sportsInOrder = [];
-  leagueOrder.forEach((l) => {
-    const s = sportOf(l);
-    if (!sportsInOrder.includes(s)) sportsInOrder.push(s);
-  });
+  const sportsInOrder = uniqueSportsInOrder(leagueOrder);
   const nextSports = [...sportsInOrder];
   nextSports.splice(nextSports.indexOf(fromSport), 1);
   nextSports.splice(nextSports.indexOf(toSport), 0, fromSport);
@@ -49,11 +57,7 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
     document.getElementById(`team-${favouriteId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  const sportsInOrder = [];
-  leagueOrder.forEach((l) => {
-    const s = sportOf(l);
-    if (!sportsInOrder.includes(s)) sportsInOrder.push(s);
-  });
+  const sportsInOrder = uniqueSportsInOrder(leagueOrder);
 
   const grouped = sportsInOrder.reduce((acc, sport) => {
     const sportTeams = teams.filter((t) => sportOf(t.league) === sport);
@@ -232,16 +236,27 @@ function HomePage() {
   // section reads as a handful of sport groups rather than one long flat
   // list now that there are 14 leagues across 6 sports.
   const groupedLeagueOverviews = useMemo(() => {
-    const sportsInOrder = [];
-    sortedLeagueOverviews.forEach((o) => {
-      const s = sportOf(o.league);
-      if (!sportsInOrder.includes(s)) sportsInOrder.push(s);
-    });
+    const sportsInOrder = uniqueSportsInOrder(sortedLeagueOverviews, (o) => o.league);
     return sportsInOrder.map((sport) => ({
       sport,
       overviews: sortedLeagueOverviews.filter((o) => sportOf(o.league) === sport),
     }));
   }, [sortedLeagueOverviews]);
+
+  // Cluster followed teams by sport, then by league within that sport — team
+  // order within a league still follows the user's drag order (teamOrder).
+  const groupedTeams = useMemo(() => {
+    const sportsInOrder = uniqueSportsInOrder(leagueOrder);
+    return sportsInOrder
+      .map((sport) => {
+        const leaguesInSport = leagueOrder.filter((l) => sportOf(l) === sport);
+        const leagueGroups = leaguesInSport
+          .map((league) => ({ league, teams: sortedTeams.filter((t) => t.league === league) }))
+          .filter((g) => g.teams.length);
+        return { sport, leagueGroups };
+      })
+      .filter((g) => g.leagueGroups.length);
+  }, [sortedTeams, leagueOrder]);
 
   if (status === 'loading') {
     const followedLeagues = user?.followedLeagues ?? [];
@@ -311,10 +326,24 @@ function HomePage() {
       <GamesFeed teams={sortedTeams} />
       {sortedTeams.length > 0 && (
         <ErrorBoundary>
-          <div className="team-card-grid">
-            {sortedTeams.map((team) => (
-              <div id={`team-${team.favouriteId}`} key={team.favouriteId}>
-                <TeamCard team={team} />
+          <div className="team-groups">
+            {groupedTeams.map(({ sport, leagueGroups }) => (
+              <div key={sport} className="team-group">
+                <h2 className="team-group__title">{SPORT_DISPLAY_NAMES[sport] || sport}</h2>
+                {leagueGroups.map(({ league, teams: leagueTeams }) => (
+                  <div key={league} className="team-subgroup">
+                    {leagueGroups.length > 1 && (
+                      <h3 className="team-subgroup__title">{LEAGUE_DISPLAY_NAMES[league] || league}</h3>
+                    )}
+                    <div className="team-card-grid">
+                      {leagueTeams.map((team) => (
+                        <div id={`team-${team.favouriteId}`} key={team.favouriteId}>
+                          <TeamCard team={team} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
