@@ -332,10 +332,8 @@ function HomePage() {
                 <h2 className="team-group__title">{SPORT_DISPLAY_NAMES[sport] || sport}</h2>
                 {leagueGroups.map(({ league, teams: leagueTeams }) => (
                   <div key={league} className="team-subgroup">
-                    {leagueGroups.length > 1 && (
-                      <h3 className="team-subgroup__title">{LEAGUE_DISPLAY_NAMES[league] || league}</h3>
-                    )}
-                    <div className="team-card-grid">
+                    <h3 className="team-subgroup__title">{LEAGUE_DISPLAY_NAMES[league] || league}</h3>
+                    <div className="team-row">
                       {leagueTeams.map((team) => (
                         <div id={`team-${team.favouriteId}`} key={team.favouriteId}>
                           <TeamCard team={team} />
