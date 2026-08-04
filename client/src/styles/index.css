@@ -369,14 +369,21 @@ p {
 }
 
 .team-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
-  overflow-x: auto;
-  padding-bottom: var(--space-xs);
 }
 
-.team-row > * {
-  flex: 0 0 280px;
+@media (max-width: 900px) {
+  .team-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .team-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .team-card-grid {
