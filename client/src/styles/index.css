@@ -204,6 +204,21 @@ p {
   flex-shrink: 0;
 }
 
+.team-strip__league-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.team-strip__sub-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  opacity: 0.65;
+}
+
 .team-strip__items {
   display: flex;
   flex-wrap: wrap;

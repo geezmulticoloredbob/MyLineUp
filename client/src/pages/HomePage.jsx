@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { GripVertical } from 'lucide-react';
-import { LEAGUE_SPORT, LEAGUE_DISPLAY_NAMES, SPORT_DISPLAY_NAMES } from '../constants/leagues';
+import { LEAGUE_SPORT, LEAGUE_DISPLAY_NAMES, LEAGUE_ABBR, SPORT_DISPLAY_NAMES } from '../constants/leagues';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -59,9 +59,14 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
 
   const sportsInOrder = uniqueSportsInOrder(leagueOrder);
 
+  // Sport → league → teams, so a sport spanning several leagues (soccer) shows
+  // a labelled sub-row per league instead of one undifferentiated pile of logos.
   const grouped = sportsInOrder.reduce((acc, sport) => {
-    const sportTeams = teams.filter((t) => sportOf(t.league) === sport);
-    if (sportTeams.length) acc[sport] = sportTeams;
+    const leaguesInSport = leagueOrder.filter((l) => sportOf(l) === sport);
+    const leagueGroups = leaguesInSport
+      .map((league) => ({ league, teams: teams.filter((t) => t.league === league) }))
+      .filter((g) => g.teams.length);
+    if (leagueGroups.length) acc[sport] = leagueGroups;
     return acc;
   }, {});
 
@@ -119,7 +124,7 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
 
   return (
     <div className="team-strip">
-      {Object.entries(grouped).map(([sport, sportTeams]) => (
+      {Object.entries(grouped).map(([sport, leagueGroups]) => (
         <div
           key={sport}
           className={`team-strip__group${dragOverSport === sport ? ' team-strip__group--drag-over' : ''}`}
@@ -133,31 +138,38 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
             <GripVertical size={11} className="team-strip__drag-icon" aria-hidden="true" />
             {SPORT_DISPLAY_NAMES[sport] || sport}
           </span>
-          <div className="team-strip__items">
-            {sportTeams.map((team) => (
-              <button
-                key={team.favouriteId}
-                type="button"
-                draggable
-                className={`team-strip__item team-strip__item--${team.league.toLowerCase()}${dragOverTeam === team.favouriteId ? ' team-strip__item--drag-over' : ''}`}
-                onClick={() => scrollToTeam(team.favouriteId)}
-                onDragStart={(e) => onTeamDragStart(e, team.favouriteId, sport)}
-                onDragOver={(e) => onTeamDragOver(e, team.favouriteId, sport)}
-                onDrop={(e) => onTeamDrop(e, team.favouriteId)}
-                onDragEnd={onTeamDragEnd}
-                title={team.teamName}
-              >
-                <img
-                  className="team-strip__logo"
-                  src={team.teamLogoUrl || LOGO_FALLBACK}
-                  alt={team.teamName}
-                  width={40}
-                  height={40}
-                />
-                <span className="team-strip__name">{team.teamName}</span>
-              </button>
-            ))}
-          </div>
+          {leagueGroups.map(({ league, teams: leagueTeams }) => (
+            <div key={league} className="team-strip__league-group">
+              {leagueGroups.length > 1 && (
+                <span className="team-strip__sub-label">{LEAGUE_ABBR[league] || league}</span>
+              )}
+              <div className="team-strip__items">
+                {leagueTeams.map((team) => (
+                  <button
+                    key={team.favouriteId}
+                    type="button"
+                    draggable
+                    className={`team-strip__item team-strip__item--${team.league.toLowerCase()}${dragOverTeam === team.favouriteId ? ' team-strip__item--drag-over' : ''}`}
+                    onClick={() => scrollToTeam(team.favouriteId)}
+                    onDragStart={(e) => onTeamDragStart(e, team.favouriteId, sport)}
+                    onDragOver={(e) => onTeamDragOver(e, team.favouriteId, sport)}
+                    onDrop={(e) => onTeamDrop(e, team.favouriteId)}
+                    onDragEnd={onTeamDragEnd}
+                    title={team.teamName}
+                  >
+                    <img
+                      className="team-strip__logo"
+                      src={team.teamLogoUrl || LOGO_FALLBACK}
+                      alt={team.teamName}
+                      width={40}
+                      height={40}
+                    />
+                    <span className="team-strip__name">{team.teamName}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ))}
     </div>

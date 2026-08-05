@@ -34,6 +34,24 @@ export const LEAGUE_DISPLAY_NAMES = {
   MLB: 'MLB',
 };
 
+// Short forms for tight spaces (e.g. the team logo strip's per-league sub-labels)
+export const LEAGUE_ABBR = {
+  NBA: 'NBA',
+  EPL: 'EPL',
+  AFL: 'AFL',
+  WC: 'World Cup',
+  LALIGA: 'La Liga',
+  BUNDESLIGA: 'Bundesliga',
+  SERIEA: 'Serie A',
+  LIGUE1: 'Ligue 1',
+  CHAMPIONSHIP: 'Championship',
+  EREDIVISIE: 'Eredivisie',
+  UCL: 'UCL',
+  NFL: 'NFL',
+  NHL: 'NHL',
+  MLB: 'MLB',
+};
+
 // Groups the many soccer competitions under one heading; each other league is its own sport
 export const SPORTS = {
   BASKETBALL: 'BASKETBALL',
