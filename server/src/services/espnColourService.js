@@ -29,6 +29,11 @@ function normalize(str) {
   return str.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+function pickLogoUrl(logos) {
+  const full = (logos || []).find((l) => l.rel?.includes('full') && !l.rel?.includes('dark'));
+  return full?.href || logos?.[0]?.href || null;
+}
+
 // Per-league: Map<normalizedName, { primary, secondary }>
 const _cache = new Map();    // league → { data: Map, at }
 const _inFlight = new Map(); // league → Promise
@@ -59,6 +64,7 @@ async function fetchLeagueColours(league) {
           primary: `#${t.color}`,
           secondary: `#${t.alternateColor || t.color}`,
           darkLogoUrl: darkLogo?.href ?? null,
+          logoUrl: pickLogoUrl(t.logos),
         };
         // Index by every name variant ESPN provides so fuzzy matching is more likely to hit
         for (const name of [t.displayName, t.name, t.shortDisplayName, t.nickname, t.abbreviation]) {

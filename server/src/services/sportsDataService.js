@@ -80,7 +80,7 @@ async function hydrateTeam(favourite) {
     favouriteId: favourite._id,
     teamId: favourite.teamId,
     teamName: favourite.teamName,
-    teamLogoUrl: sportData?.logoUrl || favourite.teamLogoUrl || espnLogoFromTeamId(favourite.teamId),
+    teamLogoUrl: sportData?.logoUrl || favourite.teamLogoUrl || espnLogoFromTeamId(favourite.teamId) || colours?.logoUrl,
     league: favourite.league,
     latestResult: sportData?.latestResult ?? null,
     nextFixture: sportData?.nextFixture ?? null,
