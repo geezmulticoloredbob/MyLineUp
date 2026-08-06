@@ -170,38 +170,106 @@ p {
 .team-strip {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
-.team-strip__group {
+.team-strip__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--space-sm);
+}
+
+.team-strip__item--sport {
+  position: relative;
+  background: var(--surface-card-hover);
+  border-width: 2px;
+}
+
+.team-strip__item--sport-open {
+  border-color: var(--focus-ring);
+}
+
+/* Thematic per-sport tints, distinct from any one league's own colour */
+.team-strip__item--sport-basketball {
+  background: rgba(205, 85, 0, 0.18);
+  border-color: rgba(205, 85, 0, 0.4);
+}
+.team-strip__item--sport-basketball:hover {
+  background: rgba(205, 85, 0, 0.28);
+}
+
+.team-strip__item--sport-soccer {
+  background: rgba(20, 110, 60, 0.28);
+  border-color: rgba(30, 150, 80, 0.45);
+}
+.team-strip__item--sport-soccer:hover {
+  background: rgba(20, 110, 60, 0.4);
+}
+
+.team-strip__item--sport-afl {
+  background: rgba(0, 35, 100, 0.35);
+  border-color: rgba(0, 60, 190, 0.5);
+}
+.team-strip__item--sport-afl:hover {
+  background: rgba(0, 35, 100, 0.5);
+}
+
+.team-strip__item--sport-gridiron {
+  background: rgba(123, 74, 45, 0.3);
+  border-color: rgba(123, 74, 45, 0.55);
+}
+.team-strip__item--sport-gridiron:hover {
+  background: rgba(123, 74, 45, 0.42);
+}
+
+.team-strip__item--sport-hockey {
+  background: rgba(26, 82, 118, 0.3);
+  border-color: rgba(26, 82, 118, 0.55);
+}
+.team-strip__item--sport-hockey:hover {
+  background: rgba(26, 82, 118, 0.42);
+}
+
+.team-strip__item--sport-baseball {
+  background: rgba(200, 16, 46, 0.2);
+  border-color: rgba(200, 16, 46, 0.4);
+}
+.team-strip__item--sport-baseball:hover {
+  background: rgba(200, 16, 46, 0.3);
+}
+
+.team-strip__sport-chevron {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.team-strip__count {
+  font-size: var(--text-caption);
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text-secondary);
+  opacity: 0.65;
+}
+
+.team-strip__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-normal) ease;
+}
+
+.team-strip__body--open {
+  grid-template-rows: 1fr;
+}
+
+.team-strip__body-inner {
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  border-radius: var(--radius-button);
-  transition: outline-color var(--motion-fast);
-  outline: 2px solid transparent;
-}
-
-.team-strip__group--drag-over {
-  outline-color: var(--focus-ring);
-}
-
-.team-strip__league-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: var(--text-caption);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  cursor: grab;
-  user-select: none;
-}
-
-.team-strip__drag-icon {
-  opacity: 0.4;
-  flex-shrink: 0;
 }
 
 .team-strip__league-group {
@@ -355,14 +423,47 @@ p {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
   font-family: var(--font-heading);
   font-size: var(--text-small);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-secondary);
   margin-bottom: var(--space-sm);
-  padding-bottom: var(--space-xs);
+  padding: 0 0 var(--space-xs);
   border-bottom: 1px solid var(--border-default);
+  transition: color var(--motion-fast) ease;
+}
+
+.team-group__title:hover {
+  color: var(--text-primary);
+}
+
+.team-group__count {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.team-group__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-normal) ease;
+}
+
+.team-group__body--open {
+  grid-template-rows: 1fr;
+}
+
+.team-group__body-inner {
+  overflow: hidden;
 }
 
 .team-subgroup {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { LEAGUE_SPORT, LEAGUE_DISPLAY_NAMES, LEAGUE_ABBR, SPORT_DISPLAY_NAMES } from '../constants/leagues';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
@@ -8,6 +8,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { usePageTitle } from '../hooks/usePageTitle';
 import PageContainer from '../components/common/PageContainer';
 import ErrorBoundary from '../components/common/ErrorBoundary';
+import SportIcon from '../components/common/SportIcon';
 import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard, { SkeletonLeagueCard } from '../features/dashboard/components/LeagueCard';
 import GamesFeed from '../features/dashboard/components/GamesFeed';
@@ -47,14 +48,19 @@ function moveSportBlock(leagueOrder, fromSport, toSport) {
   return nextSports.flatMap((s) => bySport[s]);
 }
 
-function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamReorder }) {
+function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamReorder, expandedSports, onToggleSport, onExpandSport }) {
   const dragSport = useRef(null);
   const dragTeam = useRef(null);
   const [dragOverSport, setDragOverSport] = useState(null);
   const [dragOverTeam, setDragOverTeam] = useState(null);
 
-  function scrollToTeam(favouriteId) {
-    document.getElementById(`team-${favouriteId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  function scrollToTeam(favouriteId, sport) {
+    onExpandSport(sport);
+    // The target section renders open-but-collapsed (0 height) until this commits and its
+    // grid-rows transition starts — wait a frame so scrollIntoView targets the opened spot.
+    requestAnimationFrame(() => {
+      document.getElementById(`team-${favouriteId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   const sportsInOrder = uniqueSportsInOrder(leagueOrder);
@@ -122,56 +128,77 @@ function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamR
     setDragOverTeam(null);
   }
 
+  const sportEntries = Object.entries(grouped);
+
   return (
     <div className="team-strip">
-      {Object.entries(grouped).map(([sport, leagueGroups]) => (
-        <div
-          key={sport}
-          className={`team-strip__group${dragOverSport === sport ? ' team-strip__group--drag-over' : ''}`}
-          draggable
-          onDragStart={(e) => onSportDragStart(e, sport)}
-          onDragOver={(e) => onSportDragOver(e, sport)}
-          onDrop={(e) => onSportDrop(e, sport)}
-          onDragEnd={onSportDragEnd}
-        >
-          <span className="team-strip__league-label">
-            <GripVertical size={11} className="team-strip__drag-icon" aria-hidden="true" />
-            {SPORT_DISPLAY_NAMES[sport] || sport}
-          </span>
-          {leagueGroups.map(({ league, teams: leagueTeams }) => (
-            <div key={league} className="team-strip__league-group">
-              {leagueGroups.length > 1 && (
-                <span className="team-strip__sub-label">{LEAGUE_ABBR[league] || league}</span>
-              )}
-              <div className="team-strip__items">
-                {leagueTeams.map((team) => (
-                  <button
-                    key={team.favouriteId}
-                    type="button"
-                    draggable
-                    className={`team-strip__item team-strip__item--${team.league.toLowerCase()}${dragOverTeam === team.favouriteId ? ' team-strip__item--drag-over' : ''}`}
-                    onClick={() => scrollToTeam(team.favouriteId)}
-                    onDragStart={(e) => onTeamDragStart(e, team.favouriteId, sport)}
-                    onDragOver={(e) => onTeamDragOver(e, team.favouriteId, sport)}
-                    onDrop={(e) => onTeamDrop(e, team.favouriteId)}
-                    onDragEnd={onTeamDragEnd}
-                    title={team.teamName}
-                  >
-                    <img
-                      className="team-strip__logo"
-                      src={team.teamLogoUrl || LOGO_FALLBACK}
-                      alt={team.teamName}
-                      width={40}
-                      height={40}
-                    />
-                    <span className="team-strip__name">{team.teamName}</span>
-                  </button>
-                ))}
-              </div>
+      <div className="team-strip__tiles">
+        {sportEntries.map(([sport, leagueGroups]) => {
+          const isOpen = expandedSports.includes(sport);
+          const teamCount = leagueGroups.reduce((n, g) => n + g.teams.length, 0);
+          return (
+            <button
+              key={sport}
+              type="button"
+              draggable
+              className={`team-strip__item team-strip__item--sport team-strip__item--sport-${sport.toLowerCase()}${isOpen ? ' team-strip__item--sport-open' : ''}${dragOverSport === sport ? ' team-strip__item--drag-over' : ''}`}
+              onClick={() => onToggleSport(sport)}
+              onDragStart={(e) => onSportDragStart(e, sport)}
+              onDragOver={(e) => onSportDragOver(e, sport)}
+              onDrop={(e) => onSportDrop(e, sport)}
+              onDragEnd={onSportDragEnd}
+              aria-expanded={isOpen}
+              title={SPORT_DISPLAY_NAMES[sport] || sport}
+            >
+              {isOpen ? <ChevronDown size={12} className="team-strip__sport-chevron" /> : <ChevronRight size={12} className="team-strip__sport-chevron" />}
+              <SportIcon sport={sport} size={40} className="team-strip__logo" />
+              <span className="team-strip__name">{SPORT_DISPLAY_NAMES[sport] || sport}</span>
+              <span className="team-strip__count">{teamCount}</span>
+            </button>
+          );
+        })}
+      </div>
+      {sportEntries.map(([sport, leagueGroups]) => {
+        const isOpen = expandedSports.includes(sport);
+        return (
+          <div key={sport} className={`team-strip__body${isOpen ? ' team-strip__body--open' : ''}`}>
+            <div className="team-strip__body-inner">
+              {leagueGroups.map(({ league, teams: leagueTeams }) => (
+                <div key={league} className="team-strip__league-group">
+                  {leagueGroups.length > 1 && (
+                    <span className="team-strip__sub-label">{LEAGUE_ABBR[league] || league}</span>
+                  )}
+                  <div className="team-strip__items">
+                    {leagueTeams.map((team) => (
+                      <button
+                        key={team.favouriteId}
+                        type="button"
+                        draggable
+                        className={`team-strip__item team-strip__item--${team.league.toLowerCase()}${dragOverTeam === team.favouriteId ? ' team-strip__item--drag-over' : ''}`}
+                        onClick={() => scrollToTeam(team.favouriteId, sport)}
+                        onDragStart={(e) => onTeamDragStart(e, team.favouriteId, sport)}
+                        onDragOver={(e) => onTeamDragOver(e, team.favouriteId, sport)}
+                        onDrop={(e) => onTeamDrop(e, team.favouriteId)}
+                        onDragEnd={onTeamDragEnd}
+                        title={team.teamName}
+                      >
+                        <img
+                          className="team-strip__logo"
+                          src={team.teamLogoUrl || LOGO_FALLBACK}
+                          alt={team.teamName}
+                          width={40}
+                          height={40}
+                        />
+                        <span className="team-strip__name">{team.teamName}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      ))}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -192,7 +219,7 @@ function HomePage() {
   usePageTitle('Dashboard');
   const { refreshTick, openManager } = useFavouritesRefresh();
   const { user } = useAuth();
-  const { leagueOrder, setLeagueOrder, teamOrder, setTeamOrder } = useTheme();
+  const { leagueOrder, setLeagueOrder, teamOrder, setTeamOrder, expandedSports, toggleSportExpand, expandSport } = useTheme();
   const [teams, setTeams] = useState([]);
   const [leagueOverviews, setLeagueOverviews] = useState([]);
   const [status, setStatus] = useState('loading');
@@ -282,7 +309,7 @@ function HomePage() {
       catch { return 3; }
     })();
     return (
-      <PageContainer title="Your Teams">
+      <PageContainer title="Your Lineup">
         <div className="team-card-grid">
           {Array.from({ length: cachedTeamCount }, (_, i) => <TeamCard key={i} status="loading" />)}
         </div>
@@ -304,7 +331,7 @@ function HomePage() {
 
   if (status === 'error') {
     return (
-      <PageContainer title="Your Teams">
+      <PageContainer title="Your Lineup">
         <div className="empty-state">
           <p className="empty-state__title">Could not load dashboard</p>
           <p className="empty-state__body">Unable to reach the sports service.</p>
@@ -318,14 +345,14 @@ function HomePage() {
 
   if (status === 'empty') {
     return (
-      <PageContainer title="Your Teams">
+      <PageContainer title="Your Lineup">
         <EmptyState onOpen={openManager} />
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer title="Your Teams">
+    <PageContainer title="Your Lineup">
       {sortedTeams.length > 0 && (
         <TeamLogoStrip
           teams={sortedTeams}
@@ -333,29 +360,51 @@ function HomePage() {
           teamOrder={teamOrder}
           onLeagueReorder={setLeagueOrder}
           onTeamReorder={setTeamOrder}
+          expandedSports={expandedSports}
+          onToggleSport={toggleSportExpand}
+          onExpandSport={expandSport}
         />
       )}
       <GamesFeed teams={sortedTeams} />
       {sortedTeams.length > 0 && (
         <ErrorBoundary>
           <div className="team-groups">
-            {groupedTeams.map(({ sport, leagueGroups }) => (
-              <div key={sport} className="team-group">
-                <h2 className="team-group__title">{SPORT_DISPLAY_NAMES[sport] || sport}</h2>
-                {leagueGroups.map(({ league, teams: leagueTeams }) => (
-                  <div key={league} className="team-subgroup">
-                    <h3 className="team-subgroup__title">{LEAGUE_DISPLAY_NAMES[league] || league}</h3>
-                    <div className="team-row">
-                      {leagueTeams.map((team) => (
-                        <div id={`team-${team.favouriteId}`} key={team.favouriteId}>
-                          <TeamCard team={team} />
+            {groupedTeams.map(({ sport, leagueGroups }) => {
+              const isOpen = expandedSports.includes(sport);
+              const teamCount = leagueGroups.reduce((n, g) => n + g.teams.length, 0);
+              return (
+                <div key={sport} className="team-group">
+                  <h2>
+                    <button
+                      type="button"
+                      className="team-group__title"
+                      onClick={() => toggleSportExpand(sport)}
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      {SPORT_DISPLAY_NAMES[sport] || sport}
+                      <span className="team-group__count">{teamCount}</span>
+                    </button>
+                  </h2>
+                  <div className={`team-group__body${isOpen ? ' team-group__body--open' : ''}`}>
+                    <div className="team-group__body-inner">
+                      {leagueGroups.map(({ league, teams: leagueTeams }) => (
+                        <div key={league} className="team-subgroup">
+                          <h3 className="team-subgroup__title">{LEAGUE_DISPLAY_NAMES[league] || league}</h3>
+                          <div className="team-row">
+                            {leagueTeams.map((team) => (
+                              <div id={`team-${team.favouriteId}`} key={team.favouriteId}>
+                                <TeamCard team={team} />
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       ))}
                     </div>
                   </div>
-                ))}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </ErrorBoundary>
       )}

@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { SUPPORTED_LEAGUES } from '../constants/leagues';
 
-const DEFAULT_LEAGUE_ORDER = ['NBA', 'EPL', 'AFL', 'WC', 'LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL', 'NFL', 'NHL', 'MLB'];
+const DEFAULT_LEAGUE_ORDER = SUPPORTED_LEAGUES;
 
 function readJson(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
@@ -22,11 +23,22 @@ export function ThemeProvider({ children }) {
   const [dateFormat, setDateFormatState] = useState(
     () => localStorage.getItem('mylineup_date_format') || 'DD-MM-YYYY'
   );
-  const [leagueOrder, setLeagueOrderState] = useState(
-    () => readJson('mylineup_league_order', DEFAULT_LEAGUE_ORDER)
-  );
+  // Merge in any league added to the app since this was last saved — otherwise a
+  // league missing from an old stored order silently drops that league's teams
+  // everywhere grouping iterates leagueOrder (team strip, team grid).
+  const [leagueOrder, setLeagueOrderState] = useState(() => {
+    const stored = readJson('mylineup_league_order', null);
+    if (!Array.isArray(stored)) return DEFAULT_LEAGUE_ORDER;
+    const missing = DEFAULT_LEAGUE_ORDER.filter((l) => !stored.includes(l));
+    return missing.length ? [...stored, ...missing] : stored;
+  });
   const [teamOrder, setTeamOrderState] = useState(
     () => readJson('mylineup_team_order', [])
+  );
+  // Sports the user has explicitly opened — starts empty so every sport section
+  // renders closed until clicked, like a dropdown.
+  const [expandedSports, setExpandedSportsState] = useState(
+    () => readJson('mylineup_expanded_sports', [])
   );
 
   useEffect(() => {
@@ -56,6 +68,23 @@ export function ThemeProvider({ children }) {
     });
   }, []);
 
+  const toggleSportExpand = useCallback((sport) => {
+    setExpandedSportsState(prev => {
+      const next = prev.includes(sport) ? prev.filter(s => s !== sport) : [...prev, sport];
+      localStorage.setItem('mylineup_expanded_sports', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const expandSport = useCallback((sport) => {
+    setExpandedSportsState(prev => {
+      if (prev.includes(sport)) return prev;
+      const next = [...prev, sport];
+      localStorage.setItem('mylineup_expanded_sports', JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   function setBgTeam(teamId, teamName) {
     setBgTeamIdState(teamId || null);
     setBgTeamNameState(teamName || null);
@@ -69,7 +98,7 @@ export function ThemeProvider({ children }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, bgTeamId, bgTeamName, setBgTeam, dateFormat, setDateFormat, leagueOrder, setLeagueOrder, teamOrder, setTeamOrder }}>
+    <ThemeContext.Provider value={{ theme, setTheme, bgTeamId, bgTeamName, setBgTeam, dateFormat, setDateFormat, leagueOrder, setLeagueOrder, teamOrder, setTeamOrder, expandedSports, toggleSportExpand, expandSport }}>
       {children}
     </ThemeContext.Provider>
   );
