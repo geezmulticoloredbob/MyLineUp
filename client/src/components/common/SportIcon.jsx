@@ -1,4 +1,8 @@
-function SportIcon({ sport, size = 20, className }) {
+// `league` is an optional override for leagues that need a distinct icon despite
+// sharing a sport grouping with others — e.g. World Cup groups under SOCCER
+// (same tile as EPL/La Liga in the team strip) but gets its own globe icon
+// wherever a specific league, not just the sport, is known.
+function SportIcon({ sport, league, size = 20, className }) {
   const props = {
     viewBox: '0 0 20 20',
     xmlns: 'http://www.w3.org/2000/svg',
@@ -8,6 +12,19 @@ function SportIcon({ sport, size = 20, className }) {
     className,
   };
 
+  if (league === 'WC') {
+    return (
+      <svg {...props}>
+        <circle cx="10" cy="10" r="9" fill="#1a6fb5" />
+        <ellipse cx="10" cy="10" rx="4" ry="9" fill="none" stroke="#7ec8e3" strokeWidth="0.8" />
+        <ellipse cx="10" cy="10" rx="7" ry="9" fill="none" stroke="#7ec8e3" strokeWidth="0.5" />
+        <line x1="1" y1="10" x2="19" y2="10" stroke="#7ec8e3" strokeWidth="0.8" />
+        <line x1="2.5" y1="5.5" x2="17.5" y2="5.5" stroke="#7ec8e3" strokeWidth="0.5" />
+        <line x1="2.5" y1="14.5" x2="17.5" y2="14.5" stroke="#7ec8e3" strokeWidth="0.5" />
+        <circle cx="10" cy="10" r="9" fill="none" stroke="#0d4a8a" strokeWidth="0.8" />
+      </svg>
+    );
+  }
   if (sport === 'BASKETBALL') {
     return (
       <svg {...props}>
