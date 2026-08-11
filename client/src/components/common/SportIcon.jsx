@@ -78,8 +78,21 @@ function SportIcon({ sport, league, size = 20, className }) {
   if (sport === 'HOCKEY') {
     return (
       <svg {...props}>
-        <ellipse cx="10" cy="9.5" rx="9" ry="3.2" fill="#2b2b2b" />
-        <ellipse cx="10" cy="9.5" rx="9" ry="3.2" fill="none" stroke="#000" strokeWidth="0.6" />
+        <path
+          d="M15.5,2 L7.3,14.6"
+          stroke="#4a4a4a"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M7.3,14.6 L3.8,16.6"
+          stroke="#4a4a4a"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <ellipse cx="3" cy="17.6" rx="2.1" ry="1" fill="#111" stroke="#000" strokeWidth="0.3" />
       </svg>
     );
   }
