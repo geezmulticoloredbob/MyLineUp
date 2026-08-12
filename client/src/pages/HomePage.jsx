@@ -411,16 +411,34 @@ function HomePage() {
       {sortedLeagueOverviews.length > 0 && (
         <ErrorBoundary>
           <div className="league-groups">
-            {groupedLeagueOverviews.map(({ sport, overviews }) => (
-              <div key={sport} className="league-group">
-                <h2 className="league-group__title">{SPORT_DISPLAY_NAMES[sport] || sport}</h2>
-                <div className="league-card-grid">
-                  {overviews.map((overview) => (
-                    <LeagueCard key={overview.league} {...overview} />
-                  ))}
+            {groupedLeagueOverviews.map(({ sport, overviews }) => {
+              const isOpen = expandedSports.includes(sport);
+              return (
+                <div key={sport} className="league-group">
+                  <h2>
+                    <button
+                      type="button"
+                      className="league-group__title"
+                      onClick={() => toggleSportExpand(sport)}
+                      aria-expanded={isOpen}
+                    >
+                      {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                      {SPORT_DISPLAY_NAMES[sport] || sport}
+                      <span className="league-group__count">{overviews.length}</span>
+                    </button>
+                  </h2>
+                  <div className={`league-group__body${isOpen ? ' league-group__body--open' : ''}`}>
+                    <div className="league-group__body-inner">
+                      <div className="league-card-grid">
+                        {overviews.map((overview) => (
+                          <LeagueCard key={overview.league} {...overview} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </ErrorBoundary>
       )}

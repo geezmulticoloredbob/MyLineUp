@@ -1771,14 +1771,47 @@ p {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
   font-family: var(--font-heading);
   font-size: var(--text-small);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-secondary);
   margin-bottom: var(--space-sm);
-  padding-bottom: var(--space-xs);
+  padding: 0 0 var(--space-xs);
   border-bottom: 1px solid var(--border-default);
+  transition: color var(--motion-fast) ease;
+}
+
+.league-group__title:hover {
+  color: var(--text-primary);
+}
+
+.league-group__count {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.league-group__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--motion-normal) ease;
+}
+
+.league-group__body--open {
+  grid-template-rows: 1fr;
+}
+
+.league-group__body-inner {
+  overflow: hidden;
 }
 
 .league-card-grid {
