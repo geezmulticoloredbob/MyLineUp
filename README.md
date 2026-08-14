@@ -37,6 +37,24 @@ Supported leagues:
 - NHL
 - MLB
 
+## 📸 Screenshots
+
+**Dashboard overview** — sport tiles, followed teams, and the today's games feed
+
+![Dashboard overview](docs/screenshots/dashboard-overview.png)
+
+**Team cards, grouped by sport and league**
+
+![Team cards](docs/screenshots/team-cards.png)
+
+**League standings, results and upcoming fixtures**
+
+![League standings](docs/screenshots/league-standings.png)
+
+**Mobile view**
+
+<img src="docs/screenshots/mobile-view.png" alt="Mobile view" width="360" />
+
 ## 🚀 Tech Stack
 
 **Frontend**
