@@ -24,12 +24,12 @@
       "mcp__Claude_Code_Remote__send_later",
       "Bash(echo \"exit: $?\")",
       "Bash(echo \"exit:$?\")",
-<<<<<<< HEAD
       "Bash(git fetch *)",
-      "Bash(gh pr *)"
-=======
-      "mcp__Claude_Code_Remote__subscribe_pr_activity"
->>>>>>> f567e7f3c7e473d64ed599e006e54ec79a183b75
+      "Bash(gh pr *)",
+      "mcp__Claude_Code_Remote__subscribe_pr_activity",
+      "Bash(python -c \"import json; json.load\\(open\\(r'c:\\\\Users\\\\coenw\\\\source\\\\repos\\\\MyLineUp\\\\.claude\\\\settings.local.json'\\)\\)\")",
+      "Bash(git pull *)",
+      "WebFetch(domain:claude.ai)"
     ],
     "additionalDirectories": [
       "c:\\Users\\coenw\\.claude\\projects\\c--Users-coenw-source-repos-MyLineUp\\memory"
