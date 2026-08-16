@@ -49,12 +49,12 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 - **Auth**: JWT lives in an httpOnly cookie set by the server (not accessible to client JS); `AuthContext` manages user state; `apiClient.js` sends `credentials: 'include'` on every request so the cookie goes along automatically — there's no client-side token to store or inject
 - **ProtectedRoute**: unauthenticated → `/login`; authenticated but `onboardingComplete: false` → `/onboarding`; `forOnboarding` prop inverts this (lets through non-onboarded users only)
 - **Dashboard refresh**: `FavouritesContext` exposes `triggerRefresh()` which bumps a `refreshTick`; `HomePage` re-fetches when tick changes
-- **Theme**: `ThemeProvider` stores `data-theme` attribute on `<html>` and persists to `localStorage` (`mylineup_theme`, `mylineup_bg_team`)
+- **Theme**: `ThemeProvider` stores `data-theme` attribute on `<html>` and persists to `localStorage` (`mylineup_theme`, `mylineup_bg_team`, `mylineup_bg_team_name`, `mylineup_date_format`, `mylineup_league_order`, `mylineup_team_order`, `mylineup_expanded_sports`)
 - **Static data**: `client/src/data/teamsByLeague.js` is the source of truth for team rosters; `client/src/data/teamColors.js` maps team IDs to brand colours
 - **Styles**: single CSS file at `client/src/styles/index.css` using CSS custom properties; dark theme by default; fonts are Oswald (headings) and Jost (body)
 
 ### Data models
-- **User**: `username`, `email`, `password` (bcrypt), `followedLeagues[]` (`'NBA'|'EPL'|'AFL'`), `onboardingComplete`
+- **User**: `username`, `email`, `password` (bcrypt), `followedLeagues[]` (`'NBA'|'EPL'|'AFL'|'WC'|'LALIGA'|'BUNDESLIGA'|'SERIEA'|'LIGUE1'|'CHAMPIONSHIP'|'EREDIVISIE'|'UCL'|'NFL'|'NHL'|'MLB'`), `onboardingComplete`, `iconId` (account icon, defaults to `'football'`)
 - **Favourite**: `user` (ref), `league`, `teamId`, `teamName`, `teamLogoUrl`; unique index on `(user, league, teamId)`
 
 ### ESPN logo URLs
