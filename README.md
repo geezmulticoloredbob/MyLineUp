@@ -1,4 +1,7 @@
-# 🏟 MyLineup (Working Name)
+# 🏟 MyLineup
+
+[![CI](https://github.com/geezmulticoloredbob/MyLineUp/actions/workflows/ci.yml/badge.svg)](https://github.com/geezmulticoloredbob/MyLineUp/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A personalised sports dashboard that lets users follow their favourite teams across multiple leagues in one unified interface — fixtures, results, ladders and stats, aggregated into a single feed.
 
@@ -191,3 +194,7 @@ VITE_API_URL=http://localhost:5000
 ## 🎯 Vision
 
 A single, personalised sports hub that eliminates the need to juggle multiple apps to keep up with favourite teams.
+
+## 📄 License
+
+[MIT](LICENSE)
