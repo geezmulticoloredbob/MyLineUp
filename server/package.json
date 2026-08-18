@@ -12,6 +12,9 @@
   "author": "",
   "license": "MIT",
   "description": "",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "compression": "^1.8.1",
