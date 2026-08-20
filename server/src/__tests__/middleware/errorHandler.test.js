@@ -10,7 +10,10 @@ function makeRes() {
 
 describe('errorHandler', () => {
   const originalEnv = process.env.NODE_ENV;
-  afterEach(() => { process.env.NODE_ENV = originalEnv; });
+  afterEach(() => {
+    process.env.NODE_ENV = originalEnv;
+    jest.resetModules();
+  });
 
   it('uses the error statusCode when present', () => {
     const res = makeRes();
@@ -26,17 +29,21 @@ describe('errorHandler', () => {
   });
 
   it('includes a stack trace in development', () => {
+    jest.resetModules();
     process.env.NODE_ENV = 'development';
+    const devErrorHandler = require('../../middleware/errorHandler');
     const res = makeRes();
-    errorHandler(new Error('dev error'), {}, res, jest.fn());
+    devErrorHandler(new Error('dev error'), {}, res, jest.fn());
     const [body] = res.json.mock.calls[0];
     expect(body).toHaveProperty('stack');
   });
 
   it('omits the stack trace in production', () => {
+    jest.resetModules();
     process.env.NODE_ENV = 'production';
+    const prodErrorHandler = require('../../middleware/errorHandler');
     const res = makeRes();
-    errorHandler(new Error('prod error'), {}, res, jest.fn());
+    prodErrorHandler(new Error('prod error'), {}, res, jest.fn());
     const [body] = res.json.mock.calls[0];
     expect(body).not.toHaveProperty('stack');
   });

@@ -4,11 +4,12 @@ const rateLimit = require('express-rate-limit');
 const { getCurrentUser, login, logout, register, updateIcon, updateProfile, updatePassword } = require('../controllers/authController');
 const { requireAuth } = require('../middleware/authMiddleware');
 const { validateLoginPayload, validateRegisterPayload } = require('../validators/authValidator');
+const env = require('../config/env');
 
 const router = express.Router();
 
 const authLimiter =
-  process.env.NODE_ENV !== 'test'
+  env.nodeEnv !== 'test'
     ? rateLimit({
         windowMs: 15 * 60 * 1000,
         max: 10,
