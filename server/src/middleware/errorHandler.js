@@ -1,3 +1,5 @@
+const env = require('../config/env');
+
 function errorHandler(err, req, res, next) {
   if (res.headersSent) {
     return next(err);
@@ -7,7 +9,7 @@ function errorHandler(err, req, res, next) {
 
   res.status(statusCode).json({
     message: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV !== 'production' && err.stack ? { stack: err.stack } : {}),
+    ...(env.nodeEnv !== 'production' && err.stack ? { stack: err.stack } : {}),
   });
 }
 
