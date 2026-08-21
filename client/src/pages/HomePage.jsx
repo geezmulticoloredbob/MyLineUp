@@ -15,14 +15,14 @@ import GamesFeed from '../features/dashboard/components/GamesFeed';
 
 const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23333'/%3E%3Ccircle cx='20' cy='15' r='6' fill='%23555'/%3E%3Cpath d='M8 36c0-6.627 5.373-12 12-12s12 5.373 12 12' fill='%23555'/%3E%3C/svg%3E";
 
-function sportOf(league) {
+export function sportOf(league) {
   return LEAGUE_SPORT[league] || league;
 }
 
 // Unique sports in first-seen order, derived from a list of leagues (or objects
 // via `getLeague`) — keeps sport/league group ordering consistent across the strip,
 // the team grid, and the league-overview cards.
-function uniqueSportsInOrder(items, getLeague = (x) => x) {
+export function uniqueSportsInOrder(items, getLeague = (x) => x) {
   const sports = [];
   items.forEach((item) => {
     const s = sportOf(getLeague(item));
@@ -33,7 +33,7 @@ function uniqueSportsInOrder(items, getLeague = (x) => x) {
 
 // Moves every league belonging to `fromSport` as a contiguous block to sit
 // where `toSport`'s leagues are, preserving order within each sport otherwise.
-function moveSportBlock(leagueOrder, fromSport, toSport) {
+export function moveSportBlock(leagueOrder, fromSport, toSport) {
   if (fromSport === toSport) return leagueOrder;
   const sportsInOrder = uniqueSportsInOrder(leagueOrder);
   const nextSports = [...sportsInOrder];
