@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { LEAGUE_SPORT, LEAGUE_DISPLAY_NAMES, LEAGUE_ABBR, SPORT_DISPLAY_NAMES } from '../constants/leagues';
+import { LEAGUE_DISPLAY_NAMES, LEAGUE_ABBR, SPORT_DISPLAY_NAMES } from '../constants/leagues';
 import { apiClient } from '../services/apiClient';
 import { useFavouritesRefresh } from '../contexts/FavouritesContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,41 +12,9 @@ import SportIcon from '../components/common/SportIcon';
 import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard, { SkeletonLeagueCard } from '../features/dashboard/components/LeagueCard';
 import GamesFeed from '../features/dashboard/components/GamesFeed';
+import { sportOf, uniqueSportsInOrder, moveSportBlock } from './HomePage.helpers';
 
 const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23333'/%3E%3Ccircle cx='20' cy='15' r='6' fill='%23555'/%3E%3Cpath d='M8 36c0-6.627 5.373-12 12-12s12 5.373 12 12' fill='%23555'/%3E%3C/svg%3E";
-
-export function sportOf(league) {
-  return LEAGUE_SPORT[league] || league;
-}
-
-// Unique sports in first-seen order, derived from a list of leagues (or objects
-// via `getLeague`) — keeps sport/league group ordering consistent across the strip,
-// the team grid, and the league-overview cards.
-export function uniqueSportsInOrder(items, getLeague = (x) => x) {
-  const sports = [];
-  items.forEach((item) => {
-    const s = sportOf(getLeague(item));
-    if (!sports.includes(s)) sports.push(s);
-  });
-  return sports;
-}
-
-// Moves every league belonging to `fromSport` as a contiguous block to sit
-// where `toSport`'s leagues are, preserving order within each sport otherwise.
-export function moveSportBlock(leagueOrder, fromSport, toSport) {
-  if (fromSport === toSport) return leagueOrder;
-  const sportsInOrder = uniqueSportsInOrder(leagueOrder);
-  const nextSports = [...sportsInOrder];
-  nextSports.splice(nextSports.indexOf(fromSport), 1);
-  nextSports.splice(nextSports.indexOf(toSport), 0, fromSport);
-
-  const bySport = {};
-  leagueOrder.forEach((l) => {
-    const s = sportOf(l);
-    (bySport[s] = bySport[s] || []).push(l);
-  });
-  return nextSports.flatMap((s) => bySport[s]);
-}
 
 function TeamLogoStrip({ teams, leagueOrder, teamOrder, onLeagueReorder, onTeamReorder, expandedSports, onToggleSport, onExpandSport }) {
   const dragSport = useRef(null);

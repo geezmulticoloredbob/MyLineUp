@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sportOf, uniqueSportsInOrder, moveSportBlock } from '../../pages/HomePage';
+import { sportOf, uniqueSportsInOrder, moveSportBlock } from '../../pages/HomePage.helpers';
 
 describe('sportOf', () => {
   it('maps a known league to its sport', () => {
