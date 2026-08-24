@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -19,13 +19,22 @@ function OnboardingPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
 
+  const handleSkip = useCallback(async () => {
+    try {
+      await completeOnboarding();
+    } finally {
+      updateUser({ onboardingComplete: true });
+      navigate('/');
+    }
+  }, [updateUser, navigate]);
+
   useEffect(() => {
     function onKeyDown(e) {
       if (e.key === 'Escape') handleSkip();
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [handleSkip]);
 
   function toggleTeam(league, teamId, teamName) {
     const key = `${league}::${teamId}`;
@@ -61,15 +70,6 @@ function OnboardingPage() {
     } catch {
       setSaving(false);
       setSaveError('Could not save your selections. Please try again.');
-    }
-  }
-
-  async function handleSkip() {
-    try {
-      await completeOnboarding();
-    } finally {
-      updateUser({ onboardingComplete: true });
-      navigate('/');
     }
   }
 

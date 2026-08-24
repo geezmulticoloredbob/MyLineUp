@@ -21,6 +21,7 @@ jobs:
           cache: npm
           cache-dependency-path: server/package-lock.json
       - run: npm ci
+      - run: npm run lint
       - run: npm test
 
   client:
@@ -37,5 +38,6 @@ jobs:
           cache: npm
           cache-dependency-path: client/package-lock.json
       - run: npm ci
+      - run: npm run lint
       - run: npm run test:run
       - run: npm run build
