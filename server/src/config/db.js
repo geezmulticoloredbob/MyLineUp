@@ -1,8 +1,13 @@
 const mongoose = require('mongoose');
 const env = require('./env');
 
-// Ensure SRV lookups work regardless of the system DNS resolver
-require('dns').setServers(['8.8.8.8']);
+// Opt-in workaround for local resolvers that fail Atlas SRV lookups (set
+// DNS_SERVERS=8.8.8.8 in server/.env if you hit this). Left off by default —
+// this rewrites DNS for the whole process, not just the Mongo driver, so it
+// should not run unconditionally on a hosting platform's network.
+if (env.dnsServers) {
+  require('dns').setServers(env.dnsServers.split(',').map((s) => s.trim()));
+}
 
 async function connectToDatabase() {
   if (!env.mongoUri) {
