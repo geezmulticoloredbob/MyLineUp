@@ -41,3 +41,7 @@ jobs:
       - run: npm run lint
       - run: npm run test:run
       - run: npm run build
+        env:
+          # The build now fails fast without this (see vite.config.js) — CI just
+          # needs the build to succeed, not a real API, so any value works here.
+          VITE_API_URL: https://ci-build-placeholder.invalid
