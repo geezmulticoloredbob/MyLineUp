@@ -18,6 +18,11 @@ async function connectToDatabase() {
   return mongoose.connection;
 }
 
+async function disconnectFromDatabase() {
+  await mongoose.connection.close();
+}
+
 module.exports = {
   connectToDatabase,
+  disconnectFromDatabase,
 };

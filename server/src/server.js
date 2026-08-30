@@ -10,14 +10,19 @@ if (envProblems.length) {
 }
 
 const app = require('./app');
-const { connectToDatabase } = require('./config/db');
+const { connectToDatabase, disconnectFromDatabase } = require('./config/db');
+const { createGracefulShutdown } = require('./gracefulShutdown');
 
 async function startServer() {
   await connectToDatabase();
 
-  app.listen(env.port, () => {
+  const server = app.listen(env.port, () => {
     console.log(`Server listening on port ${env.port}`);
   });
+
+  const shutdown = createGracefulShutdown({ server, closeDatabase: disconnectFromDatabase });
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 }
 
 startServer().catch((error) => {
