@@ -172,15 +172,35 @@ cd client && npm run test:run # vitest
 MONGODB_URI=       # MongoDB Atlas connection string
 JWT_SECRET=
 PORT=5000
+NODE_ENV=development  # set to `production` on a real deploy — see Deployment below
 CLIENT_URL=http://localhost:5173
 BASKETBALL_API_KEY=   # BallDontLie (NBA)
 FOOTBALL_API_KEY=     # football-data.org
+DNS_SERVERS=           # optional, e.g. 8.8.8.8,1.1.1.1 — only if your local resolver
+                        # fails Atlas SRV lookups (symptom: `querySrv ECONNREFUSED`
+                        # on startup). Leave unset by default; it rewrites DNS for the
+                        # whole process, not just the Mongo driver.
 ```
 
 `client/.env` (gitignored):
 ```
 VITE_API_URL=http://localhost:5000
 ```
+
+## ☁️ Deployment
+
+Free-tier stack: **MongoDB Atlas** (M0 cluster) → **Render** (server) → **Vercel** (client).
+
+Deploy order matters, because CORS on the server only allows a single origin (`CLIENT_URL`):
+
+1. **Atlas** — create the cluster, then in Network Access allow `0.0.0.0/0` (Render's free tier has no static outbound IP, so per-IP allow-listing won't work).
+2. **Render** — new Web Service, Root Directory `server`, build `npm install`, start `npm start`. Set all the `server/.env` vars above as dashboard env vars, with two important differences from local dev:
+   - **`NODE_ENV` must be `production`** — this isn't optional for a real deploy. Besides enabling the stricter checks below, `errorHandler.js` only strips stack traces from API error responses when `NODE_ENV=production`; leaving it at `development` leaks stack traces to clients.
+   - With `NODE_ENV=production`, `validateEnv.js` additionally requires a real (non-placeholder) `MONGODB_URI`, a `JWT_SECRET` of 32+ characters that isn't the `.env.example` placeholder, and a `CLIENT_URL` — the app refuses to start if any of these look like leftover local-dev values.
+   - Leave `CLIENT_URL` as a placeholder until step 3 gives you a real Vercel URL.
+   - Leave `DNS_SERVERS` unset — Render's network doesn't have the local-resolver issue that var works around.
+3. **Vercel** — import the repo, Root Directory `client` (Framework Preset auto-detects Vite once that's set). Add `VITE_API_URL=<your Render URL>` as an env var — set it for **all** environments (Production/Preview/Development), since `vite.config.js` fails the build entirely if it's unset, regardless of environment.
+4. **Back to Render** — update `CLIENT_URL` to the real Vercel URL and let it redeploy. Until this step, the deployed frontend's API calls will fail CORS even though both services are individually up.
 
 ## 🧩 Roadmap
 
