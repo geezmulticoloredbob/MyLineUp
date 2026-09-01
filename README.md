@@ -64,12 +64,14 @@ Supported leagues:
 - React 19 + Vite
 - React Router
 - Vitest + Testing Library
+- ESLint
 
 **Backend**
 - Node.js + Express 5
 - MongoDB (Mongoose ODM)
 - JWT authentication (bcrypt-hashed passwords, rate-limited auth endpoints, Helmet + CORS)
 - Jest + Supertest, with `mongodb-memory-server` for integration tests
+- ESLint
 
 **External data**
 - BallDontLie API (NBA)
@@ -159,10 +161,13 @@ npm install
 npm run dev           # vite, http://localhost:5173
 ```
 
-**Tests**
+**Tests & linting** (both run in CI on every push/PR)
 ```bash
 cd server && npm test         # jest
+cd server && npm run lint     # eslint
+
 cd client && npm run test:run # vitest
+cd client && npm run lint     # eslint
 ```
 
 ### Environment variables
