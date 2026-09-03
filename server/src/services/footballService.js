@@ -1,12 +1,21 @@
 const env = require('../config/env');
 const fetchWithTimeout = require('../utils/fetchWithTimeout');
+const { throttle } = require('../utils/requestThrottle');
 
 const FD_BASE = 'https://api.football-data.org/v4';
+// football-data.org's free tier is a global 10 req/min limit on the whole
+// API key, shared across every competition — not per-competition. Favourites
+// spanning several competitions previously fired all their calls in
+// parallel and blew straight through it on every cold cache. 6.5s spacing
+// keeps us under 10/min with margin.
+const FD_MIN_SPACING_MS = 6500;
 
 function fdFetch(path) {
-  return fetchWithTimeout(`${FD_BASE}${path}`, {
-    headers: { 'X-Auth-Token': env.footballApiKey },
-  });
+  return throttle('football-data', FD_MIN_SPACING_MS, () =>
+    fetchWithTimeout(`${FD_BASE}${path}`, {
+      headers: { 'X-Auth-Token': env.footballApiKey },
+    })
+  );
 }
 
 function toDateStr(d) {

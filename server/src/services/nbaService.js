@@ -1,7 +1,13 @@
 const env = require('../config/env');
 const fetchWithTimeout = require('../utils/fetchWithTimeout');
+const { throttle } = require('../utils/requestThrottle');
 
 const BDL_BASE = 'https://api.balldontlie.io/v1';
+// BallDontLie's free tier rejects bursts of near-simultaneous requests (seen
+// live: 2 favourited teams alone triggered a 429) — the exact per-minute
+// number isn't published, so this is a conservative match to the
+// football-data.org spacing rather than a documented limit.
+const BDL_MIN_SPACING_MS = 6500;
 
 // BallDontLie abbreviations differ from ESPN for a few teams
 const ESPN_ABBR_OVERRIDE = { GSW: 'gs', NOP: 'no', NYK: 'ny', SAS: 'sa', UTA: 'utah', WAS: 'wsh' };
