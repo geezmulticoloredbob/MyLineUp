@@ -1,8 +1,24 @@
 const fetchWithTimeout = require('../utils/fetchWithTimeout');
+const { throttle } = require('../utils/requestThrottle');
 
 const SQUIGGLE_BASE = 'https://api.squiggle.com.au';
-const USER_AGENT = 'MyLineUp/1.0 (personal sports dashboard)';
+// Squiggle asks for a descriptive User-Agent identifying the app; a URL is
+// included (rather than a personal email) to identify it without publishing
+// a contact address in a public repo.
+const USER_AGENT = 'MyLineUp/1.0 (https://my-line-up.vercel.app; personal sports dashboard)';
 const TTL_MS = 5 * 60 * 1000;
+// Squiggle doesn't publish a specific rate limit, but a burst of just 2
+// near-simultaneous calls (standings + games, on a cold cache) returned 403
+// live — same conservative spacing as the other two external APIs.
+const SQUIGGLE_MIN_SPACING_MS = 6500;
+
+function squiggleFetch(query) {
+  return throttle('squiggle', SQUIGGLE_MIN_SPACING_MS, () =>
+    fetchWithTimeout(`${SQUIGGLE_BASE}/?${query}`, {
+      headers: { 'User-Agent': USER_AGENT },
+    })
+  );
+}
 
 // Maps our stored teamName to the name Squiggle uses
 const SQUIGGLE_NAME_MAP = {
@@ -92,9 +108,7 @@ async function getCachedStandings() {
   if (_standingsCache && Date.now() - _standingsCachedAt < TTL_MS) return _standingsCache;
   if (_standingsInFlight) return _standingsInFlight;
   const year = new Date().getFullYear();
-  _standingsInFlight = fetchWithTimeout(`${SQUIGGLE_BASE}/?q=standings&year=${year}`, {
-    headers: { 'User-Agent': USER_AGENT },
-  })
+  _standingsInFlight = squiggleFetch(`q=standings&year=${year}`)
     .then(async (res) => {
       if (!res.ok) throw new Error(`Squiggle standings fetch failed: ${res.status}`);
       const { standings } = await res.json();
@@ -111,9 +125,7 @@ async function getCachedGames() {
   if (_gamesCache && Date.now() - _gamesCachedAt < TTL_MS) return _gamesCache;
   if (_gamesInFlight) return _gamesInFlight;
   const year = new Date().getFullYear();
-  _gamesInFlight = fetchWithTimeout(`${SQUIGGLE_BASE}/?q=games&year=${year}`, {
-    headers: { 'User-Agent': USER_AGENT },
-  })
+  _gamesInFlight = squiggleFetch(`q=games&year=${year}`)
     .then(async (res) => {
       if (!res.ok) throw new Error(`Squiggle league games fetch failed: ${res.status}`);
       const { games } = await res.json();
@@ -130,9 +142,7 @@ async function getCachedPlayerStats() {
   if (_playerStatsCache && Date.now() - _playerStatsCachedAt < PLAYER_STATS_TTL_MS) return _playerStatsCache;
   if (_playerStatsInFlight) return _playerStatsInFlight;
   const year = new Date().getFullYear();
-  _playerStatsInFlight = fetchWithTimeout(`${SQUIGGLE_BASE}/?q=playerstats&year=${year}`, {
-    headers: { 'User-Agent': USER_AGENT },
-  })
+  _playerStatsInFlight = squiggleFetch(`q=playerstats&year=${year}`)
     .then(async (res) => {
       if (!res.ok) throw new Error(`Squiggle player stats failed: ${res.status}`);
       const { playerstats } = await res.json();

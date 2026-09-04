@@ -50,6 +50,10 @@ beforeEach(() => {
   jest.resetModules();
   mockFetch = jest.fn();
   jest.doMock('../../utils/fetchWithTimeout', () => mockFetch);
+  // Bypass real request spacing here — it's unit-tested on its own in
+  // requestThrottle.test.js and would otherwise add real multi-second
+  // delays to these tests via its real setTimeout-based throttling.
+  jest.doMock('../../utils/requestThrottle', () => ({ throttle: (bucket, ms, fn) => fn() }));
   aflService = require('../../services/aflService');
 });
 

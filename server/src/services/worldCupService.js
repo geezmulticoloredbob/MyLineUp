@@ -1,12 +1,19 @@
 const env = require('../config/env');
 const fetchWithTimeout = require('../utils/fetchWithTimeout');
+const { throttle } = require('../utils/requestThrottle');
 
 const FD_BASE = 'https://api.football-data.org/v4';
+// Same football-data.org account/key as footballService.js — shares the
+// 'football-data' bucket so combined call volume from both stays under the
+// single global 10 req/min limit, not 10/min each.
+const FD_MIN_SPACING_MS = 6500;
 
 function fdFetch(path) {
-  return fetchWithTimeout(`${FD_BASE}${path}`, {
-    headers: { 'X-Auth-Token': env.footballApiKey },
-  });
+  return throttle('football-data', FD_MIN_SPACING_MS, () =>
+    fetchWithTimeout(`${FD_BASE}${path}`, {
+      headers: { 'X-Auth-Token': env.footballApiKey },
+    })
+  );
 }
 
 function toDateStr(d) {

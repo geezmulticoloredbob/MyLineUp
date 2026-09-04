@@ -7,7 +7,8 @@ const FD_BASE = 'https://api.football-data.org/v4';
 // API key, shared across every competition — not per-competition. Favourites
 // spanning several competitions previously fired all their calls in
 // parallel and blew straight through it on every cold cache. 6.5s spacing
-// keeps us under 10/min with margin.
+// keeps us under 10/min with margin. worldCupService.js hits the same
+// account and shares this same 'football-data' bucket.
 const FD_MIN_SPACING_MS = 6500;
 
 function fdFetch(path) {

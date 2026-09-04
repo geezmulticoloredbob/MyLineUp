@@ -78,9 +78,11 @@ function getNBALogoUrl(abbreviation) {
 }
 
 function bdlFetch(path) {
-  return fetchWithTimeout(`${BDL_BASE}${path}`, {
-    headers: { Authorization: env.basketballApiKey },
-  });
+  return throttle('balldontlie', BDL_MIN_SPACING_MS, () =>
+    fetchWithTimeout(`${BDL_BASE}${path}`, {
+      headers: { Authorization: env.basketballApiKey },
+    })
+  );
 }
 
 let _teamsCache = null;
