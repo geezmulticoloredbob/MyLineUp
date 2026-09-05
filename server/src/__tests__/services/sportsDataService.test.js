@@ -1,12 +1,10 @@
 jest.mock('../../services/nbaService', () => ({ getNBATeamData: jest.fn() }));
-jest.mock('../../services/aflService', () => ({ getAFLTeamData: jest.fn() }));
 jest.mock('../../services/footballService', () => ({ getFDTeamData: jest.fn() }));
 jest.mock('../../services/worldCupService', () => ({ getWCTeamData: jest.fn() }));
 jest.mock('../../services/espnTeamSportService', () => ({ getESPNTeamData: jest.fn() }));
 
 const { hydrateFavouriteTeams } = require('../../services/sportsDataService');
 const { getNBATeamData } = require('../../services/nbaService');
-const { getAFLTeamData } = require('../../services/aflService');
 const { getFDTeamData } = require('../../services/footballService');
 const { getWCTeamData } = require('../../services/worldCupService');
 const { getESPNTeamData } = require('../../services/espnTeamSportService');
@@ -45,10 +43,10 @@ describe('sportsDataService', () => {
       expect(result.source).toBe('live');
     });
 
-    it('dispatches to aflService for AFL', async () => {
-      getAFLTeamData.mockResolvedValue(liveSportData);
+    it('dispatches to getESPNTeamData with league AFL for AFL', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
       const [result] = await hydrateFavouriteTeams([aflFav]);
-      expect(getAFLTeamData).toHaveBeenCalledWith(aflFav);
+      expect(getESPNTeamData).toHaveBeenCalledWith(aflFav, 'AFL');
       expect(result.source).toBe('live');
     });
 
@@ -177,7 +175,7 @@ describe('sportsDataService', () => {
 
     it('hydrates multiple favourites in parallel and returns them in order', async () => {
       getNBATeamData.mockResolvedValue(liveSportData);
-      getAFLTeamData.mockResolvedValue(liveSportData);
+      getESPNTeamData.mockResolvedValue(liveSportData);
       const results = await hydrateFavouriteTeams([nbaFav, aflFav]);
       expect(results).toHaveLength(2);
       expect(results[0].league).toBe('NBA');
