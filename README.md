@@ -76,8 +76,7 @@ Supported leagues:
 **External data**
 - BallDontLie API (NBA)
 - football-data.org (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, Champions League, World Cup)
-- Squiggle (AFL)
-- ESPN's public site API (NFL, NHL, MLB) and CDN (team logos and brand colours across all leagues)
+- ESPN's public site API (NFL, NHL, MLB, AFL) and CDN (team logos and brand colours across all leagues)
 
 ## 🧠 Core Features
 
@@ -117,7 +116,7 @@ Team IDs follow the pattern `{league}-{abbr}` (e.g. `nba-gsw`, `epl-ars`, `afl-h
 
 1. User logs in and completes onboarding (or lands on the dashboard if already onboarded)
 2. Dashboard requests the user's favourites and followed leagues
-3. The server's league services (NBA, AFL, football, World Cup, and NFL/NHL/MLB via ESPN's public site API) fetch and normalise data from each external API, each caching in-memory to minimise external calls — team lists 24h, standings 5min, scorers 1h, and match/game fetches 5min
+3. The server's league services (NBA, football, World Cup, and NFL/NHL/MLB/AFL via ESPN's public site API) fetch and normalise data from each external API, each caching in-memory to minimise external calls — team lists 24h, standings 5min, scorers 1h, and match/game fetches 5min
 4. Results are aggregated into a single dashboard payload and rendered as league/team cards and a games feed on the client
 
 ## 📁 Project Structure

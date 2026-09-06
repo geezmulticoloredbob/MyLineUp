@@ -1,12 +1,11 @@
 const { getNBAStandings, getNBALeagueGames } = require('./nbaService');
-const { getAFLStandings, getAFLLeagueGames } = require('./aflService');
 const { getFDStandingsForOverview, getFDLeagueGames } = require('./footballService');
 const { getWCStandings, getWCLeagueGames } = require('./worldCupService');
 const { getESPNStandingsOverview, getESPNLeagueGames } = require('./espnTeamSportService');
 
 const LEAGUE_FETCHERS = {
   NBA:        { standings: getNBAStandings,                            games: getNBALeagueGames },
-  AFL:        { standings: getAFLStandings,                            games: getAFLLeagueGames },
+  AFL:        { standings: () => getESPNStandingsOverview('AFL'),       games: () => getESPNLeagueGames('AFL') },
   EPL:        { standings: () => getFDStandingsForOverview('PL'),      games: () => getFDLeagueGames('PL') },
   LALIGA:     { standings: () => getFDStandingsForOverview('PD'),      games: () => getFDLeagueGames('PD') },
   BUNDESLIGA: { standings: () => getFDStandingsForOverview('BL1'),     games: () => getFDLeagueGames('BL1') },

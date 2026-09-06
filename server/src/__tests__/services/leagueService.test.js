@@ -2,10 +2,6 @@ jest.mock('../../services/nbaService', () => ({
   getNBAStandings: jest.fn(),
   getNBALeagueGames: jest.fn(),
 }));
-jest.mock('../../services/aflService', () => ({
-  getAFLStandings: jest.fn(),
-  getAFLLeagueGames: jest.fn(),
-}));
 jest.mock('../../services/footballService', () => ({
   getFDStandingsForOverview: jest.fn(),
   getFDLeagueGames: jest.fn(),
@@ -21,7 +17,6 @@ jest.mock('../../services/espnTeamSportService', () => ({
 
 const { hydrateFollowedLeagues } = require('../../services/leagueService');
 const { getNBAStandings, getNBALeagueGames } = require('../../services/nbaService');
-const { getAFLStandings, getAFLLeagueGames } = require('../../services/aflService');
 const { getFDStandingsForOverview, getFDLeagueGames } = require('../../services/footballService');
 const { getWCStandings, getWCLeagueGames } = require('../../services/worldCupService');
 const { getESPNStandingsOverview, getESPNLeagueGames } = require('../../services/espnTeamSportService');
@@ -48,10 +43,12 @@ describe('leagueService', () => {
       expect(result.standings).toEqual(mockStandings);
     });
 
-    it('dispatches to aflService for AFL', async () => {
-      getAFLStandings.mockResolvedValue(mockStandings);
-      getAFLLeagueGames.mockResolvedValue(mockGames);
+    it('dispatches to getESPNStandingsOverview/getESPNLeagueGames with AFL for AFL', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
       const [result] = await hydrateFollowedLeagues(['AFL']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('AFL');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('AFL');
       expect(result.league).toBe('AFL');
       expect(result.standings).toEqual(mockStandings);
     });
@@ -176,8 +173,8 @@ describe('leagueService', () => {
     it('hydrates multiple leagues in parallel', async () => {
       getNBAStandings.mockResolvedValue(mockStandings);
       getNBALeagueGames.mockResolvedValue(mockGames);
-      getAFLStandings.mockResolvedValue(mockStandings);
-      getAFLLeagueGames.mockResolvedValue(mockGames);
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
       const results = await hydrateFollowedLeagues(['NBA', 'AFL']);
       expect(results).toHaveLength(2);
       expect(results[0].league).toBe('NBA');

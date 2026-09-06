@@ -1,11 +1,10 @@
 const { getNBATeamData } = require('./nbaService');
-const { getAFLTeamData } = require('./aflService');
 const { getFDTeamData } = require('./footballService');
 const { getWCTeamData } = require('./worldCupService');
 const { getESPNTeamData } = require('./espnTeamSportService');
 const { getTeamColours } = require('./espnColourService');
 
-const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB'];
+const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL'];
 
 // competition code for each football-data.org league
 const FD_COMPETITION_CODES = {
@@ -28,14 +27,15 @@ const EPL_ESPN_IDS = {
   'epl-nfo': 393, 'epl-sou': 376, 'epl-tot': 367, 'epl-whu': 371, 'epl-wol': 380,
 };
 
+// Last-resort fallback when the primary sport service returns no logoUrl at
+// all (e.g. its own team lookup failed too) — not used for AFL, since our
+// stored afl- abbreviations were invented locally and never verified against
+// ESPN's actual scheme; espnTeamSportService derives AFL logos from ESPN's
+// own team.abbreviation field instead, which is reliable by construction.
 function espnLogoFromTeamId(teamId) {
   if (teamId.startsWith('nba-')) {
     const abbr = teamId.replace('nba-', '');
     return `https://a.espncdn.com/i/teamlogos/nba/500/${NBA_ESPN_OVERRIDES[abbr] || abbr}.png`;
-  }
-  if (teamId.startsWith('afl-')) {
-    const abbr = teamId.replace('afl-', '');
-    return `https://a.espncdn.com/i/teamlogos/afl/500/${abbr}.png`;
   }
   if (teamId.startsWith('epl-')) {
     const id = EPL_ESPN_IDS[teamId];
@@ -61,7 +61,6 @@ async function hydrateTeam(favourite) {
   const fetchSportData = async () => {
     const fdCode = FD_COMPETITION_CODES[favourite.league];
     if (favourite.league === 'NBA') return getNBATeamData(favourite);
-    if (favourite.league === 'AFL') return getAFLTeamData(favourite);
     if (favourite.league === 'WC') return getWCTeamData(favourite);
     if (ESPN_TEAM_SPORT_LEAGUES.includes(favourite.league)) return getESPNTeamData(favourite, favourite.league);
     if (fdCode) return getFDTeamData(favourite, fdCode);

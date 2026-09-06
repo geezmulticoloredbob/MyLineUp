@@ -8,6 +8,19 @@ const ESPN_SPORT_CONFIG = {
   NFL: { sport: 'football', league: 'nfl' },
   NHL: { sport: 'hockey', league: 'nhl' },
   MLB: { sport: 'baseball', league: 'mlb' },
+  // Matches the URL already used (and presumably working) in espnColourService.js
+  AFL: { sport: 'australian-football', league: 'afl' },
+};
+
+// Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
+// each league's home base, not accurate for every individual venue, but far
+// closer than a single hardcoded US timezone was for a league played entirely
+// in Australia.
+const DEFAULT_VENUE_TIMEZONE = {
+  NFL: 'America/New_York',
+  NHL: 'America/New_York',
+  MLB: 'America/New_York',
+  AFL: 'Australia/Sydney',
 };
 
 function espnFetch(path) {
@@ -62,6 +75,23 @@ async function getESPNTeams(sportKey) {
 function findTeamByAbbr(teams, abbr) {
   const target = abbr.toLowerCase();
   return teams.find((t) => (t.abbreviation || '').toLowerCase() === target);
+}
+
+function normalizeTeamName(name) {
+  return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+// Falls back to matching by team name when the abbreviation lookup misses —
+// unlike NFL/NHL/MLB (where our stored team IDs already use ESPN's own
+// standard abbreviations), AFL's stored IDs use abbreviations we invented
+// ourselves and were never verified against ESPN's actual scheme.
+function findTeamByName(teams, teamName) {
+  const target = normalizeTeamName(teamName);
+  if (!target) return null;
+  return teams.find((t) => {
+    const candidates = [t.displayName, t.shortDisplayName, t.name, t.location].map(normalizeTeamName);
+    return candidates.some((c) => c && (c === target || target.includes(c) || c.includes(target)));
+  });
 }
 
 // --- Standings (per-league, 5min cache) ---
@@ -167,7 +197,7 @@ async function getESPNTeamData(favourite, sportKey) {
   const abbr = favourite.teamId.startsWith(prefix) ? favourite.teamId.slice(prefix.length) : favourite.teamId;
 
   const teams = await getESPNTeams(sportKey);
-  const team = findTeamByAbbr(teams, abbr);
+  const team = findTeamByAbbr(teams, abbr) || findTeamByName(teams, favourite.teamName);
   if (!team) return null;
 
   const [events, standingsEntries] = await Promise.all([
@@ -200,7 +230,7 @@ async function getESPNTeamData(favourite, sportKey) {
     nextFixture = {
       date: nextEvent.date.split('T')[0],
       utcDate: nextEvent.date,
-      venueTimezone: 'America/New_York',
+      venueTimezone: DEFAULT_VENUE_TIMEZONE[sportKey] || 'America/New_York',
       opponent: nextEvent.opponentName,
       opponentLogoUrl: nextEvent.opponentLogoUrl,
       venue: nextEvent.isHome ? 'Home' : 'Away',

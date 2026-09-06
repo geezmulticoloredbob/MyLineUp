@@ -117,6 +117,78 @@ describe('getESPNTeamData', () => {
     mockFetch.mockImplementation(() => mockFail(500));
     await expect(espnTeamSportService.getESPNTeamData({ teamId: 'nfl-kc', league: 'NFL' }, 'NFL')).rejects.toThrow();
   });
+
+  describe('AFL — name-based fallback matching', () => {
+    // Our stored afl- team IDs use abbreviations we invented ourselves, never
+    // verified against ESPN's actual AFL scheme — deliberately mismatched
+    // here (favourite abbr "haw" vs ESPN's "HAWK") to prove the name fallback
+    // is what actually finds the team, not a coincidental abbreviation match.
+    const AFL_TEAMS_RESPONSE = {
+      sports: [{ leagues: [{ teams: [
+        { team: { id: '10', abbreviation: 'HAWK', displayName: 'Hawthorn Hawks', shortDisplayName: 'Hawthorn' } },
+        { team: { id: '11', abbreviation: 'COLL', displayName: 'Collingwood Magpies', shortDisplayName: 'Collingwood' } },
+      ] }] }],
+    };
+
+    it('falls back to matching by team name when the abbreviation is not found', async () => {
+      mockFetch.mockImplementation((url) => {
+        if (url.includes('/teams/10/schedule')) return mockOk({ events: [] });
+        if (url.includes('/teams')) return mockOk(AFL_TEAMS_RESPONSE);
+        return mockOk({});
+      });
+
+      const result = await espnTeamSportService.getESPNTeamData(
+        { teamId: 'afl-haw', teamName: 'Hawthorn', league: 'AFL' },
+        'AFL',
+      );
+
+      expect(result).not.toBeNull();
+      expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/afl/500/hawk.png');
+    });
+
+    it('still returns null when neither abbreviation nor name matches any team', async () => {
+      mockFetch.mockImplementation((url) => {
+        if (url.includes('/teams')) return mockOk(AFL_TEAMS_RESPONSE);
+        return mockOk({});
+      });
+
+      const result = await espnTeamSportService.getESPNTeamData(
+        { teamId: 'afl-zzz', teamName: 'Nonexistent FC', league: 'AFL' },
+        'AFL',
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it('defaults nextFixture.venueTimezone to Australia/Sydney for AFL', async () => {
+      mockFetch.mockImplementation((url) => {
+        if (url.includes('/teams/11/schedule')) {
+          return mockOk({
+            events: [{
+              date: '2099-06-01T05:00:00Z',
+              competitions: [{
+                date: '2099-06-01T05:00:00Z',
+                status: { type: { completed: false } },
+                competitors: [
+                  { team: { id: '11', abbreviation: 'COLL' }, homeAway: 'home', score: null, winner: null },
+                  { team: { id: '10', abbreviation: 'HAWK' }, homeAway: 'away', score: null, winner: null },
+                ],
+              }],
+            }],
+          });
+        }
+        if (url.includes('/teams')) return mockOk(AFL_TEAMS_RESPONSE);
+        return mockOk({});
+      });
+
+      const result = await espnTeamSportService.getESPNTeamData(
+        { teamId: 'afl-col', teamName: 'Collingwood', league: 'AFL' },
+        'AFL',
+      );
+
+      expect(result.nextFixture.venueTimezone).toBe('Australia/Sydney');
+    });
+  });
 });
 
 describe('getESPNStandingsOverview', () => {
