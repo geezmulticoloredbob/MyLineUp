@@ -12,6 +12,7 @@ import SportIcon from '../components/common/SportIcon';
 import TeamCard from '../features/dashboard/components/TeamCard';
 import LeagueCard, { SkeletonLeagueCard } from '../features/dashboard/components/LeagueCard';
 import GamesFeed from '../features/dashboard/components/GamesFeed';
+import NextMatches from '../features/dashboard/components/NextMatches';
 import { sportOf, uniqueSportsInOrder, moveSportBlock } from './HomePage.helpers';
 
 const LOGO_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23333'/%3E%3Ccircle cx='20' cy='15' r='6' fill='%23555'/%3E%3Cpath d='M8 36c0-6.627 5.373-12 12-12s12 5.373 12 12' fill='%23555'/%3E%3C/svg%3E";
@@ -334,6 +335,7 @@ function HomePage() {
         />
       )}
       <GamesFeed teams={sortedTeams} />
+      <NextMatches teams={sortedTeams} leagueOrder={leagueOrder} />
       {sortedTeams.length > 0 && (
         <ErrorBoundary>
           <div className="team-groups">
