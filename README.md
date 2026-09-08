@@ -121,7 +121,7 @@ Team IDs follow the pattern `{league}-{abbr}` (e.g. `nba-gsw`, `epl-ars`, `afl-h
 
 ## 📁 Project Structure
 
-Monorepo with independent `client/` and `server/` apps (no shared packages).
+Monorepo with independent `client/`, `server/`, and `e2e/` apps (no shared packages).
 
 ```
 client/src/
@@ -140,6 +140,9 @@ server/src/
   models/       User, Favourite (Mongoose)
   middleware/   auth, error handling
   validators/   request payload validation
+
+e2e/            Playwright smoke tests against the live deployed app
+                (not CI — see e2e/README.md)
 ```
 
 See `docs/project-structure.md` for more detail, and `CLAUDE.md` for architecture notes.
