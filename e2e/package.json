@@ -1,0 +1,17 @@
+{
+  "name": "e2e",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright smoke tests against the live deployed MyLineUp app (Vercel + Render), not the CI unit-test suites.",
+  "scripts": {
+    "test:e2e": "playwright test"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "dotenv": "^17.4.2"
+  }
+}

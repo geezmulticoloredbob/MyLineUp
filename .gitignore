@@ -5,6 +5,8 @@ build/
 .env.*
 !.env.example
 coverage/
+playwright-report/
+test-results/
 .DS_Store
 Thumbs.db
 npm-debug.log*
