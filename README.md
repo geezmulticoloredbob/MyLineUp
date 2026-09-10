@@ -18,7 +18,7 @@ Core capabilities:
   - Ladder / league table position
   - Season stats and top scorers
   - Team logo and brand colours (sourced from ESPN)
-- A today's games feed showing live results and fixtures across followed leagues
+- A "Today" feed showing live results and fixtures across followed leagues, plus a separate "Next Matches" view with the soonest upcoming fixture per sport
 - Drag-and-drop reordering of leagues and teams on the dashboard
 - Dark/light theme, with an optional background tint derived from a chosen team's colours
 - Account settings (update profile, password, and avatar icon) via an account menu
@@ -87,7 +87,8 @@ Supported leagues:
 
 ### 2️⃣ Personal Dashboard
 - Per-team cards showing latest result, next fixture, ladder position, and stats, hydrated live from each league's API (with graceful fallback if a source is unavailable)
-- Today's games feed across all followed leagues
+- "Today" feed of results and fixtures across all followed leagues
+- "Next Matches" view — one row per sport, whichever followed team has the soonest fixture after today
 - Drag-and-drop reordering of leagues and teams, persisted per user
 
 ### 3️⃣ Favourites
@@ -117,7 +118,7 @@ Team IDs follow the pattern `{league}-{abbr}` (e.g. `nba-gsw`, `epl-ars`, `afl-h
 1. User logs in and completes onboarding (or lands on the dashboard if already onboarded)
 2. Dashboard requests the user's favourites and followed leagues
 3. The server's league services (NBA, football, World Cup, and NFL/NHL/MLB/AFL via ESPN's public site API) fetch and normalise data from each external API, each caching in-memory to minimise external calls — team lists 24h, standings 5min, scorers 1h, and match/game fetches 5min
-4. Results are aggregated into a single dashboard payload and rendered as league/team cards and a games feed on the client
+4. Results are aggregated into a single dashboard payload and rendered on the client as league/team cards, a "Today" feed, and a "Next Matches" view
 
 ## 📁 Project Structure
 
