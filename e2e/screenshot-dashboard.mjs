@@ -1,12 +1,22 @@
+// Regenerates the README screenshots in docs/screenshots/ from the live
+// deployed app, using the dedicated e2e test account (see e2e/.env).
+//
+// It temporarily loads that account up with a spread of favourites across
+// every sport, captures the shots, then restores the account to the lean
+// state the smoke suite expects (see setup-test-account.js). Safe to re-run.
+//
+// Usage: node e2e/screenshot-dashboard.mjs   (needs `npx playwright install chromium`)
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-// Load e2e/.env
-const repoRoot = 'C:/Users/coenw/source/repos/MyLineUp';
-const envPath = path.join(repoRoot, 'e2e', '.env');
+const e2eDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(e2eDir, '..');
+const OUT = path.join(repoRoot, 'docs', 'screenshots');
+
 const env = Object.fromEntries(
-  readFileSync(envPath, 'utf8')
+  readFileSync(path.join(e2eDir, '.env'), 'utf8')
     .split(/\r?\n/)
     .filter((l) => l && !l.startsWith('#'))
     .map((l) => {
@@ -19,8 +29,13 @@ const API = env.E2E_API_URL;
 const BASE = env.E2E_BASE_URL;
 const EMAIL = env.E2E_TEST_EMAIL;
 const PASSWORD = env.E2E_TEST_PASSWORD;
-const OUT = path.join(repoRoot, 'docs', 'screenshots');
 
+if (!API || !BASE || !EMAIL || !PASSWORD) {
+  console.error('Missing E2E_* vars — copy e2e/.env.example to e2e/.env and fill it in.');
+  process.exit(1);
+}
+
+// Two teams per sport so the dashboard grid renders full rather than half-empty.
 const RICH_FAVS = [
   { league: 'NBA', teamId: 'nba-bos', teamName: 'Boston Celtics' },
   { league: 'NBA', teamId: 'nba-lal', teamName: 'Los Angeles Lakers' },
@@ -39,7 +54,7 @@ const RICH_FAVS = [
 ];
 const RICH_LEAGUES = ['NBA', 'EPL', 'LALIGA', 'AFL', 'NFL', 'NHL', 'MLB'];
 
-// Canonical state the e2e smoke suite expects (see e2e/setup-test-account.js)
+// Canonical state the smoke suite expects (mirrors setup-test-account.js).
 const BASE_FAVS = [{ league: 'NBA', teamId: 'nba-bos', teamName: 'Boston Celtics' }];
 const BASE_LEAGUES = ['NBA', 'EPL'];
 
@@ -72,8 +87,8 @@ async function setState(cookie, favs, leagues) {
   await api(cookie, '/api/leagues/complete-onboarding', { method: 'POST' });
 }
 
-// Prime the server-side caches so the browser load isn't racing a cold start +
-// nine teams hydrating from external sports APIs.
+// Prime the server-side caches so the browser load isn't racing a Render cold
+// start plus fourteen teams hydrating from the external sports APIs.
 async function warmDashboard(cookie) {
   for (let i = 1; i <= 6; i++) {
     const t0 = Date.now();
@@ -92,10 +107,7 @@ async function warmDashboard(cookie) {
 const EXPANDED = JSON.stringify(['BASKETBALL', 'SOCCER', 'AFL', 'GRIDIRON', 'HOCKEY', 'BASEBALL']);
 
 async function newLoggedInPage(browser, { width, height, dsf }) {
-  const context = await browser.newContext({
-    viewport: { width, height },
-    deviceScaleFactor: dsf,
-  });
+  const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: dsf });
   await context.addInitScript((expanded) => {
     localStorage.setItem('mylineup_theme', 'dark');
     localStorage.setItem('mylineup_date_format', 'DD-MM-YYYY');
@@ -108,15 +120,7 @@ async function newLoggedInPage(browser, { width, height, dsf }) {
   await page.getByRole('button', { name: /log in/i }).click();
   await page.waitForURL(`${BASE}/`, { timeout: 60000 });
   await page.getByRole('heading', { name: 'Your Lineup' }).waitFor({ timeout: 60000 });
-  // Let the dashboard hydrate from the external sports APIs
-  try {
-    await page.getByRole('heading', { name: 'Boston Celtics' }).first().waitFor({ timeout: 90000 });
-  } catch (e) {
-    await page.screenshot({ path: path.join(OUT, '_debug.png'), fullPage: true });
-    console.log('DEBUG url:', page.url());
-    console.log('DEBUG body:', (await page.locator('body').innerText()).slice(0, 2000));
-    throw e;
-  }
+  await page.getByRole('heading', { name: 'Boston Celtics' }).first().waitFor({ timeout: 90000 });
   await page.waitForLoadState('networkidle').catch(() => {});
   await page.waitForTimeout(4000);
   return { context, page };
@@ -131,7 +135,7 @@ async function main() {
 
   const browser = await chromium.launch();
   try {
-    // --- Desktop: overview (top of page down to the end of the Next Matches feed) ---
+    // Overview: top of the page down to the end of the Next Matches feed.
     {
       const { context, page } = await newLoggedInPage(browser, { width: 1280, height: 1600, dsf: 2 });
       await page.evaluate(() => window.scrollTo(0, 0));
@@ -145,11 +149,11 @@ async function main() {
         path: path.join(OUT, 'dashboard-overview.png'),
         clip: { x: 0, y: 0, width: 1280, height: bottom },
       });
-      console.log('dashboard-overview.png', bottom);
+      console.log('dashboard-overview.png');
       await context.close();
     }
 
-    // --- Desktop: team cards + league standings (narrower viewport = tighter columns) ---
+    // Team cards + league standings, on a narrower viewport for tighter columns.
     {
       const { context, page } = await newLoggedInPage(browser, { width: 1040, height: 1200, dsf: 2 });
 
@@ -167,9 +171,9 @@ async function main() {
       await context.close();
     }
 
-    // --- Mobile: top of the dashboard (header, tiles, Today + Next Matches) ---
+    // Mobile: header, tiles, team pills, Today + Next Matches.
     {
-      const { context, page } = await newLoggedInPage(browser, { width: 414, height: 1780, dsf: 3 });
+      const { context, page } = await newLoggedInPage(browser, { width: 430, height: 1820, dsf: 3 });
       await page.evaluate(() => window.scrollTo(0, 0));
       await page.waitForTimeout(300);
       await page.screenshot({ path: path.join(OUT, 'mobile-view.png') });

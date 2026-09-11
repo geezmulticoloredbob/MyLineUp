@@ -27,6 +27,17 @@ This is idempotent — safe to re-run any time (logs in instead of re-registerin
 npm run test:e2e
 ```
 
+## Regenerating the README screenshots
+
+`screenshot-dashboard.mjs` drives the same test account through the live app to
+refresh the images in `docs/screenshots/`. It temporarily fills the account with
+favourites across every sport, captures the shots, then restores the lean state
+this suite expects.
+
+```bash
+node screenshot-dashboard.mjs
+```
+
 ## What's covered
 
 - API health check responds

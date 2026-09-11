@@ -42,7 +42,7 @@ Supported leagues:
 
 ## 📸 Screenshots
 
-**Dashboard overview** — sport tiles, followed teams, and the today's games feed
+**Dashboard overview** — sport tiles, followed teams, and the "Today" / "Next Matches" feeds
 
 ![Dashboard overview](docs/screenshots/dashboard-overview.png)
 
