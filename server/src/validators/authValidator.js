@@ -40,7 +40,38 @@ function validateLoginPayload(req, res, next) {
   next();
 }
 
+function validateForgotPasswordPayload(req, res, next) {
+  const { email } = req.body;
+
+  if (!validateEmail(email)) {
+    return next(new ApiError(400, 'A valid email is required'));
+  }
+
+  next();
+}
+
+function validateResetPasswordPayload(req, res, next) {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  if (!token || typeof token !== 'string') {
+    return next(new ApiError(400, 'A reset token is required'));
+  }
+
+  if (!password || typeof password !== 'string' || password.length < 8) {
+    return next(new ApiError(400, 'password must be at least 8 characters long'));
+  }
+
+  if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+    return next(new ApiError(400, 'password must contain at least one uppercase letter and one number'));
+  }
+
+  next();
+}
+
 module.exports = {
   validateRegisterPayload,
   validateLoginPayload,
+  validateForgotPasswordPayload,
+  validateResetPasswordPayload,
 };

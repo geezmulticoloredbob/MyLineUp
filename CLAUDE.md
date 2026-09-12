@@ -37,6 +37,7 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 - **All controllers** are wrapped with `asyncHandler` (no try/catch needed in controllers)
 - **Errors** thrown as `new ApiError(statusCode, message)` — caught by `errorHandler` middleware
 - **Auth middleware** (`middleware/authMiddleware.js`): httpOnly `token` cookie → DB user lookup → `req.user`
+- **Password reset**: `POST /api/auth/forgot-password` (always responds identically whether or not the email exists, to avoid enumeration) generates a random token, stores its SHA-256 hash + a 30min expiry on the `User`, and emails a `{CLIENT_URL}/reset-password/{rawToken}` link via `utils/email.js` (Resend). `POST /api/auth/reset-password/:token` re-hashes the token to look up the user and checks expiry. Without `RESEND_API_KEY` set, `utils/email.js` logs the reset link to the server console instead of emailing it — fine for local dev, but `validateEnv.js` requires the key in production so this doesn't silently no-op there.
 - **Config**: all env vars centralised in `config/env.js`; never read `process.env` directly elsewhere
 - **Sports data**: league services (`nbaService`, `footballService`, `worldCupService`, `espnTeamSportService`) are orchestrated by `sportsDataService.hydrateTeam()`. `espnTeamSportService` is a single config-driven service covering NFL/NHL/MLB/AFL via ESPN's public site API (no key required) — AFL used to go through its own Squiggle-based `aflService`, migrated to ESPN after Squiggle proved rate-limit-prone in production. Each service returns `{ logoUrl, latestResult, nextFixture, ladderPosition, stats, topScorers }` or throws. On error, `sportsDataService` falls back to `source: 'unavailable'` rather than failing the whole request. `leagueService.js` holds the equivalent per-league dispatch table (`standings`/`games`) for the today's-games feed and league overview.
 - **Caching**: each league service caches in-memory with a TTL + in-flight-promise dedup, so concurrent/repeated requests share one external call: team lists 24h, standings 5min, scorers 1h, and (per-team and per-league) match/game fetches 5min. Several external APIs (football-data.org, Squiggle) also enforce a per-minute rate limit on the whole key/IP rather than per-request — `utils/requestThrottle.js` queues calls to the same bucket with a minimum spacing, so a burst of parallel favourites doesn't blow through it even though each call is already cached/deduped on its own.
@@ -54,7 +55,7 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 - **Styles**: single CSS file at `client/src/styles/index.css` using CSS custom properties; dark theme by default; fonts are Oswald (headings) and Jost (body)
 
 ### Data models
-- **User**: `username`, `email`, `password` (bcrypt), `followedLeagues[]` (`'NBA'|'EPL'|'AFL'|'WC'|'LALIGA'|'BUNDESLIGA'|'SERIEA'|'LIGUE1'|'CHAMPIONSHIP'|'EREDIVISIE'|'UCL'|'NFL'|'NHL'|'MLB'`), `onboardingComplete`, `iconId` (account icon, defaults to `'football'`)
+- **User**: `username`, `email`, `password` (bcrypt), `followedLeagues[]` (`'NBA'|'EPL'|'AFL'|'WC'|'LALIGA'|'BUNDESLIGA'|'SERIEA'|'LIGUE1'|'CHAMPIONSHIP'|'EREDIVISIE'|'UCL'|'NFL'|'NHL'|'MLB'`), `onboardingComplete`, `iconId` (account icon, defaults to `'football'`), `passwordResetTokenHash`/`passwordResetExpires` (set by the forgot-password flow, cleared on use)
 - **Favourite**: `user` (ref), `league`, `teamId`, `teamName`, `teamLogoUrl`; unique index on `(user, league, teamId)`
 
 ### ESPN logo URLs
@@ -70,6 +71,8 @@ PORT=5000
 CLIENT_URL=http://localhost:5173
 BASKETBALL_API_KEY=   # BallDontLie (NBA)
 FOOTBALL_API_KEY=     # football-data.org (EPL)
+RESEND_API_KEY=       # resend.com — required in production for password-reset emails
+EMAIL_FROM=           # optional, defaults to Resend's shared onboarding@resend.dev sender
 ```
 
 **`client/.env`** (gitignored):

@@ -1263,6 +1263,21 @@ p {
   font-size: var(--text-small);
 }
 
+.auth-form__success {
+  color: var(--accent-success);
+  font-size: var(--text-small);
+}
+
+.auth-form__forgot {
+  font-size: var(--text-small);
+  text-align: right;
+  margin-top: calc(var(--space-xs) * -1);
+}
+
+.auth-form__forgot a {
+  color: var(--focus-ring);
+}
+
 .auth-form__label {
   display: flex;
   flex-direction: column;

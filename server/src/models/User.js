@@ -34,6 +34,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: 'football',
     },
+    passwordResetTokenHash: {
+      type: String,
+      default: undefined,
+    },
+    passwordResetExpires: {
+      type: Date,
+      default: undefined,
+    },
   },
   {
     timestamps: true,

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 
 function AuthForm({ mode }) {
   const isLogin = mode === 'login';
   const { login, register } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [fields, setFields] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
@@ -38,6 +39,10 @@ function AuthForm({ mode }) {
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <h1 className="auth-form__title">{isLogin ? 'LOG IN' : 'CREATE ACCOUNT'}</h1>
+
+      {isLogin && location.state?.passwordReset && (
+        <p className="auth-form__success">Your password has been reset — log in with your new one.</p>
+      )}
 
       {error && <p className="auth-form__error" role="alert">{error}</p>}
 
@@ -86,6 +91,12 @@ function AuthForm({ mode }) {
           <span className="auth-form__hint">Min 8 characters, 1 uppercase, 1 number</span>
         )}
       </label>
+
+      {isLogin && (
+        <p className="auth-form__forgot">
+          <Link to="/forgot-password">Forgot password?</Link>
+        </p>
+      )}
 
       <button className="btn-primary" type="submit" disabled={submitting}>
         {submitting ? 'Please wait...' : isLogin ? 'Log in' : 'Create account'}

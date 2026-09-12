@@ -27,6 +27,12 @@ function findEnvProblems(env, rawEnv) {
     if (env.mongoUri === PLACEHOLDER_MONGO_URI) {
       problems.push('MONGODB_URI is still the local placeholder from .env.example — set your production connection string');
     }
+
+    // Without this, forgot-password silently no-ops (the email util just logs
+    // the reset link to the server's own console — useless to a real user).
+    if (!rawEnv.RESEND_API_KEY) {
+      problems.push('missing required environment variable: RESEND_API_KEY (needed to send password-reset emails)');
+    }
   }
 
   return problems;

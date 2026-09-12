@@ -1,9 +1,17 @@
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/apiError');
 const { signToken } = require('../utils/jwt');
+const { sendPasswordResetEmail } = require('../utils/email');
 const env = require('../config/env');
+
+const RESET_TOKEN_TTL_MS = 30 * 60 * 1000;
+
+function hashResetToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
 
 const VALID_ICON_IDS = ['football', 'basketball', 'rugby', 'trophy', 'star', 'flame', 'crown', 'shield', 'dart', 'lightning'];
 
@@ -130,6 +138,46 @@ const updatePassword = asyncHandler(async (req, res) => {
   res.json({ message: 'Password updated' });
 });
 
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  // Only generate/send a token if the account exists, but respond identically
+  // either way below — otherwise this endpoint becomes an email-enumeration oracle.
+  if (user) {
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    user.passwordResetTokenHash = hashResetToken(rawToken);
+    user.passwordResetExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+    await user.save();
+
+    const resetUrl = `${env.clientUrl}/reset-password/${rawToken}`;
+    await sendPasswordResetEmail(user.email, resetUrl);
+  }
+
+  res.json({ message: 'If an account exists for that email, a password reset link has been sent.' });
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const user = await User.findOne({
+    passwordResetTokenHash: hashResetToken(token),
+    passwordResetExpires: { $gt: new Date() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, 'That reset link is invalid or has expired');
+  }
+
+  user.password = await bcrypt.hash(password, 10);
+  user.passwordResetTokenHash = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  res.json({ message: 'Password updated — you can now log in' });
+});
+
 module.exports = {
   register,
   login,
@@ -138,4 +186,6 @@ module.exports = {
   updateIcon,
   updateProfile,
   updatePassword,
+  forgotPassword,
+  resetPassword,
 };

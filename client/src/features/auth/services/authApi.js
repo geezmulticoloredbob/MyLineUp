@@ -18,6 +18,20 @@ export function fetchCurrentUser() {
   return apiClient('/api/auth/me');
 }
 
+export function forgotPassword(email) {
+  return apiClient('/api/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function resetPassword(token, password) {
+  return apiClient(`/api/auth/reset-password/${token}`, {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+  });
+}
+
 export function logoutUser() {
   return apiClient('/api/auth/logout', { method: 'POST' });
 }

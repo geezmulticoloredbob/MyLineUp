@@ -1,11 +1,13 @@
 jest.mock('../../models/User', () => ({ findOne: jest.fn(), create: jest.fn() }));
 jest.mock('bcryptjs', () => ({ hash: jest.fn(), compare: jest.fn() }));
 jest.mock('../../utils/jwt', () => ({ signToken: jest.fn() }));
+jest.mock('../../utils/email', () => ({ sendPasswordResetEmail: jest.fn() }));
 
-const { register, login, logout, getCurrentUser } = require('../../controllers/authController');
+const { register, login, logout, getCurrentUser, forgotPassword, resetPassword } = require('../../controllers/authController');
 const User = require('../../models/User');
 const bcrypt = require('bcryptjs');
 const { signToken } = require('../../utils/jwt');
+const { sendPasswordResetEmail } = require('../../utils/email');
 
 function makeRes() {
   const res = {};
@@ -133,6 +135,58 @@ describe('authController', () => {
       await getCurrentUser({ user: { ...mockUser, password: 'should-be-hidden' } }, res, jest.fn());
       const [{ user }] = res.json.mock.calls[0];
       expect(user).not.toHaveProperty('password');
+    });
+  });
+
+  describe('forgotPassword', () => {
+    it('generates a reset token, saves it, and emails a reset link when the account exists', async () => {
+      const save = jest.fn().mockResolvedValue();
+      User.findOne.mockResolvedValue({ ...mockUser, save });
+      const res = makeRes();
+
+      await forgotPassword({ body: { email: 'alice@example.com' } }, res, jest.fn());
+
+      expect(save).toHaveBeenCalled();
+      expect(sendPasswordResetEmail).toHaveBeenCalledWith('alice@example.com', expect.stringContaining('/reset-password/'));
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.any(String) }));
+    });
+
+    it('responds the same way when no account matches, and sends no email', async () => {
+      User.findOne.mockResolvedValue(null);
+      const res = makeRes();
+
+      await forgotPassword({ body: { email: 'ghost@example.com' } }, res, jest.fn());
+
+      expect(sendPasswordResetEmail).not.toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.any(String) }));
+    });
+
+    it('lowercases the email before looking up the user', async () => {
+      User.findOne.mockResolvedValue(null);
+      await forgotPassword({ body: { email: 'Alice@EXAMPLE.com' } }, makeRes(), jest.fn());
+      expect(User.findOne).toHaveBeenCalledWith({ email: 'alice@example.com' });
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('hashes and saves the new password, clearing the reset token', async () => {
+      const save = jest.fn().mockResolvedValue();
+      User.findOne.mockResolvedValue({ ...mockUser, save });
+      bcrypt.hash.mockResolvedValue('new-hashed-password');
+      const res = makeRes();
+
+      await resetPassword({ params: { token: 'raw-token' }, body: { password: 'NewPass1' } }, res, jest.fn());
+
+      expect(bcrypt.hash).toHaveBeenCalledWith('NewPass1', 10);
+      expect(save).toHaveBeenCalled();
+      expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ message: expect.any(String) }));
+    });
+
+    it('calls next with 400 when the token is invalid or expired', async () => {
+      User.findOne.mockResolvedValue(null);
+      const next = jest.fn();
+      await resetPassword({ params: { token: 'bad-token' }, body: { password: 'NewPass1' } }, makeRes(), next);
+      expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
     });
   });
 });

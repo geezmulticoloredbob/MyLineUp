@@ -1,9 +1,24 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 
-const { getCurrentUser, login, logout, register, updateIcon, updateProfile, updatePassword } = require('../controllers/authController');
+const {
+  getCurrentUser,
+  login,
+  logout,
+  register,
+  updateIcon,
+  updateProfile,
+  updatePassword,
+  forgotPassword,
+  resetPassword,
+} = require('../controllers/authController');
 const { requireAuth } = require('../middleware/authMiddleware');
-const { validateLoginPayload, validateRegisterPayload } = require('../validators/authValidator');
+const {
+  validateLoginPayload,
+  validateRegisterPayload,
+  validateForgotPasswordPayload,
+  validateResetPasswordPayload,
+} = require('../validators/authValidator');
 const env = require('../config/env');
 
 const router = express.Router();
@@ -21,6 +36,8 @@ const authLimiter =
 
 router.post('/register', authLimiter, validateRegisterPayload, register);
 router.post('/login', authLimiter, validateLoginPayload, login);
+router.post('/forgot-password', authLimiter, validateForgotPasswordPayload, forgotPassword);
+router.post('/reset-password/:token', authLimiter, validateResetPasswordPayload, resetPassword);
 router.get('/me', requireAuth, getCurrentUser);
 router.post('/logout', logout);
 router.patch('/icon', requireAuth, updateIcon);

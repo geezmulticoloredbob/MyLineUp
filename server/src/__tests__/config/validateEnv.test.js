@@ -10,6 +10,7 @@ const validRawEnv = {
   MONGODB_URI: validEnv.mongoUri,
   JWT_SECRET: validEnv.jwtSecret,
   CLIENT_URL: 'https://mylineup.example.com',
+  RESEND_API_KEY: 're_test_key',
 };
 
 describe('findEnvProblems', () => {
@@ -64,11 +65,20 @@ describe('findEnvProblems', () => {
     expect(problems.some((p) => p.includes('MONGODB_URI'))).toBe(true);
   });
 
+  it('flags a missing RESEND_API_KEY only in production', () => {
+    const rawEnv = { ...validRawEnv, RESEND_API_KEY: '' };
+    const problems = findEnvProblems(validEnv, rawEnv);
+    expect(problems.some((p) => p.includes('RESEND_API_KEY'))).toBe(true);
+
+    const devEnv = { ...validEnv, nodeEnv: 'development' };
+    expect(findEnvProblems(devEnv, rawEnv)).toEqual([]);
+  });
+
   it('collects every problem at once rather than stopping at the first', () => {
-    // Missing CLIENT_URL + a too-short JWT_SECRET + a placeholder MONGODB_URI
+    // Missing CLIENT_URL + a too-short JWT_SECRET + a placeholder MONGODB_URI + missing RESEND_API_KEY
     const env = { nodeEnv: 'production', jwtSecret: 'short', mongoUri: 'mongodb://127.0.0.1:27017/mylineup' };
-    const rawEnv = { MONGODB_URI: env.mongoUri, JWT_SECRET: env.jwtSecret, CLIENT_URL: '' };
+    const rawEnv = { MONGODB_URI: env.mongoUri, JWT_SECRET: env.jwtSecret, CLIENT_URL: '', RESEND_API_KEY: '' };
     const problems = findEnvProblems(env, rawEnv);
-    expect(problems).toHaveLength(3);
+    expect(problems).toHaveLength(4);
   });
 });

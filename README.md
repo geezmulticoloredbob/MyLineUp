@@ -11,7 +11,7 @@ MyLineup is a full-stack MERN application (React + Vite on the client, Express +
 
 Core capabilities:
 
-- Account registration/login with JWT authentication
+- Account registration/login with JWT authentication, plus email-based password reset
 - Guided onboarding to select followed leagues and favourite teams
 - A personal dashboard aggregating, per favourite team:
   - Latest result and next fixture
@@ -184,6 +184,8 @@ NODE_ENV=development  # set to `production` on a real deploy — see Deployment 
 CLIENT_URL=http://localhost:5173
 BASKETBALL_API_KEY=   # BallDontLie (NBA)
 FOOTBALL_API_KEY=     # football-data.org
+RESEND_API_KEY=        # resend.com — sends forgot-password emails; required in production
+EMAIL_FROM=             # optional, defaults to Resend's shared onboarding@resend.dev sender
 DNS_SERVERS=           # optional, e.g. 8.8.8.8,1.1.1.1 — only if your local resolver
                         # fails Atlas SRV lookups (symptom: `querySrv ECONNREFUSED`
                         # on startup). Leave unset by default; it rewrites DNS for the
@@ -204,7 +206,7 @@ Deploy order matters, because CORS on the server only allows a single origin (`C
 1. **Atlas** — create the cluster, then in Network Access allow `0.0.0.0/0` (Render's free tier has no static outbound IP, so per-IP allow-listing won't work).
 2. **Render** — new Web Service, Root Directory `server`, build `npm install`, start `npm start`. Set all the `server/.env` vars above as dashboard env vars, with two important differences from local dev:
    - **`NODE_ENV` must be `production`** — this isn't optional for a real deploy. Besides enabling the stricter checks below, `errorHandler.js` only strips stack traces from API error responses when `NODE_ENV=production`; leaving it at `development` leaks stack traces to clients.
-   - With `NODE_ENV=production`, `validateEnv.js` additionally requires a real (non-placeholder) `MONGODB_URI`, a `JWT_SECRET` of 32+ characters that isn't the `.env.example` placeholder, and a `CLIENT_URL` — the app refuses to start if any of these look like leftover local-dev values.
+   - With `NODE_ENV=production`, `validateEnv.js` additionally requires a real (non-placeholder) `MONGODB_URI`, a `JWT_SECRET` of 32+ characters that isn't the `.env.example` placeholder, a `CLIENT_URL`, and a `RESEND_API_KEY` — the app refuses to start if any of these look like leftover local-dev values.
    - Leave `CLIENT_URL` as a placeholder until step 3 gives you a real Vercel URL.
    - Leave `DNS_SERVERS` unset — Render's network doesn't have the local-resolver issue that var works around.
 3. **Vercel** — import the repo, Root Directory `client` (Framework Preset auto-detects Vite once that's set). Add `VITE_API_URL=<your Render URL>` as an env var — set it for **all** environments (Production/Preview/Development), since `vite.config.js` fails the build entirely if it's unset, regardless of environment.
