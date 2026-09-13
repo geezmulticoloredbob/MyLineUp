@@ -33,6 +33,13 @@ function findEnvProblems(env, rawEnv) {
     if (!rawEnv.RESEND_API_KEY) {
       problems.push('missing required environment variable: RESEND_API_KEY (needed to send password-reset emails)');
     }
+
+    // Without this, requireInternalSecret rejects every request (env.internalRefreshSecret
+    // is falsy, so nothing can ever match it) — safe by default, but worth a clear
+    // startup error rather than a silent 401 the GitHub Actions cron discovers on its own.
+    if (!rawEnv.INTERNAL_REFRESH_SECRET) {
+      problems.push('missing required environment variable: INTERNAL_REFRESH_SECRET (needed to authenticate the scheduled snapshot refresh)');
+    }
   }
 
   return problems;

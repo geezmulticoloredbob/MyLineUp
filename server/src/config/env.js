@@ -12,6 +12,7 @@ module.exports = {
   basketballApiKey: getEnv('BASKETBALL_API_KEY'),
   resendApiKey: getEnv('RESEND_API_KEY'),
   emailFrom: getEnv('EMAIL_FROM', 'MyLineUp <onboarding@resend.dev>'),
+  internalRefreshSecret: getEnv('INTERNAL_REFRESH_SECRET'),
   // Opt-in only — some local Windows setups fail Atlas SRV lookups against the
   // system resolver. Not something a hosting platform should inherit by default:
   // it rewrites DNS for the whole process, not just the Mongo driver.

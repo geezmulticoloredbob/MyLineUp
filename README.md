@@ -186,6 +186,7 @@ BASKETBALL_API_KEY=   # BallDontLie (NBA)
 FOOTBALL_API_KEY=     # football-data.org
 RESEND_API_KEY=        # resend.com — sends forgot-password emails; required in production
 EMAIL_FROM=             # optional, defaults to Resend's shared onboarding@resend.dev sender
+INTERNAL_REFRESH_SECRET= # required in production — see "Snapshot history" below
 DNS_SERVERS=           # optional, e.g. 8.8.8.8,1.1.1.1 — only if your local resolver
                         # fails Atlas SRV lookups (symptom: `querySrv ECONNREFUSED`
                         # on startup). Leave unset by default; it rewrites DNS for the
@@ -206,11 +207,23 @@ Deploy order matters, because CORS on the server only allows a single origin (`C
 1. **Atlas** — create the cluster, then in Network Access allow `0.0.0.0/0` (Render's free tier has no static outbound IP, so per-IP allow-listing won't work).
 2. **Render** — new Web Service, Root Directory `server`, build `npm install`, start `npm start`. Set all the `server/.env` vars above as dashboard env vars, with two important differences from local dev:
    - **`NODE_ENV` must be `production`** — this isn't optional for a real deploy. Besides enabling the stricter checks below, `errorHandler.js` only strips stack traces from API error responses when `NODE_ENV=production`; leaving it at `development` leaks stack traces to clients.
-   - With `NODE_ENV=production`, `validateEnv.js` additionally requires a real (non-placeholder) `MONGODB_URI`, a `JWT_SECRET` of 32+ characters that isn't the `.env.example` placeholder, a `CLIENT_URL`, and a `RESEND_API_KEY` — the app refuses to start if any of these look like leftover local-dev values.
+   - With `NODE_ENV=production`, `validateEnv.js` additionally requires a real (non-placeholder) `MONGODB_URI`, a `JWT_SECRET` of 32+ characters that isn't the `.env.example` placeholder, a `CLIENT_URL`, a `RESEND_API_KEY`, and an `INTERNAL_REFRESH_SECRET` — the app refuses to start if any of these look like leftover local-dev values.
    - Leave `CLIENT_URL` as a placeholder until step 3 gives you a real Vercel URL.
    - Leave `DNS_SERVERS` unset — Render's network doesn't have the local-resolver issue that var works around.
 3. **Vercel** — import the repo, Root Directory `client` (Framework Preset auto-detects Vite once that's set). Add `VITE_API_URL=<your Render URL>` as an env var — set it for **all** environments (Production/Preview/Development), since `vite.config.js` fails the build entirely if it's unset, regardless of environment.
 4. **Back to Render** — update `CLIENT_URL` to the real Vercel URL and let it redeploy. Until this step, the deployed frontend's API calls will fail CORS even though both services are individually up.
+
+### Snapshot history
+
+A scheduled [GitHub Actions workflow](.github/workflows/refresh-snapshots.yml) calls `POST /api/internal/refresh-snapshots` once a day (06:00 UTC), authenticated with an `x-internal-secret` header rather than a user login — there's no logged-in user in a cron job. That endpoint hydrates every currently-favourited team through the same path the live dashboard uses, then upserts one `TeamSnapshot` row per team per day, building up history no live third-party lookup gives you on its own (win/loss trends, ladder movement over time).
+
+Running it from GitHub Actions rather than an in-process `setInterval` is deliberate: Render's free web service sleeps after 15 minutes idle, so a scheduler living inside the server process can't be relied on to fire.
+
+To wire this up:
+1. Generate a secret: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+2. Set it as `INTERNAL_REFRESH_SECRET` in Render's dashboard env vars.
+3. Set the **same** value as a GitHub Actions repository secret named `INTERNAL_REFRESH_SECRET` (repo Settings → Secrets and variables → Actions).
+4. Trigger it manually via the Actions tab (`workflow_dispatch`) to confirm it works before waiting for the daily schedule.
 
 ## 🧩 Roadmap
 

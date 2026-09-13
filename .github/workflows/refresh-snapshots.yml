@@ -1,0 +1,24 @@
+name: Refresh team snapshots
+
+# Calls the live server's internal snapshot-refresh endpoint once a day, so
+# TeamSnapshot history builds up for a future trend/form feature — see
+# server/src/services/snapshotService.js. Runs here rather than as a cron
+# inside the server process because Render's free web service sleeps after
+# 15 minutes idle, so an in-process scheduler can't be relied on to fire.
+on:
+  schedule:
+    - cron: '0 6 * * *' # 06:00 UTC daily
+  workflow_dispatch: {}
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the snapshot refresh endpoint
+        env:
+          SERVER_URL: https://mylineup.onrender.com
+          INTERNAL_REFRESH_SECRET: ${{ secrets.INTERNAL_REFRESH_SECRET }}
+        run: |
+          curl --fail --show-error --max-time 120 \
+            -X POST "$SERVER_URL/api/internal/refresh-snapshots" \
+            -H "x-internal-secret: $INTERNAL_REFRESH_SECRET"

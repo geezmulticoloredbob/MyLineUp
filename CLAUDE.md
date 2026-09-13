@@ -43,6 +43,7 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 - **Caching**: each league service caches in-memory with a TTL + in-flight-promise dedup, so concurrent/repeated requests share one external call: team lists 24h, standings 5min, scorers 1h, and (per-team and per-league) match/game fetches 5min. Several external APIs (football-data.org, Squiggle) also enforce a per-minute rate limit on the whole key/IP rather than per-request — `utils/requestThrottle.js` queues calls to the same bucket with a minimum spacing, so a burst of parallel favourites doesn't blow through it even though each call is already cached/deduped on its own.
 - **Team IDs** follow the pattern `{league}-{abbr}` (e.g. `nba-gsw`, `epl-ars`, `afl-haw`)
 - **Integration tests** use `mongodb-memory-server` (see `__tests__/integration/dbSetup.js`); unit tests mock the DB
+- **Snapshot history**: `services/snapshotService.js` hydrates every distinct favourited team (via the same `sportsDataService.hydrateFavouriteTeams()` the live dashboard uses) and upserts one `TeamSnapshot` row per team per UTC day, keyed on `(league, teamId, capturedOn)`. `GET /api/dashboard/trend/:league/:teamId` reads that history back. It's triggered by `POST /api/internal/refresh-snapshots`, authenticated via a `x-internal-secret` header (`middleware/internalAuthMiddleware.js`, timing-safe compare) rather than a user cookie — there's no logged-in user in the [GitHub Actions cron](.github/workflows/refresh-snapshots.yml) that calls it daily. Runs from GitHub Actions rather than an in-process scheduler because Render's free tier sleeps the server after 15min idle.
 
 ### Client
 - **Entry**: `src/main.jsx` → `src/App.jsx` → `src/routes/AppRouter.jsx`
@@ -57,6 +58,7 @@ Monorepo with `client/` and `server/` — no shared packages between them.
 ### Data models
 - **User**: `username`, `email`, `password` (bcrypt), `followedLeagues[]` (`'NBA'|'EPL'|'AFL'|'WC'|'LALIGA'|'BUNDESLIGA'|'SERIEA'|'LIGUE1'|'CHAMPIONSHIP'|'EREDIVISIE'|'UCL'|'NFL'|'NHL'|'MLB'`), `onboardingComplete`, `iconId` (account icon, defaults to `'football'`), `passwordResetTokenHash`/`passwordResetExpires` (set by the forgot-password flow, cleared on use)
 - **Favourite**: `user` (ref), `league`, `teamId`, `teamName`, `teamLogoUrl`; unique index on `(user, league, teamId)`
+- **TeamSnapshot**: `league`, `teamId`, `teamName`, `capturedOn` ('YYYY-MM-DD' UTC), `latestResult`, `ladderPosition`, `stats`; unique index on `(league, teamId, capturedOn)`. One row per followed team per day — see Snapshot history above
 
 ### ESPN logo URLs
 `sportsDataService.espnLogoFromTeamId()` maps team IDs to ESPN CDN URLs as a last-resort fallback for when the primary sport service returns no logo at all. NBA uses abbreviation-based paths (with `NBA_ESPN_OVERRIDES` for the ones that differ from ESPN's); EPL uses numeric IDs (see `EPL_ESPN_IDS` map in that file). AFL isn't handled here — our stored `afl-` abbreviations were invented locally and never verified against ESPN's actual scheme, so `espnTeamSportService.cdnLogoUrl()` builds AFL logo URLs from ESPN's own `team.abbreviation` field instead (found via a name-based fallback match when our abbreviation doesn't line up with theirs — see `findTeamByName` in that file).
@@ -73,6 +75,7 @@ BASKETBALL_API_KEY=   # BallDontLie (NBA)
 FOOTBALL_API_KEY=     # football-data.org (EPL)
 RESEND_API_KEY=       # resend.com — required in production for password-reset emails
 EMAIL_FROM=           # optional, defaults to Resend's shared onboarding@resend.dev sender
+INTERNAL_REFRESH_SECRET=  # required in production — must match the GitHub Actions repo secret of the same name
 ```
 
 **`client/.env`** (gitignored):
