@@ -5,6 +5,12 @@ name: Refresh team snapshots
 # server/src/services/snapshotService.js. Runs here rather than as a cron
 # inside the server process because Render's free web service sleeps after
 # 15 minutes idle, so an in-process scheduler can't be relied on to fire.
+#
+# The endpoint responds 202 immediately and does the actual (potentially
+# several-minutes-long) hydration work in the background, so this curl just
+# needs to confirm the run started — --max-time 120 is generous headroom for
+# Render's cold-start wake-up, not for the refresh itself. Check Render's
+# server logs for "Snapshot refresh complete: {...}" to see how a run went.
 on:
   schedule:
     - cron: '0 6 * * *' # 06:00 UTC daily

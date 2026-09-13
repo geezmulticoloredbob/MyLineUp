@@ -217,6 +217,8 @@ Deploy order matters, because CORS on the server only allows a single origin (`C
 
 A scheduled [GitHub Actions workflow](.github/workflows/refresh-snapshots.yml) calls `POST /api/internal/refresh-snapshots` once a day (06:00 UTC), authenticated with an `x-internal-secret` header rather than a user login — there's no logged-in user in a cron job. That endpoint hydrates every currently-favourited team through the same path the live dashboard uses, then upserts one `TeamSnapshot` row per team per day, building up history no live third-party lookup gives you on its own (win/loss trends, ladder movement over time).
 
+The endpoint responds `202` immediately and does the actual hydration in the background rather than awaiting it — with enough favourited teams routed through football-data.org's shared per-minute rate limit (8 leagues share one bucket), a full run can take several minutes, comfortably past what a held-open HTTP request survives behind Render's proxy. Check Render's server logs for the `Snapshot refresh complete: {...}` line to see the actual result of a run.
+
 Running it from GitHub Actions rather than an in-process `setInterval` is deliberate: Render's free web service sleeps after 15 minutes idle, so a scheduler living inside the server process can't be relied on to fire.
 
 To wire this up:
