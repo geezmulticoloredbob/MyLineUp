@@ -1,7 +1,12 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import TeamCard from '../../../features/dashboard/components/TeamCard';
 import { ThemeProvider } from '../../../contexts/ThemeContext';
+
+// TeamFormStrip fetches its own trend data via this hook — mocked here so
+// TeamCard's other tests don't trigger a real network call on every render.
+vi.mock('../../../features/dashboard/hooks/useTeamTrend');
+import { useTeamTrend } from '../../../features/dashboard/hooks/useTeamTrend';
 
 // MatchesSection reads dateFormat off ThemeContext, so every render needs the provider.
 function renderTeamCard(props) {
@@ -28,6 +33,11 @@ const baseTeam = {
 };
 
 describe('TeamCard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    useTeamTrend.mockReturnValue({ history: [], loading: false });
+  });
+
   it('renders a skeleton when loading', () => {
     const { container } = renderTeamCard({ status: 'loading' });
     expect(container.querySelector('.team-card--skeleton')).not.toBeNull();
@@ -76,5 +86,26 @@ describe('TeamCard', () => {
   it('falls back to placeholder values when the team object is sparse', () => {
     renderTeamCard({ team: { favouriteId: 't2' } });
     expect(screen.getByText('Unknown Team')).toBeInTheDocument();
+  });
+
+  it('does not render a form strip when there is no snapshot history yet', () => {
+    renderTeamCard({ team: baseTeam });
+    expect(screen.queryByText('Recent Form')).not.toBeInTheDocument();
+  });
+
+  it('renders a recent-form badge per distinct result once history exists', () => {
+    useTeamTrend.mockReturnValue({
+      loading: false,
+      history: [
+        { capturedOn: '2026-09-01', latestResult: { date: '2026-09-01', opponent: 'Lakers', score: '110-105', outcome: 'W' } },
+        { capturedOn: '2026-09-03', latestResult: { date: '2026-09-03', opponent: 'Nets', score: '90-98', outcome: 'L' } },
+      ],
+    });
+
+    renderTeamCard({ team: baseTeam });
+
+    expect(screen.getByText('Recent Form')).toBeInTheDocument();
+    expect(screen.getByTitle('W vs Lakers (110-105)')).toBeInTheDocument();
+    expect(screen.getByTitle('L vs Nets (90-98)')).toBeInTheDocument();
   });
 });

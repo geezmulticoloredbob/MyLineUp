@@ -4,6 +4,7 @@ import { useTheme } from '../../../contexts/ThemeContext';
 import { LEAGUE_DISPLAY_NAMES, LEAGUE_SPORT } from '../../../constants/leagues';
 import { teamColors } from '../../../data/teamColors';
 import SportIcon from '../../../components/common/SportIcon';
+import TeamFormStrip from './TeamFormStrip';
 
 const PLACEHOLDER_LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 52'%3E%3Crect width='52' height='52' fill='%23333'/%3E%3Ccircle cx='26' cy='20' r='8' fill='%23555'/%3E%3Cpath d='M10 44c0-8.837 7.163-16 16-16s16 7.163 16 16' fill='%23555'/%3E%3C/svg%3E";
 
@@ -273,6 +274,7 @@ function TeamCard({ team, status = 'ready', errorMessage = '' }) {
         isChampion={isChampion}
       />
       <MatchesSection team={team} />
+      <TeamFormStrip league={team.league} teamId={team.teamId} />
       <TopScorersPanel scorers={team.topScorers} />
       <StatsPanel stats={team.stats} />
     </article>
