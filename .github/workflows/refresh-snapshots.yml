@@ -6,11 +6,10 @@ name: Refresh team snapshots
 # inside the server process because Render's free web service sleeps after
 # 15 minutes idle, so an in-process scheduler can't be relied on to fire.
 #
-# The endpoint responds 202 immediately and does the actual (potentially
-# several-minutes-long) hydration work in the background, so this curl just
-# needs to confirm the run started — --max-time 120 is generous headroom for
-# Render's cold-start wake-up, not for the refresh itself. Check Render's
-# server logs for "Snapshot refresh complete: {...}" to see how a run went.
+# The refresh endpoint responds 202 immediately and does the actual
+# (potentially several-minutes-long) hydration work in the background — see
+# internalController.refreshSnapshots. Check Render's server logs for
+# "Snapshot refresh complete: {...}" to see how a run went.
 on:
   schedule:
     - cron: '0 6 * * *' # 06:00 UTC daily
@@ -20,11 +19,28 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      # This cron is often the first request in 24h, so the free-tier
+      # service is asleep. Render's proxy can drop the connection outright
+      # (curl error 56, "failure when receiving data from the peer") while
+      # the origin is still cold-booting, rather than queuing the request
+      # until it's ready. Ping the cheap, unauthenticated health endpoint
+      # first, with retries, so the server is confirmed awake before the
+      # real call — this actually fixes the cold-start race rather than
+      # just papering over it with retries on the real request.
+      - name: Wake up the server
+        env:
+          SERVER_URL: https://mylineup.onrender.com
+        run: |
+          curl --silent --show-error --max-time 30 \
+            --retry 6 --retry-delay 10 --retry-all-errors \
+            "$SERVER_URL/api/health"
+
       - name: Call the snapshot refresh endpoint
         env:
           SERVER_URL: https://mylineup.onrender.com
           INTERNAL_REFRESH_SECRET: ${{ secrets.INTERNAL_REFRESH_SECRET }}
         run: |
-          curl --fail --show-error --max-time 120 \
+          curl --fail --show-error --max-time 60 \
+            --retry 2 --retry-delay 5 --retry-all-errors \
             -X POST "$SERVER_URL/api/internal/refresh-snapshots" \
             -H "x-internal-secret: $INTERNAL_REFRESH_SECRET"
