@@ -10,6 +10,11 @@ const ESPN_SPORT_CONFIG = {
   MLB: { sport: 'baseball', league: 'mlb' },
   // Matches the URL already used (and presumably working) in espnColourService.js
   AFL: { sport: 'australian-football', league: 'afl' },
+  // NRL isn't addressed by a friendly league name on ESPN's site API — confirmed
+  // against the real API (their docs don't document this): it's the numeric
+  // league id under the "rugby-league" sport.
+  NRL: { sport: 'rugby-league', league: '3' },
+  WNBA: { sport: 'basketball', league: 'wnba' },
 };
 
 // Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
@@ -21,6 +26,8 @@ const DEFAULT_VENUE_TIMEZONE = {
   NHL: 'America/New_York',
   MLB: 'America/New_York',
   AFL: 'Australia/Sydney',
+  NRL: 'Australia/Sydney',
+  WNBA: 'America/New_York',
 };
 
 function espnFetch(path) {
@@ -40,9 +47,25 @@ function toCompactDate(d) {
 // Build the crest URL directly from ESPN's CDN convention rather than trusting the
 // shape of the `logos` array in the JSON response — same reliable pattern already
 // used for NBA/AFL/WC in sportsDataService.espnLogoFromTeamId.
-function cdnLogoUrl(sportKey, abbr) {
-  if (!abbr) return null;
-  return `https://a.espncdn.com/i/teamlogos/${sportKey.toLowerCase()}/500/${abbr.toLowerCase()}.png`;
+//
+// NRL is the one league here whose logos are keyed by the team's own numeric
+// ESPN id rather than its abbreviation, under a "rugby/teams" path rather than
+// "rugby-league" — confirmed against real API responses, since ESPN's docs
+// don't state this anywhere and it doesn't follow the other leagues' pattern.
+const LOGO_ID_PATH_OVERRIDES = {
+  NRL: 'rugby/teams',
+};
+
+function cdnLogoUrl(sportKey, team) {
+  if (!team) return null;
+
+  const idPath = LOGO_ID_PATH_OVERRIDES[sportKey];
+  if (idPath) {
+    return team.id ? `https://a.espncdn.com/i/teamlogos/${idPath}/500/${team.id}.png` : null;
+  }
+
+  if (!team.abbreviation) return null;
+  return `https://a.espncdn.com/i/teamlogos/${sportKey.toLowerCase()}/500/${team.abbreviation.toLowerCase()}.png`;
 }
 
 // --- Teams (per-league, 24h cache) ---
@@ -186,7 +209,7 @@ function describeEvent(event, teamEspnId, sportKey) {
     myScore: mine.score?.value ?? mine.score ?? null,
     oppScore: opponent.score?.value ?? opponent.score ?? null,
     opponentName: opponent.team?.shortDisplayName || opponent.team?.displayName || opponent.team?.name,
-    opponentLogoUrl: cdnLogoUrl(sportKey, opponent.team?.abbreviation),
+    opponentLogoUrl: cdnLogoUrl(sportKey, opponent.team),
     won: mine.winner === true,
     lost: opponent.winner === true,
   };
@@ -247,7 +270,7 @@ async function getESPNTeamData(favourite, sportKey) {
     nextFixture,
     ladderPosition: rank !== null && rank !== undefined ? Number(rank) : null,
     stats: wins !== null ? { wins: Number(wins), losses: Number(losses) } : {},
-    logoUrl: cdnLogoUrl(sportKey, team.abbreviation),
+    logoUrl: cdnLogoUrl(sportKey, team),
     topScorers: [],
     seasonFinished: finished.length > 0 && upcoming.length === 0,
   };
@@ -278,12 +301,20 @@ async function getESPNStandingsOverview(sportKey) {
       return {
         position: rank !== null && rank !== undefined ? Number(rank) : null,
         teamName: team?.displayName || entry.team?.displayName || 'Unknown',
-        logoUrl: cdnLogoUrl(sportKey, team?.abbreviation || entry.team?.abbreviation),
+        logoUrl: cdnLogoUrl(sportKey, team || entry.team),
         stats: wins !== null ? { wins: Number(wins), losses: Number(losses) } : {},
       };
     })
     .sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
 }
+
+// NRL's scoreboard endpoint 400s on a date *range* (confirmed against the
+// real API: "Failed to get events endpoint") — it only accepts a single date
+// or no date param at all, unlike every other league here. Omitting the
+// param gives ESPN's own notion of "current" games rather than a strict
+// ±7-day window, which is a real behavioural difference, but it's the only
+// query shape NRL's endpoint doesn't reject.
+const NO_DATE_RANGE_SCOREBOARD = new Set(['NRL']);
 
 const _leagueGamesCache = new Map();
 const _leagueGamesInFlight = new Map();
@@ -296,15 +327,17 @@ async function fetchESPNScoreboard(sportKey) {
 
   const config = ESPN_SPORT_CONFIG[sportKey];
   const promise = (async () => {
-    const now = new Date();
-    const past = new Date(now);
-    past.setDate(past.getDate() - 7);
-    const future = new Date(now);
-    future.setDate(future.getDate() + 7);
+    let query = '';
+    if (!NO_DATE_RANGE_SCOREBOARD.has(sportKey)) {
+      const now = new Date();
+      const past = new Date(now);
+      past.setDate(past.getDate() - 7);
+      const future = new Date(now);
+      future.setDate(future.getDate() + 7);
+      query = `?dates=${toCompactDate(past)}-${toCompactDate(future)}`;
+    }
 
-    const res = await espnFetch(
-      `/${config.sport}/${config.league}/scoreboard?dates=${toCompactDate(past)}-${toCompactDate(future)}`,
-    );
+    const res = await espnFetch(`/${config.sport}/${config.league}/scoreboard${query}`);
     if (!res.ok) throw new Error(`ESPN ${sportKey} scoreboard fetch failed: ${res.status}`);
     const { events } = await res.json();
     return events || [];

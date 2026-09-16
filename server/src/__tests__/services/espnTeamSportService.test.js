@@ -191,6 +191,67 @@ describe('getESPNTeamData', () => {
   });
 });
 
+describe('NRL — id-keyed logo CDN scheme', () => {
+  // NRL is the one league whose ESPN logos are keyed by numeric team id under
+  // "rugby/teams" rather than by abbreviation under the league's own name —
+  // confirmed against the real API, undocumented by ESPN. These deliberately
+  // reuse a mismatched abbreviation (favourite "bri" vs ESPN "BRI" would
+  // actually match — use a genuinely different one) to prove the id-based
+  // URL doesn't depend on abbreviation matching at all once the team is found.
+  const NRL_TEAMS_RESPONSE = {
+    sports: [{ leagues: [{ teams: [
+      { team: { id: '289195', abbreviation: 'BRI', displayName: 'Broncos', shortDisplayName: 'Broncos' } },
+      { team: { id: '289204', abbreviation: 'SYD', displayName: 'Roosters', shortDisplayName: 'Roosters' } },
+    ] }] }],
+  };
+
+  it('builds the id-keyed logo URL for the matched team, not an abbreviation-keyed one', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/289195/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(NRL_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'nrl-bri', teamName: 'Broncos', league: 'NRL' },
+      'NRL',
+    );
+
+    expect(result).not.toBeNull();
+    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/rugby/teams/500/289195.png');
+  });
+
+  it('builds the opponent logo URL the same id-keyed way in nextFixture', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/289195/schedule')) {
+        return mockOk({
+          events: [{
+            date: '2099-06-01T05:00:00Z',
+            competitions: [{
+              date: '2099-06-01T05:00:00Z',
+              status: { type: { completed: false } },
+              competitors: [
+                { team: { id: '289195', abbreviation: 'BRI' }, homeAway: 'home', score: null, winner: null },
+                { team: { id: '289204', abbreviation: 'SYD' }, homeAway: 'away', score: null, winner: null },
+              ],
+            }],
+          }],
+        });
+      }
+      if (url.includes('/teams')) return mockOk(NRL_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'nrl-bri', teamName: 'Broncos', league: 'NRL' },
+      'NRL',
+    );
+
+    expect(result.nextFixture.opponentLogoUrl).toBe('https://a.espncdn.com/i/teamlogos/rugby/teams/500/289204.png');
+    expect(result.nextFixture.venueTimezone).toBe('Australia/Sydney');
+  });
+});
+
 describe('getESPNStandingsOverview', () => {
   it('returns teams sorted by rank with logo and record', async () => {
     mockFetch.mockImplementation((url) => {
@@ -270,5 +331,19 @@ describe('getESPNLeagueGames', () => {
     await espnTeamSportService.getESPNLeagueGames('NHL');
     const scoreboardCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/scoreboard'));
     expect(scoreboardCalls.length).toBe(2);
+  });
+
+  it('queries a ±7-day date range for most leagues (e.g. NFL)', async () => {
+    mockFetch.mockImplementation(() => mockOk({ events: [] }));
+    await espnTeamSportService.getESPNLeagueGames('NFL');
+    const [url] = mockFetch.mock.calls.find(([u]) => u.includes('/scoreboard'));
+    expect(url).toMatch(/scoreboard\?dates=\d{8}-\d{8}/);
+  });
+
+  it('omits the date range for NRL — its scoreboard endpoint 400s on a range', async () => {
+    mockFetch.mockImplementation(() => mockOk({ events: [] }));
+    await espnTeamSportService.getESPNLeagueGames('NRL');
+    const [url] = mockFetch.mock.calls.find(([u]) => u.includes('/scoreboard'));
+    expect(url).not.toContain('dates=');
   });
 });

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const leagues = require('../constants/leagues');
 
 const userSchema = new mongoose.Schema(
   {
@@ -23,7 +24,7 @@ const userSchema = new mongoose.Schema(
     },
     followedLeagues: {
       type: [String],
-      enum: ['NBA', 'EPL', 'AFL', 'WC', 'LALIGA', 'BUNDESLIGA', 'SERIEA', 'LIGUE1', 'CHAMPIONSHIP', 'EREDIVISIE', 'UCL', 'NFL', 'NHL', 'MLB'],
+      enum: leagues,
       default: [],
     },
     onboardingComplete: {

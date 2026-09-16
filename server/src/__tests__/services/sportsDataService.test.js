@@ -33,6 +33,8 @@ const uclFav      = { _id: 'f11', teamId: 'ucl-rma', teamName: 'Real Madrid',   
 const nflFav      = { _id: 'f12', teamId: 'nfl-kc',  teamName: 'Kansas City Chiefs',  league: 'NFL',        teamLogoUrl: '' };
 const nhlFav      = { _id: 'f13', teamId: 'nhl-bos',  teamName: 'Boston Bruins',      league: 'NHL',        teamLogoUrl: '' };
 const mlbFav      = { _id: 'f14', teamId: 'mlb-nyy',  teamName: 'New York Yankees',   league: 'MLB',        teamLogoUrl: '' };
+const nrlFav      = { _id: 'f15', teamId: 'nrl-bri',  teamName: 'Broncos',            league: 'NRL',        teamLogoUrl: '' };
+const wnbaFav     = { _id: 'f16', teamId: 'wnba-lv',  teamName: 'Las Vegas Aces',     league: 'WNBA',       teamLogoUrl: '' };
 
 describe('sportsDataService', () => {
   describe('hydrateFavouriteTeams — routing', () => {
@@ -134,6 +136,20 @@ describe('sportsDataService', () => {
       expect(result.source).toBe('live');
     });
 
+    it('dispatches to getESPNTeamData with league NRL for NRL', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([nrlFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(nrlFav, 'NRL');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getESPNTeamData with league WNBA for WNBA', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([wnbaFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(wnbaFav, 'WNBA');
+      expect(result.source).toBe('live');
+    });
+
     it('returns source=unavailable for an unknown league without throwing', async () => {
       const unknownFav = { _id: 'fx', teamId: 'other-x', teamName: 'Unknown FC', league: 'UNKNOWN', teamLogoUrl: '' };
       const [result] = await hydrateFavouriteTeams([unknownFav]);
@@ -209,6 +225,24 @@ describe('sportsDataService', () => {
       const [result] = await hydrateFavouriteTeams([{ ...nflFav, teamLogoUrl: '' }]);
       expect(result.teamLogoUrl).toMatch(/espncdn\.com/);
       expect(result.teamLogoUrl).toContain('/kc.png');
+    });
+
+    it('uses ESPN CDN logo fallback for WNBA when the service provides no logo', async () => {
+      getESPNTeamData.mockResolvedValue({ ...liveSportData, logoUrl: null });
+      const [result] = await hydrateFavouriteTeams([{ ...wnbaFav, teamLogoUrl: '' }]);
+      expect(result.teamLogoUrl).toMatch(/espncdn\.com/);
+      expect(result.teamLogoUrl).toContain('/wnba/500/lv.png');
+    });
+
+    // NRL deliberately has NO fallback branch here — unlike WNBA, our stored
+    // abbreviations aren't guaranteed to match ESPN's, and NRL's real CDN
+    // scheme is keyed by numeric team id anyway, which this teamId-only
+    // fallback has no way to know. espnTeamSportService's own id-based
+    // lookup (see its tests) is NRL's only logo source.
+    it('has no ESPN CDN logo fallback for NRL — leaves teamLogoUrl unset rather than guessing', async () => {
+      getESPNTeamData.mockResolvedValue({ ...liveSportData, logoUrl: null });
+      const [result] = await hydrateFavouriteTeams([{ ...nrlFav, teamLogoUrl: '' }]);
+      expect(result.teamLogoUrl).toBeUndefined();
     });
   });
 });

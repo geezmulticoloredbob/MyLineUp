@@ -283,4 +283,25 @@ export const teamColors = {
   'ucl-kai': { primary: '#FFE800', secondary: '#000000' },
   'ucl-paf': { primary: '#003DA5', secondary: '#FFFFFF' },
   'ucl-sge': { primary: '#E1000F', secondary: '#000000' },
+
+  // NRL — ESPN doesn't provide colour data for this league (unlike every
+  // other league here), so this static map is NRL's only colour source
+  // rather than just a fallback for when the live fetch misses.
+  'nrl-bri': { primary: '#6A0032', secondary: '#FDB913' },
+  'nrl-cby': { primary: '#00539F', secondary: '#FFFFFF' },
+  'nrl-cbr': { primary: '#00843D', secondary: '#6CC24A' },
+  'nrl-cro': { primary: '#00A9E0', secondary: '#000000' },
+  'nrl-dol': { primary: '#E4002B', secondary: '#8A8D8F' },
+  'nrl-gct': { primary: '#002B5C', secondary: '#FFB81C' },
+  'nrl-man': { primary: '#7F1734', secondary: '#FFFFFF' },
+  'nrl-mel': { primary: '#632890', secondary: '#FDB913' },
+  'nrl-nzw': { primary: '#000000', secondary: '#00A19A' },
+  'nrl-new': { primary: '#002B5C', secondary: '#E4002B' },
+  'nrl-nql': { primary: '#002B5C', secondary: '#FFD100' },
+  'nrl-par': { primary: '#0056A3', secondary: '#FFD100' },
+  'nrl-pen': { primary: '#000000', secondary: '#5A9E8F' },
+  'nrl-sou': { primary: '#C41E3A', secondary: '#00573F' },
+  'nrl-stg': { primary: '#E4002B', secondary: '#FFFFFF' },
+  'nrl-syd': { primary: '#E4002B', secondary: '#002B5C', tertiary: '#FDB913' },
+  'nrl-wst': { primary: '#F57920', secondary: '#000000' },
 };

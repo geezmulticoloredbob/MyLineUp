@@ -13,6 +13,8 @@ export const LEAGUES = {
   NFL: 'NFL',
   NHL: 'NHL',
   MLB: 'MLB',
+  NRL: 'NRL',
+  WNBA: 'WNBA',
 };
 
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
@@ -32,6 +34,8 @@ export const LEAGUE_DISPLAY_NAMES = {
   NFL: 'NFL',
   NHL: 'NHL',
   MLB: 'MLB',
+  NRL: 'NRL',
+  WNBA: 'WNBA',
 };
 
 // Short forms for tight spaces (e.g. the team logo strip's per-league sub-labels)
@@ -50,6 +54,8 @@ export const LEAGUE_ABBR = {
   NFL: 'NFL',
   NHL: 'NHL',
   MLB: 'MLB',
+  NRL: 'NRL',
+  WNBA: 'WNBA',
 };
 
 // Groups the many soccer competitions under one heading; each other league is its own sport
@@ -60,6 +66,7 @@ export const SPORTS = {
   GRIDIRON: 'GRIDIRON',
   HOCKEY: 'HOCKEY',
   BASEBALL: 'BASEBALL',
+  RUGBY_LEAGUE: 'RUGBY_LEAGUE',
 };
 
 export const LEAGUE_SPORT = {
@@ -77,6 +84,9 @@ export const LEAGUE_SPORT = {
   NFL: SPORTS.GRIDIRON,
   NHL: SPORTS.HOCKEY,
   MLB: SPORTS.BASEBALL,
+  NRL: SPORTS.RUGBY_LEAGUE,
+  // Shares NBA's sport bucket rather than getting its own — same sport, same icon.
+  WNBA: SPORTS.BASKETBALL,
 };
 
 export const SPORT_DISPLAY_NAMES = {
@@ -86,4 +96,5 @@ export const SPORT_DISPLAY_NAMES = {
   GRIDIRON: 'NFL',
   HOCKEY: 'NHL',
   BASEBALL: 'MLB',
+  RUGBY_LEAGUE: 'NRL',
 };

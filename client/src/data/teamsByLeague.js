@@ -396,4 +396,48 @@ export const teamsByLeague = {
     { teamId: 'mlb-tor', teamName: 'Toronto Blue Jays' },
     { teamId: 'mlb-wsh', teamName: 'Washington Nationals' },
   ],
+
+  // Our own abbreviations, not verified against ESPN's — espnTeamSportService
+  // falls back to matching by team name when they don't line up (same
+  // approach already used for AFL; see findTeamByName in that file).
+  NRL: [
+    { teamId: 'nrl-bri', teamName: 'Brisbane Broncos' },
+    { teamId: 'nrl-cby', teamName: 'Canterbury-Bankstown Bulldogs' },
+    { teamId: 'nrl-cbr', teamName: 'Canberra Raiders' },
+    { teamId: 'nrl-cro', teamName: 'Cronulla-Sutherland Sharks' },
+    { teamId: 'nrl-dol', teamName: 'Dolphins' },
+    { teamId: 'nrl-gct', teamName: 'Gold Coast Titans' },
+    { teamId: 'nrl-man', teamName: 'Manly Warringah Sea Eagles' },
+    { teamId: 'nrl-mel', teamName: 'Melbourne Storm' },
+    { teamId: 'nrl-nzw', teamName: 'New Zealand Warriors' },
+    { teamId: 'nrl-new', teamName: 'Newcastle Knights' },
+    { teamId: 'nrl-nql', teamName: 'North Queensland Cowboys' },
+    { teamId: 'nrl-par', teamName: 'Parramatta Eels' },
+    { teamId: 'nrl-pen', teamName: 'Penrith Panthers' },
+    { teamId: 'nrl-sou', teamName: 'South Sydney Rabbitohs' },
+    { teamId: 'nrl-stg', teamName: 'St George Illawarra Dragons' },
+    { teamId: 'nrl-syd', teamName: 'Sydney Roosters' },
+    { teamId: 'nrl-wst', teamName: 'Wests Tigers' },
+  ],
+
+  // Abbreviations deliberately match ESPN's own (verified against the live
+  // API), unlike NRL above — so these resolve on the first abbreviation
+  // lookup rather than needing the name-based fallback.
+  WNBA: [
+    { teamId: 'wnba-atl', teamName: 'Atlanta Dream' },
+    { teamId: 'wnba-chi', teamName: 'Chicago Sky' },
+    { teamId: 'wnba-con', teamName: 'Connecticut Sun' },
+    { teamId: 'wnba-dal', teamName: 'Dallas Wings' },
+    { teamId: 'wnba-gs',  teamName: 'Golden State Valkyries' },
+    { teamId: 'wnba-ind', teamName: 'Indiana Fever' },
+    { teamId: 'wnba-lv',  teamName: 'Las Vegas Aces' },
+    { teamId: 'wnba-la',  teamName: 'Los Angeles Sparks' },
+    { teamId: 'wnba-min', teamName: 'Minnesota Lynx' },
+    { teamId: 'wnba-ny',  teamName: 'New York Liberty' },
+    { teamId: 'wnba-phx', teamName: 'Phoenix Mercury' },
+    { teamId: 'wnba-por', teamName: 'Portland Fire' },
+    { teamId: 'wnba-sea', teamName: 'Seattle Storm' },
+    { teamId: 'wnba-tor', teamName: 'Toronto Tempo' },
+    { teamId: 'wnba-wsh', teamName: 'Washington Mystics' },
+  ],
 };

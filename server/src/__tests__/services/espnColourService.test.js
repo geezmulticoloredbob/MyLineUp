@@ -69,6 +69,21 @@ describe('getTeamColours', () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
+  it('returns null for NRL specifically — no endpoint configured since ESPN provides no colour data for it', async () => {
+    const result = await espnColourService.getTeamColours('Broncos', 'NRL');
+    expect(result).toBeNull();
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('has an endpoint configured for WNBA', async () => {
+    mockFetch.mockResolvedValue(mockOk(MOCK_TEAMS_RESPONSE));
+    await espnColourService.getTeamColours('Bayern Munich', 'WNBA');
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('basketball/wnba/teams'),
+      expect.any(Object)
+    );
+  });
+
   it('returns null when the ESPN fetch fails', async () => {
     mockFetch.mockResolvedValue(Promise.resolve({ ok: false, status: 500 }));
     const result = await espnColourService.getTeamColours('Bayern Munich', 'BUNDESLIGA');

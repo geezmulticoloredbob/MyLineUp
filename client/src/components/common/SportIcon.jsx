@@ -63,6 +63,18 @@ function SportIcon({ sport, league, size = 20, className }) {
       </svg>
     );
   }
+  if (sport === 'RUGBY_LEAGUE') {
+    return (
+      <svg {...props}>
+        <ellipse cx="10" cy="10" rx="4.6" ry="9" fill="#3d2b1f" />
+        <line x1="10" y1="2.3" x2="10" y2="17.7" stroke="#e8d9c5" strokeWidth="1" />
+        <line x1="8" y1="6.5" x2="12" y2="6.5" stroke="#e8d9c5" strokeWidth="0.7" />
+        <line x1="7.6" y1="10" x2="12.4" y2="10" stroke="#e8d9c5" strokeWidth="0.7" />
+        <line x1="8" y1="13.5" x2="12" y2="13.5" stroke="#e8d9c5" strokeWidth="0.7" />
+        <ellipse cx="10" cy="10" rx="4.6" ry="9" fill="none" stroke="#241a13" strokeWidth="0.8" />
+      </svg>
+    );
+  }
   if (sport === 'GRIDIRON') {
     return (
       <svg {...props}>

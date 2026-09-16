@@ -39,6 +39,8 @@ Supported leagues:
 - NFL
 - NHL
 - MLB
+- NRL
+- WNBA
 
 ## 📸 Screenshots
 

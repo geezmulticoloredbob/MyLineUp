@@ -4,7 +4,7 @@ const { getWCTeamData } = require('./worldCupService');
 const { getESPNTeamData } = require('./espnTeamSportService');
 const { getTeamColours } = require('./espnColourService');
 
-const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL'];
+const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL', 'NRL', 'WNBA'];
 
 // competition code for each football-data.org league
 const FD_COMPETITION_CODES = {
@@ -28,10 +28,13 @@ const EPL_ESPN_IDS = {
 };
 
 // Last-resort fallback when the primary sport service returns no logoUrl at
-// all (e.g. its own team lookup failed too) — not used for AFL, since our
-// stored afl- abbreviations were invented locally and never verified against
-// ESPN's actual scheme; espnTeamSportService derives AFL logos from ESPN's
-// own team.abbreviation field instead, which is reliable by construction.
+// all (e.g. its own team lookup failed too) — not used for AFL or NRL, since
+// our stored afl-/nrl- abbreviations were invented locally and never verified
+// against ESPN's actual scheme (NRL's logos are keyed by numeric id anyway,
+// which this function — abbreviation-only — has no way to construct);
+// espnTeamSportService derives those leagues' logos from ESPN's own team
+// data instead, which is reliable by construction. WNBA's stored abbreviations
+// were deliberately chosen to match ESPN's own, so it's safe here like NFL/NHL/MLB.
 function espnLogoFromTeamId(teamId) {
   if (teamId.startsWith('nba-')) {
     const abbr = teamId.replace('nba-', '');
@@ -53,6 +56,9 @@ function espnLogoFromTeamId(teamId) {
   }
   if (teamId.startsWith('mlb-')) {
     return `https://a.espncdn.com/i/teamlogos/mlb/500/${teamId.replace('mlb-', '')}.png`;
+  }
+  if (teamId.startsWith('wnba-')) {
+    return `https://a.espncdn.com/i/teamlogos/wnba/500/${teamId.replace('wnba-', '')}.png`;
   }
   return null;
 }

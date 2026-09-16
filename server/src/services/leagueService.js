@@ -18,6 +18,8 @@ const LEAGUE_FETCHERS = {
   NFL:        { standings: () => getESPNStandingsOverview('NFL'),       games: () => getESPNLeagueGames('NFL') },
   NHL:        { standings: () => getESPNStandingsOverview('NHL'),       games: () => getESPNLeagueGames('NHL') },
   MLB:        { standings: () => getESPNStandingsOverview('MLB'),       games: () => getESPNLeagueGames('MLB') },
+  NRL:        { standings: () => getESPNStandingsOverview('NRL'),       games: () => getESPNLeagueGames('NRL') },
+  WNBA:       { standings: () => getESPNStandingsOverview('WNBA'),      games: () => getESPNLeagueGames('WNBA') },
 };
 
 async function hydrateFollowedLeagues(followedLeagues) {
