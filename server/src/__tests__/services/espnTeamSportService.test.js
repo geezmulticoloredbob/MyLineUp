@@ -333,14 +333,15 @@ describe('getESPNLeagueGames', () => {
     expect(scoreboardCalls.length).toBe(2);
   });
 
-  it('queries a ±7-day date range for most leagues (e.g. NFL)', async () => {
+  it('omits the dates query param for every league — ESPN 400s on a date range as of 2026-09-17', async () => {
     mockFetch.mockImplementation(() => mockOk({ events: [] }));
     await espnTeamSportService.getESPNLeagueGames('NFL');
     const [url] = mockFetch.mock.calls.find(([u]) => u.includes('/scoreboard'));
-    expect(url).toMatch(/scoreboard\?dates=\d{8}-\d{8}/);
+    expect(url).not.toContain('dates=');
+    expect(url).toContain('/football/nfl/scoreboard');
   });
 
-  it('omits the date range for NRL — its scoreboard endpoint 400s on a range', async () => {
+  it('omits the dates query param for NRL too', async () => {
     mockFetch.mockImplementation(() => mockOk({ events: [] }));
     await espnTeamSportService.getESPNLeagueGames('NRL');
     const [url] = mockFetch.mock.calls.find(([u]) => u.includes('/scoreboard'));

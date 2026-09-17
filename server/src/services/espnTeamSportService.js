@@ -36,14 +36,6 @@ function espnFetch(path) {
   });
 }
 
-function toDateStr(d) {
-  return d.toISOString().split('T')[0];
-}
-
-function toCompactDate(d) {
-  return toDateStr(d).replace(/-/g, '');
-}
-
 // Build the crest URL directly from ESPN's CDN convention rather than trusting the
 // shape of the `logos` array in the JSON response — same reliable pattern already
 // used for NBA/AFL/WC in sportsDataService.espnLogoFromTeamId.
@@ -308,18 +300,18 @@ async function getESPNStandingsOverview(sportKey) {
     .sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
 }
 
-// NRL's scoreboard endpoint 400s on a date *range* (confirmed against the
-// real API: "Failed to get events endpoint") — it only accepts a single date
-// or no date param at all, unlike every other league here. Omitting the
-// param gives ESPN's own notion of "current" games rather than a strict
-// ±7-day window, which is a real behavioural difference, but it's the only
-// query shape NRL's endpoint doesn't reject.
-const NO_DATE_RANGE_SCOREBOARD = new Set(['NRL']);
-
 const _leagueGamesCache = new Map();
 const _leagueGamesInFlight = new Map();
 const LEAGUE_GAMES_TTL_MS = 5 * 60 * 1000;
 
+// Used to send a `?dates=YYYYMMDD-YYYYMMDD` range here to get a ±7-day
+// window. As of 2026-09-17 that now 400s ("Failed to get events endpoint")
+// for every league checked — NRL, NFL, AFL, NHL, MLB alike — so this appears
+// to be an ESPN-side change/outage rather than a per-league quirk. Omitting
+// the date param entirely still works and gives ESPN's own notion of
+// "current" games, which isn't quite the same ±7-day window but is the only
+// query shape that isn't rejected right now. Revisit if ESPN restores range
+// support.
 async function fetchESPNScoreboard(sportKey) {
   const cached = _leagueGamesCache.get(sportKey);
   if (cached && Date.now() - cached.at < LEAGUE_GAMES_TTL_MS) return cached.data;
@@ -327,17 +319,7 @@ async function fetchESPNScoreboard(sportKey) {
 
   const config = ESPN_SPORT_CONFIG[sportKey];
   const promise = (async () => {
-    let query = '';
-    if (!NO_DATE_RANGE_SCOREBOARD.has(sportKey)) {
-      const now = new Date();
-      const past = new Date(now);
-      past.setDate(past.getDate() - 7);
-      const future = new Date(now);
-      future.setDate(future.getDate() + 7);
-      query = `?dates=${toCompactDate(past)}-${toCompactDate(future)}`;
-    }
-
-    const res = await espnFetch(`/${config.sport}/${config.league}/scoreboard${query}`);
+    const res = await espnFetch(`/${config.sport}/${config.league}/scoreboard`);
     if (!res.ok) throw new Error(`ESPN ${sportKey} scoreboard fetch failed: ${res.status}`);
     const { events } = await res.json();
     return events || [];
