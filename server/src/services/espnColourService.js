@@ -17,6 +17,8 @@ const ESPN_LEAGUE_URLS = {
   WNBA:       'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/teams',
   NWSL:       'https://site.api.espn.com/apis/site/v2/sports/soccer/usa.nwsl/teams',
   ALEAGUE:    'https://site.api.espn.com/apis/site/v2/sports/soccer/aus.1/teams',
+  LIGAMX:     'https://site.api.espn.com/apis/site/v2/sports/soccer/mex.1/teams',
+  BRASILEIRAO: 'https://site.api.espn.com/apis/site/v2/sports/soccer/bra.1/teams',
   // NRL deliberately excluded — confirmed against the real API that NRL team
   // objects don't carry `color`/`alternateColor` fields at all, unlike every
   // other league here, so there'd be nothing for this to find.

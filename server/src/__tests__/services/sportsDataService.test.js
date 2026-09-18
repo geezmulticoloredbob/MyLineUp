@@ -37,6 +37,8 @@ const nrlFav      = { _id: 'f15', teamId: 'nrl-bri',  teamName: 'Broncos',      
 const wnbaFav     = { _id: 'f16', teamId: 'wnba-lv',  teamName: 'Las Vegas Aces',     league: 'WNBA',       teamLogoUrl: '' };
 const nwslFav     = { _id: 'f17', teamId: 'nwsl-la',  teamName: 'Angel City FC',      league: 'NWSL',       teamLogoUrl: '' };
 const aleagueFav  = { _id: 'f18', teamId: 'aleague-ade', teamName: 'Adelaide United', league: 'ALEAGUE',    teamLogoUrl: '' };
+const ligamxFav   = { _id: 'f19', teamId: 'ligamx-ame', teamName: 'América',         league: 'LIGAMX',     teamLogoUrl: '' };
+const brasFav     = { _id: 'f20', teamId: 'brasileirao-fla', teamName: 'Flamengo',   league: 'BRASILEIRAO', teamLogoUrl: '' };
 
 describe('sportsDataService', () => {
   describe('hydrateFavouriteTeams — routing', () => {
@@ -166,6 +168,20 @@ describe('sportsDataService', () => {
       expect(result.source).toBe('live');
     });
 
+    it('dispatches to getESPNTeamData with league LIGAMX for LIGAMX', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([ligamxFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(ligamxFav, 'LIGAMX');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getESPNTeamData with league BRASILEIRAO for BRASILEIRAO', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([brasFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(brasFav, 'BRASILEIRAO');
+      expect(result.source).toBe('live');
+    });
+
     it('returns source=unavailable for an unknown league without throwing', async () => {
       const unknownFav = { _id: 'fx', teamId: 'other-x', teamName: 'Unknown FC', league: 'UNKNOWN', teamLogoUrl: '' };
       const [result] = await hydrateFavouriteTeams([unknownFav]);
@@ -250,7 +266,7 @@ describe('sportsDataService', () => {
       expect(result.teamLogoUrl).toContain('/wnba/500/lv.png');
     });
 
-    // NRL (and NWSL/ALEAGUE, same reasoning, not re-tested here) deliberately
+    // NRL (and NWSL/ALEAGUE/LIGAMX/BRASILEIRAO, same reasoning, not re-tested here) deliberately
     // has NO fallback branch — unlike WNBA, our stored abbreviations aren't
     // guaranteed to match ESPN's, and the real CDN scheme is keyed by numeric
     // team id anyway, which this teamId-only fallback has no way to know.

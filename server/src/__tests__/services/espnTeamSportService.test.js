@@ -252,43 +252,30 @@ describe('NRL — id-keyed logo CDN scheme', () => {
   });
 });
 
-describe('NWSL / A-League — same id-keyed logo scheme as NRL, different path', () => {
+describe('NWSL / A-League / Liga MX / Brasileirão — same id-keyed logo scheme as NRL, different path', () => {
   // The id-keying mechanism itself is already covered by the NRL tests above
-  // (same LOGO_ID_PATH_OVERRIDES code path) — these just lock in that the two
-  // soccer leagues use "soccer" as their path segment, not their own league
-  // key, since that's the part that's easy to get wrong per-league.
+  // (same LOGO_ID_PATH_OVERRIDES code path) — these just lock in that every
+  // soccer league here uses "soccer" as their path segment, not their own
+  // league key, since that's the part that's easy to get wrong per-league.
   function teamsResponse(id, abbr, name) {
     return { sports: [{ leagues: [{ teams: [{ team: { id, abbreviation: abbr, displayName: name, shortDisplayName: name } }] }] }] };
   }
 
-  it('uses the "soccer" id-keyed path for NWSL', async () => {
+  it.each([
+    ['NWSL', 'nwsl-la', 'Angel City FC', '21422', 'LA'],
+    ['ALEAGUE', 'aleague-ade', 'Adelaide United', '5321', 'ADE'],
+    ['LIGAMX', 'ligamx-ame', 'América', '227', 'AME'],
+    ['BRASILEIRAO', 'brasileirao-fla', 'Flamengo', '819', 'FLA'],
+  ])('uses the "soccer" id-keyed path for %s', async (league, teamId, teamName, espnId, abbr) => {
     mockFetch.mockImplementation((url) => {
-      if (url.includes('/teams/21422/schedule')) return mockOk({ events: [] });
-      if (url.includes('/teams')) return mockOk(teamsResponse('21422', 'LA', 'Angel City FC'));
+      if (url.includes(`/teams/${espnId}/schedule`)) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(teamsResponse(espnId, abbr, teamName));
       return mockOk({});
     });
 
-    const result = await espnTeamSportService.getESPNTeamData(
-      { teamId: 'nwsl-la', teamName: 'Angel City FC', league: 'NWSL' },
-      'NWSL',
-    );
+    const result = await espnTeamSportService.getESPNTeamData({ teamId, teamName, league }, league);
 
-    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/21422.png');
-  });
-
-  it('uses the "soccer" id-keyed path for A-League', async () => {
-    mockFetch.mockImplementation((url) => {
-      if (url.includes('/teams/5321/schedule')) return mockOk({ events: [] });
-      if (url.includes('/teams')) return mockOk(teamsResponse('5321', 'ADE', 'Adelaide United'));
-      return mockOk({});
-    });
-
-    const result = await espnTeamSportService.getESPNTeamData(
-      { teamId: 'aleague-ade', teamName: 'Adelaide United', league: 'ALEAGUE' },
-      'ALEAGUE',
-    );
-
-    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/5321.png');
+    expect(result.logoUrl).toBe(`https://a.espncdn.com/i/teamlogos/soccer/500/${espnId}.png`);
   });
 });
 

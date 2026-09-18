@@ -17,6 +17,8 @@ export const LEAGUES = {
   WNBA: 'WNBA',
   NWSL: 'NWSL',
   ALEAGUE: 'ALEAGUE',
+  LIGAMX: 'LIGAMX',
+  BRASILEIRAO: 'BRASILEIRAO',
 };
 
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
@@ -40,6 +42,8 @@ export const LEAGUE_DISPLAY_NAMES = {
   WNBA: 'WNBA',
   NWSL: 'NWSL',
   ALEAGUE: 'A-League',
+  LIGAMX: 'Liga MX',
+  BRASILEIRAO: 'Brasileirão',
 };
 
 // Short forms for tight spaces (e.g. the team logo strip's per-league sub-labels)
@@ -62,6 +66,8 @@ export const LEAGUE_ABBR = {
   WNBA: 'WNBA',
   NWSL: 'NWSL',
   ALEAGUE: 'A-League',
+  LIGAMX: 'Liga MX',
+  BRASILEIRAO: 'Brasileirão',
 };
 
 // Groups the many soccer competitions under one heading; each other league is its own sport
@@ -93,9 +99,11 @@ export const LEAGUE_SPORT = {
   NRL: SPORTS.RUGBY_LEAGUE,
   // Shares NBA's sport bucket rather than getting its own — same sport, same icon.
   WNBA: SPORTS.BASKETBALL,
-  // Both share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
+  // All four share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
   NWSL: SPORTS.SOCCER,
   ALEAGUE: SPORTS.SOCCER,
+  LIGAMX: SPORTS.SOCCER,
+  BRASILEIRAO: SPORTS.SOCCER,
 };
 
 export const SPORT_DISPLAY_NAMES = {

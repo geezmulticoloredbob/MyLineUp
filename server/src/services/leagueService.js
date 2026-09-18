@@ -22,6 +22,8 @@ const LEAGUE_FETCHERS = {
   WNBA:       { standings: () => getESPNStandingsOverview('WNBA'),      games: () => getESPNLeagueGames('WNBA') },
   NWSL:       { standings: () => getESPNStandingsOverview('NWSL'),      games: () => getESPNLeagueGames('NWSL') },
   ALEAGUE:    { standings: () => getESPNStandingsOverview('ALEAGUE'),   games: () => getESPNLeagueGames('ALEAGUE') },
+  LIGAMX:     { standings: () => getESPNStandingsOverview('LIGAMX'),    games: () => getESPNLeagueGames('LIGAMX') },
+  BRASILEIRAO: { standings: () => getESPNStandingsOverview('BRASILEIRAO'), games: () => getESPNLeagueGames('BRASILEIRAO') },
 };
 
 async function hydrateFollowedLeagues(followedLeagues) {

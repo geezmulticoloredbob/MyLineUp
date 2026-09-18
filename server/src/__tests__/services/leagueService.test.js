@@ -176,6 +176,22 @@ describe('leagueService', () => {
       expect(getESPNLeagueGames).toHaveBeenCalledWith('ALEAGUE');
     });
 
+    it('dispatches to espnTeamSportService with league LIGAMX for LIGAMX', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['LIGAMX']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('LIGAMX');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('LIGAMX');
+    });
+
+    it('dispatches to espnTeamSportService with league BRASILEIRAO for BRASILEIRAO', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['BRASILEIRAO']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('BRASILEIRAO');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('BRASILEIRAO');
+    });
+
     it('dispatches to worldCupService for WC', async () => {
       getWCStandings.mockResolvedValue(mockStandings);
       getWCLeagueGames.mockResolvedValue(mockGames);

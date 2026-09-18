@@ -17,6 +17,8 @@ const ESPN_SPORT_CONFIG = {
   WNBA: { sport: 'basketball', league: 'wnba' },
   NWSL: { sport: 'soccer', league: 'usa.nwsl' },
   ALEAGUE: { sport: 'soccer', league: 'aus.1' },
+  LIGAMX: { sport: 'soccer', league: 'mex.1' },
+  BRASILEIRAO: { sport: 'soccer', league: 'bra.1' },
 };
 
 // Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
@@ -32,6 +34,8 @@ const DEFAULT_VENUE_TIMEZONE = {
   WNBA: 'America/New_York',
   NWSL: 'America/New_York',
   ALEAGUE: 'Australia/Sydney',
+  LIGAMX: 'America/Mexico_City',
+  BRASILEIRAO: 'America/Sao_Paulo',
 };
 
 function espnFetch(path) {
@@ -54,6 +58,8 @@ const LOGO_ID_PATH_OVERRIDES = {
   NRL: 'rugby/teams',
   NWSL: 'soccer',
   ALEAGUE: 'soccer',
+  LIGAMX: 'soccer',
+  BRASILEIRAO: 'soccer',
 };
 
 function cdnLogoUrl(sportKey, team) {
