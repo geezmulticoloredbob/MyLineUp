@@ -440,4 +440,42 @@ export const teamsByLeague = {
     { teamId: 'wnba-tor', teamName: 'Toronto Tempo' },
     { teamId: 'wnba-wsh', teamName: 'Washington Mystics' },
   ],
+
+  // Abbreviations match ESPN's own, same as WNBA — though for NWSL it barely
+  // matters, since its logos are id-keyed rather than abbreviation-keyed
+  // anyway (see espnTeamSportService's LOGO_ID_PATH_OVERRIDES).
+  NWSL: [
+    { teamId: 'nwsl-la',  teamName: 'Angel City FC' },
+    { teamId: 'nwsl-bay', teamName: 'Bay FC' },
+    { teamId: 'nwsl-bos', teamName: 'Boston Legacy FC' },
+    { teamId: 'nwsl-chi', teamName: 'Chicago Stars FC' },
+    { teamId: 'nwsl-den', teamName: 'Denver Summit FC' },
+    { teamId: 'nwsl-gfc', teamName: 'Gotham FC' },
+    { teamId: 'nwsl-hou', teamName: 'Houston Dash' },
+    { teamId: 'nwsl-kc',  teamName: 'Kansas City Current' },
+    { teamId: 'nwsl-nc',  teamName: 'North Carolina Courage' },
+    { teamId: 'nwsl-orl', teamName: 'Orlando Pride' },
+    { teamId: 'nwsl-por', teamName: 'Portland Thorns FC' },
+    { teamId: 'nwsl-lou', teamName: 'Racing Louisville FC' },
+    { teamId: 'nwsl-sd',  teamName: 'San Diego Wave FC' },
+    { teamId: 'nwsl-sea', teamName: 'Seattle Reign FC' },
+    { teamId: 'nwsl-uta', teamName: 'Utah Royals' },
+    { teamId: 'nwsl-was', teamName: 'Washington Spirit' },
+  ],
+
+  // Same id-keyed logo scheme as NWSL — abbreviations here are ESPN's own too.
+  ALEAGUE: [
+    { teamId: 'aleague-ade', teamName: 'Adelaide United' },
+    { teamId: 'aleague-afc', teamName: 'Auckland FC' },
+    { teamId: 'aleague-brr', teamName: 'Brisbane Roar' },
+    { teamId: 'aleague-ccm', teamName: 'Central Coast Mariners' },
+    { teamId: 'aleague-mac', teamName: 'Macarthur FC' },
+    { teamId: 'aleague-mcy', teamName: 'Melbourne City FC' },
+    { teamId: 'aleague-mvc', teamName: 'Melbourne Victory' },
+    { teamId: 'aleague-new', teamName: 'Newcastle Jets' },
+    { teamId: 'aleague-per', teamName: 'Perth Glory' },
+    { teamId: 'aleague-syd', teamName: 'Sydney FC' },
+    { teamId: 'aleague-wel', teamName: 'Wellington Phoenix FC' },
+    { teamId: 'aleague-wsw', teamName: 'Western Sydney Wanderers' },
+  ],
 };

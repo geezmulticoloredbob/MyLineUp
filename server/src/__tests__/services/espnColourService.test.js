@@ -84,6 +84,24 @@ describe('getTeamColours', () => {
     );
   });
 
+  it('has an endpoint configured for NWSL', async () => {
+    mockFetch.mockResolvedValue(mockOk(MOCK_TEAMS_RESPONSE));
+    await espnColourService.getTeamColours('Bayern Munich', 'NWSL');
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('soccer/usa.nwsl/teams'),
+      expect.any(Object)
+    );
+  });
+
+  it('has an endpoint configured for ALEAGUE', async () => {
+    mockFetch.mockResolvedValue(mockOk(MOCK_TEAMS_RESPONSE));
+    await espnColourService.getTeamColours('Bayern Munich', 'ALEAGUE');
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('soccer/aus.1/teams'),
+      expect.any(Object)
+    );
+  });
+
   it('returns null when the ESPN fetch fails', async () => {
     mockFetch.mockResolvedValue(Promise.resolve({ ok: false, status: 500 }));
     const result = await espnColourService.getTeamColours('Bayern Munich', 'BUNDESLIGA');

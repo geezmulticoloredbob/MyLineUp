@@ -15,6 +15,8 @@ const ESPN_SPORT_CONFIG = {
   // league id under the "rugby-league" sport.
   NRL: { sport: 'rugby-league', league: '3' },
   WNBA: { sport: 'basketball', league: 'wnba' },
+  NWSL: { sport: 'soccer', league: 'usa.nwsl' },
+  ALEAGUE: { sport: 'soccer', league: 'aus.1' },
 };
 
 // Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
@@ -28,6 +30,8 @@ const DEFAULT_VENUE_TIMEZONE = {
   AFL: 'Australia/Sydney',
   NRL: 'Australia/Sydney',
   WNBA: 'America/New_York',
+  NWSL: 'America/New_York',
+  ALEAGUE: 'Australia/Sydney',
 };
 
 function espnFetch(path) {
@@ -40,12 +44,16 @@ function espnFetch(path) {
 // shape of the `logos` array in the JSON response — same reliable pattern already
 // used for NBA/AFL/WC in sportsDataService.espnLogoFromTeamId.
 //
-// NRL is the one league here whose logos are keyed by the team's own numeric
-// ESPN id rather than its abbreviation, under a "rugby/teams" path rather than
-// "rugby-league" — confirmed against real API responses, since ESPN's docs
-// don't state this anywhere and it doesn't follow the other leagues' pattern.
+// NRL, NWSL, and A-League are keyed by the team's own numeric ESPN id rather
+// than its abbreviation — confirmed against real API responses, since ESPN's
+// docs don't state this anywhere. NRL's path is "rugby/teams" (not
+// "rugby-league"); the two soccer leagues share the same generic "soccer"
+// bucket EPL/La Liga/etc. use for their own (separately-tracked) numeric-id
+// logo map in sportsDataService.js's EPL_ESPN_IDS.
 const LOGO_ID_PATH_OVERRIDES = {
   NRL: 'rugby/teams',
+  NWSL: 'soccer',
+  ALEAGUE: 'soccer',
 };
 
 function cdnLogoUrl(sportKey, team) {

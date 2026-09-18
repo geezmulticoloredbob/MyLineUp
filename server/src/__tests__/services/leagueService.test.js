@@ -160,6 +160,22 @@ describe('leagueService', () => {
       expect(getESPNLeagueGames).toHaveBeenCalledWith('WNBA');
     });
 
+    it('dispatches to espnTeamSportService with league NWSL for NWSL', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['NWSL']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('NWSL');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('NWSL');
+    });
+
+    it('dispatches to espnTeamSportService with league ALEAGUE for ALEAGUE', async () => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues(['ALEAGUE']);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith('ALEAGUE');
+      expect(getESPNLeagueGames).toHaveBeenCalledWith('ALEAGUE');
+    });
+
     it('dispatches to worldCupService for WC', async () => {
       getWCStandings.mockResolvedValue(mockStandings);
       getWCLeagueGames.mockResolvedValue(mockGames);
