@@ -43,6 +43,8 @@ Supported leagues:
 - WNBA
 - NWSL
 - A-League
+- Liga MX
+- Brasileirão
 
 ## 📸 Screenshots
 
