@@ -41,6 +41,8 @@ Supported leagues:
 - MLB
 - NRL
 - WNBA
+- NWSL
+- A-League
 
 ## 📸 Screenshots
 
