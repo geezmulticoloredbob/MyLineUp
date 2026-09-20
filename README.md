@@ -45,6 +45,9 @@ Supported leagues:
 - A-League
 - Liga MX
 - Brasileirão
+- Argentina (Liga Profesional)
+- Saudi Pro League
+- Primeira Liga (Portugal)
 
 ## 📸 Screenshots
 
