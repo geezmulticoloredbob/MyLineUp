@@ -39,6 +39,9 @@ const nwslFav     = { _id: 'f17', teamId: 'nwsl-la',  teamName: 'Angel City FC',
 const aleagueFav  = { _id: 'f18', teamId: 'aleague-ade', teamName: 'Adelaide United', league: 'ALEAGUE',    teamLogoUrl: '' };
 const ligamxFav   = { _id: 'f19', teamId: 'ligamx-ame', teamName: 'América',         league: 'LIGAMX',     teamLogoUrl: '' };
 const brasFav     = { _id: 'f20', teamId: 'brasileirao-fla', teamName: 'Flamengo',   league: 'BRASILEIRAO', teamLogoUrl: '' };
+const argFav      = { _id: 'f21', teamId: 'argentina-cabj', teamName: 'Boca Juniors', league: 'ARGENTINA',  teamLogoUrl: '' };
+const saudiFav    = { _id: 'f22', teamId: 'saudipl-hil',    teamName: 'Al Hilal',     league: 'SAUDIPL',    teamLogoUrl: '' };
+const primeiraFav = { _id: 'f23', teamId: 'primeiraliga-fcp', teamName: 'FC Porto',  league: 'PRIMEIRALIGA', teamLogoUrl: '' };
 
 describe('sportsDataService', () => {
   describe('hydrateFavouriteTeams — routing', () => {
@@ -182,6 +185,27 @@ describe('sportsDataService', () => {
       expect(result.source).toBe('live');
     });
 
+    it('dispatches to getESPNTeamData with league ARGENTINA for ARGENTINA', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([argFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(argFav, 'ARGENTINA');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getESPNTeamData with league SAUDIPL for SAUDIPL', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([saudiFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(saudiFav, 'SAUDIPL');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getESPNTeamData with league PRIMEIRALIGA for PRIMEIRALIGA', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([primeiraFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(primeiraFav, 'PRIMEIRALIGA');
+      expect(result.source).toBe('live');
+    });
+
     it('returns source=unavailable for an unknown league without throwing', async () => {
       const unknownFav = { _id: 'fx', teamId: 'other-x', teamName: 'Unknown FC', league: 'UNKNOWN', teamLogoUrl: '' };
       const [result] = await hydrateFavouriteTeams([unknownFav]);
@@ -266,7 +290,8 @@ describe('sportsDataService', () => {
       expect(result.teamLogoUrl).toContain('/wnba/500/lv.png');
     });
 
-    // NRL (and NWSL/ALEAGUE/LIGAMX/BRASILEIRAO, same reasoning, not re-tested here) deliberately
+    // NRL (and every other id-keyed league — NWSL/ALEAGUE/LIGAMX/BRASILEIRAO/
+    // ARGENTINA/SAUDIPL/PRIMEIRALIGA, same reasoning, not re-tested here) deliberately
     // has NO fallback branch — unlike WNBA, our stored abbreviations aren't
     // guaranteed to match ESPN's, and the real CDN scheme is keyed by numeric
     // team id anyway, which this teamId-only fallback has no way to know.

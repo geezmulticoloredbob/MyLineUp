@@ -252,7 +252,7 @@ describe('NRL — id-keyed logo CDN scheme', () => {
   });
 });
 
-describe('NWSL / A-League / Liga MX / Brasileirão — same id-keyed logo scheme as NRL, different path', () => {
+describe('NWSL / A-League / Liga MX / Brasileirão / Argentina / Saudi PL / Primeira Liga — same id-keyed logo scheme as NRL, different path', () => {
   // The id-keying mechanism itself is already covered by the NRL tests above
   // (same LOGO_ID_PATH_OVERRIDES code path) — these just lock in that every
   // soccer league here uses "soccer" as their path segment, not their own
@@ -266,6 +266,9 @@ describe('NWSL / A-League / Liga MX / Brasileirão — same id-keyed logo scheme
     ['ALEAGUE', 'aleague-ade', 'Adelaide United', '5321', 'ADE'],
     ['LIGAMX', 'ligamx-ame', 'América', '227', 'AME'],
     ['BRASILEIRAO', 'brasileirao-fla', 'Flamengo', '819', 'FLA'],
+    ['ARGENTINA', 'argentina-cabj', 'Boca Juniors', '5', 'CABJ'],
+    ['SAUDIPL', 'saudipl-hil', 'Al Hilal', '929', 'HIL'],
+    ['PRIMEIRALIGA', 'primeiraliga-fcp', 'FC Porto', '437', 'FCP'],
   ])('uses the "soccer" id-keyed path for %s', async (league, teamId, teamName, espnId, abbr) => {
     mockFetch.mockImplementation((url) => {
       if (url.includes(`/teams/${espnId}/schedule`)) return mockOk({ events: [] });
@@ -276,6 +279,54 @@ describe('NWSL / A-League / Liga MX / Brasileirão — same id-keyed logo scheme
     const result = await espnTeamSportService.getESPNTeamData({ teamId, teamName, league }, league);
 
     expect(result.logoUrl).toBe(`https://a.espncdn.com/i/teamlogos/soccer/500/${espnId}.png`);
+  });
+});
+
+describe('Argentina — River Plate vs Independiente Rivadavia disambiguation', () => {
+  // ESPN's own data has two different clubs sharing the literal abbreviation
+  // "RIV" — Independiente Rivadavia (id 9744, listed first) and River Plate
+  // (id 16, listed second). Deliberately stored our own River Plate favourite
+  // with an abbreviation ESPN doesn't use ("rvpl"), forcing it through
+  // findTeamByName — which is safe here since "River Plate" doesn't collide
+  // with any other club's name, unlike a name-based match for Independiente
+  // Rivadavia would (its name contains plain "Independiente" as a substring,
+  // a real separate club also in this league, listed earlier in the array).
+  const ARG_TEAMS_RESPONSE = {
+    sports: [{ leagues: [{ teams: [
+      { team: { id: '11', abbreviation: 'IND', displayName: 'Independiente', shortDisplayName: 'Independiente' } },
+      { team: { id: '9744', abbreviation: 'RIV', displayName: 'Independiente Rivadavia', shortDisplayName: 'Ind. Rivadavia' } },
+      { team: { id: '16', abbreviation: 'RIV', displayName: 'River Plate', shortDisplayName: 'River Plate' } },
+    ] }] }],
+  };
+
+  it('resolves Independiente Rivadavia via its abbreviation, not a name-substring match against plain Independiente', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/9744/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(ARG_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'argentina-riv', teamName: 'Independiente Rivadavia', league: 'ARGENTINA' },
+      'ARGENTINA',
+    );
+
+    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/9744.png');
+  });
+
+  it('resolves River Plate via its full name, not the first "RIV"-abbreviated team in the list', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/16/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(ARG_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'argentina-rvpl', teamName: 'River Plate', league: 'ARGENTINA' },
+      'ARGENTINA',
+    );
+
+    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/16.png');
   });
 });
 

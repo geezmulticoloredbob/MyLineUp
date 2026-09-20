@@ -192,6 +192,14 @@ describe('leagueService', () => {
       expect(getESPNLeagueGames).toHaveBeenCalledWith('BRASILEIRAO');
     });
 
+    it.each(['ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA'])('dispatches to espnTeamSportService with league %s', async (league) => {
+      getESPNStandingsOverview.mockResolvedValue(mockStandings);
+      getESPNLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues([league]);
+      expect(getESPNStandingsOverview).toHaveBeenCalledWith(league);
+      expect(getESPNLeagueGames).toHaveBeenCalledWith(league);
+    });
+
     it('dispatches to worldCupService for WC', async () => {
       getWCStandings.mockResolvedValue(mockStandings);
       getWCLeagueGames.mockResolvedValue(mockGames);

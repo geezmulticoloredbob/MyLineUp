@@ -19,6 +19,9 @@ export const LEAGUES = {
   ALEAGUE: 'ALEAGUE',
   LIGAMX: 'LIGAMX',
   BRASILEIRAO: 'BRASILEIRAO',
+  ARGENTINA: 'ARGENTINA',
+  SAUDIPL: 'SAUDIPL',
+  PRIMEIRALIGA: 'PRIMEIRALIGA',
 };
 
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
@@ -44,6 +47,9 @@ export const LEAGUE_DISPLAY_NAMES = {
   ALEAGUE: 'A-League',
   LIGAMX: 'Liga MX',
   BRASILEIRAO: 'Brasileirão',
+  ARGENTINA: 'Liga Profesional',
+  SAUDIPL: 'Saudi Pro League',
+  PRIMEIRALIGA: 'Primeira Liga',
 };
 
 // Short forms for tight spaces (e.g. the team logo strip's per-league sub-labels)
@@ -68,6 +74,9 @@ export const LEAGUE_ABBR = {
   ALEAGUE: 'A-League',
   LIGAMX: 'Liga MX',
   BRASILEIRAO: 'Brasileirão',
+  ARGENTINA: 'Liga Prof.',
+  SAUDIPL: 'Saudi PL',
+  PRIMEIRALIGA: 'Primeira Liga',
 };
 
 // Groups the many soccer competitions under one heading; each other league is its own sport
@@ -99,11 +108,14 @@ export const LEAGUE_SPORT = {
   NRL: SPORTS.RUGBY_LEAGUE,
   // Shares NBA's sport bucket rather than getting its own — same sport, same icon.
   WNBA: SPORTS.BASKETBALL,
-  // All four share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
+  // All seven share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
   NWSL: SPORTS.SOCCER,
   ALEAGUE: SPORTS.SOCCER,
   LIGAMX: SPORTS.SOCCER,
   BRASILEIRAO: SPORTS.SOCCER,
+  ARGENTINA: SPORTS.SOCCER,
+  SAUDIPL: SPORTS.SOCCER,
+  PRIMEIRALIGA: SPORTS.SOCCER,
 };
 
 export const SPORT_DISPLAY_NAMES = {

@@ -19,6 +19,9 @@ const ESPN_SPORT_CONFIG = {
   ALEAGUE: { sport: 'soccer', league: 'aus.1' },
   LIGAMX: { sport: 'soccer', league: 'mex.1' },
   BRASILEIRAO: { sport: 'soccer', league: 'bra.1' },
+  ARGENTINA: { sport: 'soccer', league: 'arg.1' },
+  SAUDIPL: { sport: 'soccer', league: 'ksa.1' },
+  PRIMEIRALIGA: { sport: 'soccer', league: 'por.1' },
 };
 
 // Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
@@ -36,6 +39,9 @@ const DEFAULT_VENUE_TIMEZONE = {
   ALEAGUE: 'Australia/Sydney',
   LIGAMX: 'America/Mexico_City',
   BRASILEIRAO: 'America/Sao_Paulo',
+  ARGENTINA: 'America/Argentina/Buenos_Aires',
+  SAUDIPL: 'Asia/Riyadh',
+  PRIMEIRALIGA: 'Europe/Lisbon',
 };
 
 function espnFetch(path) {
@@ -60,6 +66,9 @@ const LOGO_ID_PATH_OVERRIDES = {
   ALEAGUE: 'soccer',
   LIGAMX: 'soccer',
   BRASILEIRAO: 'soccer',
+  ARGENTINA: 'soccer',
+  SAUDIPL: 'soccer',
+  PRIMEIRALIGA: 'soccer',
 };
 
 function cdnLogoUrl(sportKey, team) {

@@ -24,6 +24,9 @@ const LEAGUE_FETCHERS = {
   ALEAGUE:    { standings: () => getESPNStandingsOverview('ALEAGUE'),   games: () => getESPNLeagueGames('ALEAGUE') },
   LIGAMX:     { standings: () => getESPNStandingsOverview('LIGAMX'),    games: () => getESPNLeagueGames('LIGAMX') },
   BRASILEIRAO: { standings: () => getESPNStandingsOverview('BRASILEIRAO'), games: () => getESPNLeagueGames('BRASILEIRAO') },
+  ARGENTINA:  { standings: () => getESPNStandingsOverview('ARGENTINA'),  games: () => getESPNLeagueGames('ARGENTINA') },
+  SAUDIPL:    { standings: () => getESPNStandingsOverview('SAUDIPL'),    games: () => getESPNLeagueGames('SAUDIPL') },
+  PRIMEIRALIGA: { standings: () => getESPNStandingsOverview('PRIMEIRALIGA'), games: () => getESPNLeagueGames('PRIMEIRALIGA') },
 };
 
 async function hydrateFollowedLeagues(followedLeagues) {

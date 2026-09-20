@@ -525,4 +525,90 @@ export const teamsByLeague = {
     { teamId: 'brasileirao-vas', teamName: 'Vasco da Gama' },
     { teamId: 'brasileirao-vit', teamName: 'Vitória' },
   ],
+
+  // Largest roster added so far (30 clubs). Two ESPN entries share the
+  // literal abbreviation "RIV" — Independiente Rivadavia and River Plate —
+  // handled deliberately: Independiente Rivadavia keeps "riv" (matches
+  // ESPN's own abbreviation and happens to resolve to itself, since it's
+  // the first "RIV" in ESPN's own team list), while River Plate gets a
+  // distinct abbreviation ESPN doesn't use, forcing it through
+  // espnTeamSportService's name-based fallback instead — which is safe for
+  // "River Plate" (no other club's name collides with it) but would NOT be
+  // safe for Independiente Rivadavia, whose name contains the separate club
+  // "Independiente" as a substring. See that service's tests for the
+  // reasoning in full.
+  ARGENTINA: [
+    { teamId: 'argentina-aldo', teamName: 'Aldosivi' },
+    { teamId: 'argentina-argj', teamName: 'Argentinos Juniors' },
+    { teamId: 'argentina-cat',  teamName: 'Atlético Tucumán' },
+    { teamId: 'argentina-ban',  teamName: 'Banfield' },
+    { teamId: 'argentina-bar',  teamName: 'Barracas Central' },
+    { teamId: 'argentina-bel',  teamName: 'Belgrano' },
+    { teamId: 'argentina-cabj', teamName: 'Boca Juniors' },
+    { teamId: 'argentina-ctr',  teamName: 'Central Córdoba' },
+    { teamId: 'argentina-dyj',  teamName: 'Defensa y Justicia' },
+    { teamId: 'argentina-rie',  teamName: 'Deportivo Riestra' },
+    { teamId: 'argentina-est',  teamName: 'Estudiantes de La Plata' },
+    { teamId: 'argentina-aae',  teamName: 'Estudiantes de Río Cuarto' },
+    { teamId: 'argentina-gmz',  teamName: 'Gimnasia (Mendoza)' },
+    { teamId: 'argentina-glp',  teamName: 'Gimnasia La Plata' },
+    { teamId: 'argentina-hur',  teamName: 'Huracán' },
+    { teamId: 'argentina-ind',  teamName: 'Independiente' },
+    { teamId: 'argentina-riv',  teamName: 'Independiente Rivadavia' },
+    { teamId: 'argentina-iacc', teamName: 'Instituto' },
+    { teamId: 'argentina-lan',  teamName: 'Lanús' },
+    { teamId: 'argentina-nob',  teamName: "Newell's Old Boys" },
+    { teamId: 'argentina-pla',  teamName: 'Platense' },
+    { teamId: 'argentina-rac',  teamName: 'Racing Club' },
+    { teamId: 'argentina-rvpl', teamName: 'River Plate' },
+    { teamId: 'argentina-ros',  teamName: 'Rosario Central' },
+    { teamId: 'argentina-slo',  teamName: 'San Lorenzo' },
+    { teamId: 'argentina-sarm', teamName: 'Sarmiento' },
+    { teamId: 'argentina-tall', teamName: 'Talleres' },
+    { teamId: 'argentina-tig',  teamName: 'Tigre' },
+    { teamId: 'argentina-usf',  teamName: 'Unión (Santa Fe)' },
+    { teamId: 'argentina-vel',  teamName: 'Vélez Sarsfield' },
+  ],
+
+  SAUDIPL: [
+    { teamId: 'saudipl-abh',  teamName: 'Abha' },
+    { teamId: 'saudipl-ahl',  teamName: 'Al Ahli' },
+    { teamId: 'saudipl-dir',  teamName: 'Al Diriyah' },
+    { teamId: 'saudipl-ett',  teamName: 'Al Ettifaq' },
+    { teamId: 'saudipl-alf',  teamName: 'Al Faisaly' },
+    { teamId: 'saudipl-fat',  teamName: 'Al Fateh' },
+    { teamId: 'saudipl-fay',  teamName: 'Al Fayha' },
+    { teamId: 'saudipl-haz',  teamName: 'Al Hazem' },
+    { teamId: 'saudipl-hil',  teamName: 'Al Hilal' },
+    { teamId: 'saudipl-itt',  teamName: 'Al Ittihad' },
+    { teamId: 'saudipl-kha',  teamName: 'Al Khaleej' },
+    { teamId: 'saudipl-kho',  teamName: 'Al Kholood' },
+    { teamId: 'saudipl-nsr',  teamName: 'Al Nassr' },
+    { teamId: 'saudipl-qad',  teamName: 'Al Qadsiah' },
+    { teamId: 'saudipl-riy',  teamName: 'Al Riyadh' },
+    { teamId: 'saudipl-sha',  teamName: 'Al Shabab' },
+    { teamId: 'saudipl-taa',  teamName: 'Al Taawoun' },
+    { teamId: 'saudipl-neom', teamName: 'Neom SC' },
+  ],
+
+  PRIMEIRALIGA: [
+    { teamId: 'primeiraliga-acv',  teamName: 'Académico de Viseu' },
+    { teamId: 'primeiraliga-alv',  teamName: 'Alverca' },
+    { teamId: 'primeiraliga-fca',  teamName: 'Arouca' },
+    { teamId: 'primeiraliga-slb',  teamName: 'Benfica' },
+    { teamId: 'primeiraliga-scb',  teamName: 'Braga' },
+    { teamId: 'primeiraliga-cdn',  teamName: 'C.D. Nacional' },
+    { teamId: 'primeiraliga-cpac', teamName: 'Casa Pia' },
+    { teamId: 'primeiraliga-epf',  teamName: 'Estoril' },
+    { teamId: 'primeiraliga-est',  teamName: 'Estrela' },
+    { teamId: 'primeiraliga-fcf',  teamName: 'Famalicão' },
+    { teamId: 'primeiraliga-fcp',  teamName: 'FC Porto' },
+    { teamId: 'primeiraliga-gvfc', teamName: 'Gil Vicente' },
+    { teamId: 'primeiraliga-mar',  teamName: 'Marítimo' },
+    { teamId: 'primeiraliga-mfc',  teamName: 'Moreirense' },
+    { teamId: 'primeiraliga-rafc', teamName: 'Rio Ave' },
+    { teamId: 'primeiraliga-cdsc', teamName: 'Santa Clara' },
+    { teamId: 'primeiraliga-scp',  teamName: 'Sporting CP' },
+    { teamId: 'primeiraliga-vsc',  teamName: 'Vitória de Guimarães' },
+  ],
 };

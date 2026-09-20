@@ -4,7 +4,7 @@ const { getWCTeamData } = require('./worldCupService');
 const { getESPNTeamData } = require('./espnTeamSportService');
 const { getTeamColours } = require('./espnColourService');
 
-const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL', 'NRL', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO'];
+const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL', 'NRL', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA'];
 
 // competition code for each football-data.org league
 const FD_COMPETITION_CODES = {
@@ -28,10 +28,11 @@ const EPL_ESPN_IDS = {
 };
 
 // Last-resort fallback when the primary sport service returns no logoUrl at
-// all (e.g. its own team lookup failed too) — not used for AFL, NRL, NWSL,
-// ALEAGUE, LIGAMX, or BRASILEIRAO. AFL's stored abbreviations were invented
-// locally and never verified against ESPN's; the rest are keyed by numeric id
-// anyway, which this function — abbreviation-only — has no way to construct.
+// all (e.g. its own team lookup failed too) — not used for AFL or any of the
+// id-keyed ESPN leagues (NRL, NWSL, ALEAGUE, LIGAMX, BRASILEIRAO, ARGENTINA,
+// SAUDIPL, PRIMEIRALIGA). AFL's stored abbreviations were invented locally
+// and never verified against ESPN's; the id-keyed ones have no numeric id
+// available at this layer, which this function — abbreviation-only — needs.
 // espnTeamSportService derives those leagues' logos from ESPN's own team
 // data instead, which is reliable by construction. WNBA's stored abbreviations
 // were deliberately chosen to match ESPN's own, so it's safe here like NFL/NHL/MLB.
