@@ -124,6 +124,8 @@ describe('getTeamColours', () => {
     ['ARGENTINA', 'soccer/arg.1/teams'],
     ['SAUDIPL', 'soccer/ksa.1/teams'],
     ['PRIMEIRALIGA', 'soccer/por.1/teams'],
+    ['TURKEY', 'soccer/tur.1/teams'],
+    ['SCOTLAND', 'soccer/sco.1/teams'],
   ])('has an endpoint configured for %s', async (league, expectedPath) => {
     mockFetch.mockResolvedValue(mockOk(MOCK_TEAMS_RESPONSE));
     await espnColourService.getTeamColours('Bayern Munich', league);

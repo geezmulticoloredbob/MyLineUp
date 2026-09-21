@@ -42,6 +42,8 @@ const brasFav     = { _id: 'f20', teamId: 'brasileirao-fla', teamName: 'Flamengo
 const argFav      = { _id: 'f21', teamId: 'argentina-cabj', teamName: 'Boca Juniors', league: 'ARGENTINA',  teamLogoUrl: '' };
 const saudiFav    = { _id: 'f22', teamId: 'saudipl-hil',    teamName: 'Al Hilal',     league: 'SAUDIPL',    teamLogoUrl: '' };
 const primeiraFav = { _id: 'f23', teamId: 'primeiraliga-fcp', teamName: 'FC Porto',  league: 'PRIMEIRALIGA', teamLogoUrl: '' };
+const turkeyFav   = { _id: 'f24', teamId: 'turkey-fen', teamName: 'Fenerbahce',      league: 'TURKEY',      teamLogoUrl: '' };
+const scotlandFav = { _id: 'f25', teamId: 'scotland-cel', teamName: 'Celtic',        league: 'SCOTLAND',    teamLogoUrl: '' };
 
 describe('sportsDataService', () => {
   describe('hydrateFavouriteTeams — routing', () => {
@@ -206,6 +208,20 @@ describe('sportsDataService', () => {
       expect(result.source).toBe('live');
     });
 
+    it('dispatches to getESPNTeamData with league TURKEY for TURKEY', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([turkeyFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(turkeyFav, 'TURKEY');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getESPNTeamData with league SCOTLAND for SCOTLAND', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([scotlandFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(scotlandFav, 'SCOTLAND');
+      expect(result.source).toBe('live');
+    });
+
     it('returns source=unavailable for an unknown league without throwing', async () => {
       const unknownFav = { _id: 'fx', teamId: 'other-x', teamName: 'Unknown FC', league: 'UNKNOWN', teamLogoUrl: '' };
       const [result] = await hydrateFavouriteTeams([unknownFav]);
@@ -291,7 +307,7 @@ describe('sportsDataService', () => {
     });
 
     // NRL (and every other id-keyed league — NWSL/ALEAGUE/LIGAMX/BRASILEIRAO/
-    // ARGENTINA/SAUDIPL/PRIMEIRALIGA, same reasoning, not re-tested here) deliberately
+    // ARGENTINA/SAUDIPL/PRIMEIRALIGA/TURKEY/SCOTLAND, same reasoning, not re-tested here) deliberately
     // has NO fallback branch — unlike WNBA, our stored abbreviations aren't
     // guaranteed to match ESPN's, and the real CDN scheme is keyed by numeric
     // team id anyway, which this teamId-only fallback has no way to know.

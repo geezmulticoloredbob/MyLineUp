@@ -22,6 +22,8 @@ const ESPN_SPORT_CONFIG = {
   ARGENTINA: { sport: 'soccer', league: 'arg.1' },
   SAUDIPL: { sport: 'soccer', league: 'ksa.1' },
   PRIMEIRALIGA: { sport: 'soccer', league: 'por.1' },
+  TURKEY: { sport: 'soccer', league: 'tur.1' },
+  SCOTLAND: { sport: 'soccer', league: 'sco.1' },
 };
 
 // Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
@@ -42,6 +44,8 @@ const DEFAULT_VENUE_TIMEZONE = {
   ARGENTINA: 'America/Argentina/Buenos_Aires',
   SAUDIPL: 'Asia/Riyadh',
   PRIMEIRALIGA: 'Europe/Lisbon',
+  TURKEY: 'Europe/Istanbul',
+  SCOTLAND: 'Europe/London',
 };
 
 function espnFetch(path) {
@@ -69,6 +73,8 @@ const LOGO_ID_PATH_OVERRIDES = {
   ARGENTINA: 'soccer',
   SAUDIPL: 'soccer',
   PRIMEIRALIGA: 'soccer',
+  TURKEY: 'soccer',
+  SCOTLAND: 'soccer',
 };
 
 function cdnLogoUrl(sportKey, team) {
@@ -123,12 +129,29 @@ function normalizeTeamName(name) {
 // unlike NFL/NHL/MLB (where our stored team IDs already use ESPN's own
 // standard abbreviations), AFL's stored IDs use abbreviations we invented
 // ourselves and were never verified against ESPN's actual scheme.
+//
+// Checks for an exact-name match across every team *before* trying a fuzzy
+// substring match on any of them — not just fuzzy-matching the first team
+// that happens to qualify. Without that ordering, a short name can shadow
+// a different team whose own full name simply contains it as a substring:
+// e.g. Scotland's "Dundee" and "Dundee United" are two separate ESPN teams
+// (which also happen to share the literal abbreviation "DUN", so this is
+// their only path to a correct match) — searching for "Dundee United" must
+// not settle for "Dundee" just because it's fuzzily "close enough" and
+// listed first.
 function findTeamByName(teams, teamName) {
   const target = normalizeTeamName(teamName);
   if (!target) return null;
+
+  const exactMatch = teams.find((t) => {
+    const candidates = [t.displayName, t.shortDisplayName, t.name, t.location].map(normalizeTeamName);
+    return candidates.some((c) => c === target);
+  });
+  if (exactMatch) return exactMatch;
+
   return teams.find((t) => {
     const candidates = [t.displayName, t.shortDisplayName, t.name, t.location].map(normalizeTeamName);
-    return candidates.some((c) => c && (c === target || target.includes(c) || c.includes(target)));
+    return candidates.some((c) => c && (target.includes(c) || c.includes(target)));
   });
 }
 

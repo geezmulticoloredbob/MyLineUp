@@ -252,7 +252,7 @@ describe('NRL — id-keyed logo CDN scheme', () => {
   });
 });
 
-describe('NWSL / A-League / Liga MX / Brasileirão / Argentina / Saudi PL / Primeira Liga — same id-keyed logo scheme as NRL, different path', () => {
+describe('NWSL / A-League / Liga MX / Brasileirão / Argentina / Saudi PL / Primeira Liga / Turkey / Scotland — same id-keyed logo scheme as NRL, different path', () => {
   // The id-keying mechanism itself is already covered by the NRL tests above
   // (same LOGO_ID_PATH_OVERRIDES code path) — these just lock in that every
   // soccer league here uses "soccer" as their path segment, not their own
@@ -269,6 +269,8 @@ describe('NWSL / A-League / Liga MX / Brasileirão / Argentina / Saudi PL / Prim
     ['ARGENTINA', 'argentina-cabj', 'Boca Juniors', '5', 'CABJ'],
     ['SAUDIPL', 'saudipl-hil', 'Al Hilal', '929', 'HIL'],
     ['PRIMEIRALIGA', 'primeiraliga-fcp', 'FC Porto', '437', 'FCP'],
+    ['TURKEY', 'turkey-fen', 'Fenerbahce', '436', 'FEN'],
+    ['SCOTLAND', 'scotland-cel', 'Celtic', '256', 'CEL'],
   ])('uses the "soccer" id-keyed path for %s', async (league, teamId, teamName, espnId, abbr) => {
     mockFetch.mockImplementation((url) => {
       if (url.includes(`/teams/${espnId}/schedule`)) return mockOk({ events: [] });
@@ -327,6 +329,57 @@ describe('Argentina — River Plate vs Independiente Rivadavia disambiguation', 
     );
 
     expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/16.png');
+  });
+});
+
+describe('Scotland — findTeamByName prefers an exact match over a fuzzy one', () => {
+  // ESPN's own data has two different clubs sharing the literal abbreviation
+  // "DUN" — Dundee (id 261, listed first) and Dundee United (id 264). Unlike
+  // Argentina's River Plate case, there's no safe abbreviation-only escape
+  // hatch here: any abbreviation string that resolves to one team via
+  // findTeamByAbbr also resolves to the other, since ESPN gives them the
+  // identical string. Both favourites below are deliberately stored with an
+  // abbreviation ESPN doesn't use, forcing both through findTeamByName — this
+  // only resolves correctly because that function checks the whole team list
+  // for an exact name match before ever trying a fuzzy substring one; a
+  // naive fuzzy-first search would let "Dundee" (listed first, and a genuine
+  // substring of "Dundee United") shadow "Dundee United" even when searching
+  // for the latter by its own full, exact name.
+  const SCO_TEAMS_RESPONSE = {
+    sports: [{ leagues: [{ teams: [
+      { team: { id: '261', abbreviation: 'DUN', displayName: 'Dundee', shortDisplayName: 'Dundee' } },
+      { team: { id: '264', abbreviation: 'DUN', displayName: 'Dundee United', shortDisplayName: 'Dundee Utd' } },
+    ] }] }],
+  };
+
+  it('resolves Dundee United to itself, not to plain Dundee', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/264/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(SCO_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'scotland-dnu', teamName: 'Dundee United', league: 'SCOTLAND' },
+      'SCOTLAND',
+    );
+
+    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/264.png');
+  });
+
+  it('still resolves plain Dundee to itself', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/261/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(SCO_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'scotland-dund', teamName: 'Dundee', league: 'SCOTLAND' },
+      'SCOTLAND',
+    );
+
+    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/261.png');
   });
 });
 

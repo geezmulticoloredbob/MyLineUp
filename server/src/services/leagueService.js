@@ -27,6 +27,8 @@ const LEAGUE_FETCHERS = {
   ARGENTINA:  { standings: () => getESPNStandingsOverview('ARGENTINA'),  games: () => getESPNLeagueGames('ARGENTINA') },
   SAUDIPL:    { standings: () => getESPNStandingsOverview('SAUDIPL'),    games: () => getESPNLeagueGames('SAUDIPL') },
   PRIMEIRALIGA: { standings: () => getESPNStandingsOverview('PRIMEIRALIGA'), games: () => getESPNLeagueGames('PRIMEIRALIGA') },
+  TURKEY:     { standings: () => getESPNStandingsOverview('TURKEY'),      games: () => getESPNLeagueGames('TURKEY') },
+  SCOTLAND:   { standings: () => getESPNStandingsOverview('SCOTLAND'),    games: () => getESPNLeagueGames('SCOTLAND') },
 };
 
 async function hydrateFollowedLeagues(followedLeagues) {

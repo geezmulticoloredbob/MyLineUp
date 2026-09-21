@@ -611,4 +611,49 @@ export const teamsByLeague = {
     { teamId: 'primeiraliga-scp',  teamName: 'Sporting CP' },
     { teamId: 'primeiraliga-vsc',  teamName: 'Vitória de Guimarães' },
   ],
+
+  TURKEY: [
+    { teamId: 'turkey-ala',  teamName: 'Alanyaspor' },
+    { teamId: 'turkey-amed', teamName: 'Amed SFK' },
+    { teamId: 'turkey-bes',  teamName: 'Besiktas' },
+    { teamId: 'turkey-cay',  teamName: 'Caykur Rizespor' },
+    { teamId: 'turkey-erz',  teamName: 'Erzurum BB' },
+    { teamId: 'turkey-eyu',  teamName: 'Eyupspor' },
+    { teamId: 'turkey-fen',  teamName: 'Fenerbahce' },
+    { teamId: 'turkey-gal',  teamName: 'Galatasaray' },
+    { teamId: 'turkey-gaz',  teamName: 'Gaziantep FK' },
+    { teamId: 'turkey-gen',  teamName: 'Genclerbirligi' },
+    { teamId: 'turkey-goz',  teamName: 'Goztepe' },
+    { teamId: 'turkey-ibfk', teamName: 'Istanbul Basaksehir' },
+    { teamId: 'turkey-kas',  teamName: 'Kasimpasa' },
+    { teamId: 'turkey-koc',  teamName: 'Kocaelispor' },
+    { teamId: 'turkey-kny',  teamName: 'Konyaspor' },
+    { teamId: 'turkey-sam',  teamName: 'Samsunspor' },
+    { teamId: 'turkey-trab', teamName: 'Trabzonspor' },
+    { teamId: 'turkey-cor',  teamName: 'Çorum FK' },
+  ],
+
+  // ESPN's own data has two different clubs sharing the literal abbreviation
+  // "DUN" — Dundee and Dundee United. Dundee keeps "dun" (matches ESPN's own
+  // abbreviation and correctly resolves to itself, being the first "DUN" in
+  // ESPN's own team list); Dundee United gets a distinct abbreviation ESPN
+  // doesn't use, forcing it through espnTeamSportService's name-based
+  // fallback — which only resolves this correctly because that fallback
+  // checks for an exact name match everywhere before ever trying a fuzzy
+  // one (otherwise "Dundee", a genuine substring of "Dundee United" and
+  // listed first, would incorrectly win). See that service's tests.
+  SCOTLAND: [
+    { teamId: 'scotland-abe',  teamName: 'Aberdeen' },
+    { teamId: 'scotland-cel',  teamName: 'Celtic' },
+    { teamId: 'scotland-dun',  teamName: 'Dundee' },
+    { teamId: 'scotland-dnu',  teamName: 'Dundee United' },
+    { teamId: 'scotland-falk', teamName: 'Falkirk' },
+    { teamId: 'scotland-hom',  teamName: 'Heart of Midlothian' },
+    { teamId: 'scotland-hibs', teamName: 'Hibernian' },
+    { teamId: 'scotland-kil',  teamName: 'Kilmarnock' },
+    { teamId: 'scotland-mot',  teamName: 'Motherwell' },
+    { teamId: 'scotland-ran',  teamName: 'Rangers' },
+    { teamId: 'scotland-stj',  teamName: 'St Johnstone' },
+    { teamId: 'scotland-stm',  teamName: 'St Mirren' },
+  ],
 };

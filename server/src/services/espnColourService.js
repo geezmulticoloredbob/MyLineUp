@@ -22,6 +22,8 @@ const ESPN_LEAGUE_URLS = {
   ARGENTINA:  'https://site.api.espn.com/apis/site/v2/sports/soccer/arg.1/teams',
   SAUDIPL:    'https://site.api.espn.com/apis/site/v2/sports/soccer/ksa.1/teams',
   PRIMEIRALIGA: 'https://site.api.espn.com/apis/site/v2/sports/soccer/por.1/teams',
+  TURKEY:     'https://site.api.espn.com/apis/site/v2/sports/soccer/tur.1/teams',
+  SCOTLAND:   'https://site.api.espn.com/apis/site/v2/sports/soccer/sco.1/teams',
   // NRL deliberately excluded — confirmed against the real API that NRL team
   // objects don't carry `color`/`alternateColor` fields at all, unlike every
   // other league here, so there'd be nothing for this to find.

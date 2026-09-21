@@ -22,6 +22,8 @@ export const LEAGUES = {
   ARGENTINA: 'ARGENTINA',
   SAUDIPL: 'SAUDIPL',
   PRIMEIRALIGA: 'PRIMEIRALIGA',
+  TURKEY: 'TURKEY',
+  SCOTLAND: 'SCOTLAND',
 };
 
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
@@ -50,6 +52,8 @@ export const LEAGUE_DISPLAY_NAMES = {
   ARGENTINA: 'Liga Profesional',
   SAUDIPL: 'Saudi Pro League',
   PRIMEIRALIGA: 'Primeira Liga',
+  TURKEY: 'Süper Lig',
+  SCOTLAND: 'Scottish Premiership',
 };
 
 // Short forms for tight spaces (e.g. the team logo strip's per-league sub-labels)
@@ -77,6 +81,8 @@ export const LEAGUE_ABBR = {
   ARGENTINA: 'Liga Prof.',
   SAUDIPL: 'Saudi PL',
   PRIMEIRALIGA: 'Primeira Liga',
+  TURKEY: 'Süper Lig',
+  SCOTLAND: 'Scot. Prem.',
 };
 
 // Groups the many soccer competitions under one heading; each other league is its own sport
@@ -108,7 +114,7 @@ export const LEAGUE_SPORT = {
   NRL: SPORTS.RUGBY_LEAGUE,
   // Shares NBA's sport bucket rather than getting its own — same sport, same icon.
   WNBA: SPORTS.BASKETBALL,
-  // All seven share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
+  // All nine share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
   NWSL: SPORTS.SOCCER,
   ALEAGUE: SPORTS.SOCCER,
   LIGAMX: SPORTS.SOCCER,
@@ -116,6 +122,8 @@ export const LEAGUE_SPORT = {
   ARGENTINA: SPORTS.SOCCER,
   SAUDIPL: SPORTS.SOCCER,
   PRIMEIRALIGA: SPORTS.SOCCER,
+  TURKEY: SPORTS.SOCCER,
+  SCOTLAND: SPORTS.SOCCER,
 };
 
 export const SPORT_DISPLAY_NAMES = {
