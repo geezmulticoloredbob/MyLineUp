@@ -48,6 +48,8 @@ Supported leagues:
 - Argentina (Liga Profesional)
 - Saudi Pro League
 - Primeira Liga (Portugal)
+- Süper Lig (Turkey)
+- Scottish Premiership
 
 ## 📸 Screenshots
 
