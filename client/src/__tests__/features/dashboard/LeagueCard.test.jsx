@@ -73,6 +73,20 @@ describe('LeagueCard', () => {
     expect(screen.getByText('110–105')).toBeInTheDocument();
   });
 
+  it('renders wins/losses stat columns for every ESPN- and cricket-routed league, not just NBA/AFL/NFL/NHL/MLB', () => {
+    // Regression test: these leagues were missing from STANDINGS_STATS
+    // entirely when first shipped, silently rendering standings with no
+    // stat columns at all.
+    for (const league of ['NRL', 'WNBA', 'NWSL', 'ALEAGUE', 'ARGENTINA', 'IPL', 'BBL']) {
+      const { unmount } = render(
+        <LeagueCard league={league} standings={[standingsRow(1, 'Team A')]} recentResults={[]} upcomingFixtures={[]} />
+      );
+      expect(screen.getByRole('columnheader', { name: 'W' })).toBeInTheDocument();
+      expect(screen.getByRole('columnheader', { name: 'L' })).toBeInTheDocument();
+      unmount();
+    }
+  });
+
   it('renders upcoming fixtures with team names', () => {
     render(
       <LeagueCard

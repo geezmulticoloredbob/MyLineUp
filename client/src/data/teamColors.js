@@ -304,4 +304,26 @@ export const teamColors = {
   'nrl-stg': { primary: '#E4002B', secondary: '#FFFFFF' },
   'nrl-syd': { primary: '#E4002B', secondary: '#002B5C', tertiary: '#FDB913' },
   'nrl-wst': { primary: '#F57920', secondary: '#000000' },
+
+  // IPL / BBL — cricketdata.org (unlike ESPN) provides no colour data at all,
+  // so this is each team's only colour source, same situation as NRL above.
+  'ipl-csk':  { primary: '#F9CD05', secondary: '#0F52BA' },
+  'ipl-dc':   { primary: '#17479E', secondary: '#EF1B23' },
+  'ipl-gt':   { primary: '#1B2133', secondary: '#B3A369' },
+  'ipl-kkr':  { primary: '#2E0854', secondary: '#FFC72C' },
+  'ipl-lsg':  { primary: '#00B9F1', secondary: '#FF7A00' },
+  'ipl-mi':   { primary: '#004BA0', secondary: '#D1AB3E' },
+  'ipl-pbks': { primary: '#ED1B24', secondary: '#A7A9AC' },
+  'ipl-rr':   { primary: '#EA1A85', secondary: '#004C93' },
+  'ipl-rcb':  { primary: '#DA1818', secondary: '#000000', tertiary: '#FFD700' },
+  'ipl-srh':  { primary: '#FF822A', secondary: '#000000' },
+
+  'bbl-brh':  { primary: '#00A99D', secondary: '#F7941E' },
+  'bbl-syt':  { primary: '#6E3F91', secondary: '#A6CE39' },
+  'bbl-hbh':  { primary: '#582C83', secondary: '#78BE21' },
+  'bbl-mlr':  { primary: '#C4122E', secondary: '#000000', tertiary: '#EC008C' },
+  'bbl-sys':  { primary: '#E2007A', secondary: '#00A0DF' },
+  'bbl-ads':  { primary: '#FFD100', secondary: '#003DA5' },
+  'bbl-prs':  { primary: '#F5811F', secondary: '#000000' },
+  'bbl-mls':  { primary: '#006442', secondary: '#FDB913' },
 };

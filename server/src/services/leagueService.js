@@ -2,6 +2,7 @@ const { getNBAStandings, getNBALeagueGames } = require('./nbaService');
 const { getFDStandingsForOverview, getFDLeagueGames } = require('./footballService');
 const { getWCStandings, getWCLeagueGames } = require('./worldCupService');
 const { getESPNStandingsOverview, getESPNLeagueGames } = require('./espnTeamSportService');
+const { getCricketStandingsOverview, getCricketLeagueGames } = require('./cricketService');
 
 const LEAGUE_FETCHERS = {
   NBA:        { standings: getNBAStandings,                            games: getNBALeagueGames },
@@ -29,6 +30,8 @@ const LEAGUE_FETCHERS = {
   PRIMEIRALIGA: { standings: () => getESPNStandingsOverview('PRIMEIRALIGA'), games: () => getESPNLeagueGames('PRIMEIRALIGA') },
   TURKEY:     { standings: () => getESPNStandingsOverview('TURKEY'),      games: () => getESPNLeagueGames('TURKEY') },
   SCOTLAND:   { standings: () => getESPNStandingsOverview('SCOTLAND'),    games: () => getESPNLeagueGames('SCOTLAND') },
+  IPL:        { standings: () => getCricketStandingsOverview('IPL'),      games: () => getCricketLeagueGames('IPL') },
+  BBL:        { standings: () => getCricketStandingsOverview('BBL'),      games: () => getCricketLeagueGames('BBL') },
 };
 
 async function hydrateFollowedLeagues(followedLeagues) {

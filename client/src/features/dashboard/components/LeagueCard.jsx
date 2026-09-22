@@ -40,6 +40,25 @@ const STANDINGS_STATS = {
   NFL: ['wins', 'losses'],
   NHL: ['wins', 'losses'],
   MLB: ['wins', 'losses'],
+  // Every league below was missing from this map when first shipped — same
+  // { wins, losses } shape as NBA/AFL/NFL/NHL/MLB above (getESPNStandingsOverview
+  // and getCricketStandingsOverview both only ever populate wins/losses, never
+  // the played/points/gd shape football-data.org-routed leagues use), so the
+  // League Overview standings table was silently rendering with no stat
+  // columns at all for any of them until now.
+  NRL: ['wins', 'losses'],
+  WNBA: ['wins', 'losses'],
+  NWSL: ['wins', 'losses'],
+  ALEAGUE: ['wins', 'losses'],
+  LIGAMX: ['wins', 'losses'],
+  BRASILEIRAO: ['wins', 'losses'],
+  ARGENTINA: ['wins', 'losses'],
+  SAUDIPL: ['wins', 'losses'],
+  PRIMEIRALIGA: ['wins', 'losses'],
+  TURKEY: ['wins', 'losses'],
+  SCOTLAND: ['wins', 'losses'],
+  IPL: ['wins', 'losses'],
+  BBL: ['wins', 'losses'],
 };
 
 const STAT_LABELS = {

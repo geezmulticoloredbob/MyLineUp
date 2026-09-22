@@ -24,6 +24,8 @@ export const LEAGUES = {
   PRIMEIRALIGA: 'PRIMEIRALIGA',
   TURKEY: 'TURKEY',
   SCOTLAND: 'SCOTLAND',
+  IPL: 'IPL',
+  BBL: 'BBL',
 };
 
 export const SUPPORTED_LEAGUES = Object.values(LEAGUES);
@@ -54,6 +56,8 @@ export const LEAGUE_DISPLAY_NAMES = {
   PRIMEIRALIGA: 'Primeira Liga',
   TURKEY: 'Süper Lig',
   SCOTLAND: 'Scottish Premiership',
+  IPL: 'IPL',
+  BBL: 'Big Bash League',
 };
 
 // Short forms for tight spaces (e.g. the team logo strip's per-league sub-labels)
@@ -83,6 +87,8 @@ export const LEAGUE_ABBR = {
   PRIMEIRALIGA: 'Primeira Liga',
   TURKEY: 'Süper Lig',
   SCOTLAND: 'Scot. Prem.',
+  IPL: 'IPL',
+  BBL: 'Big Bash',
 };
 
 // Groups the many soccer competitions under one heading; each other league is its own sport
@@ -94,6 +100,7 @@ export const SPORTS = {
   HOCKEY: 'HOCKEY',
   BASEBALL: 'BASEBALL',
   RUGBY_LEAGUE: 'RUGBY_LEAGUE',
+  CRICKET: 'CRICKET',
 };
 
 export const LEAGUE_SPORT = {
@@ -124,6 +131,8 @@ export const LEAGUE_SPORT = {
   PRIMEIRALIGA: SPORTS.SOCCER,
   TURKEY: SPORTS.SOCCER,
   SCOTLAND: SPORTS.SOCCER,
+  IPL: SPORTS.CRICKET,
+  BBL: SPORTS.CRICKET,
 };
 
 export const SPORT_DISPLAY_NAMES = {
@@ -134,4 +143,5 @@ export const SPORT_DISPLAY_NAMES = {
   HOCKEY: 'NHL',
   BASEBALL: 'MLB',
   RUGBY_LEAGUE: 'NRL',
+  CRICKET: 'Cricket',
 };

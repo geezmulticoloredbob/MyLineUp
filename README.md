@@ -50,6 +50,8 @@ Supported leagues:
 - Primeira Liga (Portugal)
 - Süper Lig (Turkey)
 - Scottish Premiership
+- IPL
+- Big Bash League
 
 ## 📸 Screenshots
 
@@ -195,6 +197,7 @@ NODE_ENV=development  # set to `production` on a real deploy — see Deployment 
 CLIENT_URL=http://localhost:5173
 BASKETBALL_API_KEY=   # BallDontLie (NBA)
 FOOTBALL_API_KEY=     # football-data.org
+CRICKET_API_KEY=       # cricketdata.org — free tier, 100 req/day; powers IPL and BBL only
 RESEND_API_KEY=        # resend.com — sends forgot-password emails; required in production
 EMAIL_FROM=             # optional, defaults to Resend's shared onboarding@resend.dev sender
 INTERNAL_REFRESH_SECRET= # required in production — see "Snapshot history" below

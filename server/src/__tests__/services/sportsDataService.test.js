@@ -2,12 +2,14 @@ jest.mock('../../services/nbaService', () => ({ getNBATeamData: jest.fn() }));
 jest.mock('../../services/footballService', () => ({ getFDTeamData: jest.fn() }));
 jest.mock('../../services/worldCupService', () => ({ getWCTeamData: jest.fn() }));
 jest.mock('../../services/espnTeamSportService', () => ({ getESPNTeamData: jest.fn() }));
+jest.mock('../../services/cricketService', () => ({ getCricketTeamData: jest.fn() }));
 
 const { hydrateFavouriteTeams } = require('../../services/sportsDataService');
 const { getNBATeamData } = require('../../services/nbaService');
 const { getFDTeamData } = require('../../services/footballService');
 const { getWCTeamData } = require('../../services/worldCupService');
 const { getESPNTeamData } = require('../../services/espnTeamSportService');
+const { getCricketTeamData } = require('../../services/cricketService');
 
 const liveSportData = {
   logoUrl: 'https://example.com/logo.png',
@@ -44,6 +46,8 @@ const saudiFav    = { _id: 'f22', teamId: 'saudipl-hil',    teamName: 'Al Hilal'
 const primeiraFav = { _id: 'f23', teamId: 'primeiraliga-fcp', teamName: 'FC Porto',  league: 'PRIMEIRALIGA', teamLogoUrl: '' };
 const turkeyFav   = { _id: 'f24', teamId: 'turkey-fen', teamName: 'Fenerbahce',      league: 'TURKEY',      teamLogoUrl: '' };
 const scotlandFav = { _id: 'f25', teamId: 'scotland-cel', teamName: 'Celtic',        league: 'SCOTLAND',    teamLogoUrl: '' };
+const iplFav      = { _id: 'f26', teamId: 'ipl-csk',    teamName: 'Chennai Super Kings', league: 'IPL',      teamLogoUrl: '' };
+const bblFav      = { _id: 'f27', teamId: 'bbl-syt',    teamName: 'Sydney Thunder',   league: 'BBL',         teamLogoUrl: '' };
 
 describe('sportsDataService', () => {
   describe('hydrateFavouriteTeams — routing', () => {
@@ -219,6 +223,20 @@ describe('sportsDataService', () => {
       getESPNTeamData.mockResolvedValue(liveSportData);
       const [result] = await hydrateFavouriteTeams([scotlandFav]);
       expect(getESPNTeamData).toHaveBeenCalledWith(scotlandFav, 'SCOTLAND');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getCricketTeamData with league IPL for IPL', async () => {
+      getCricketTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([iplFav]);
+      expect(getCricketTeamData).toHaveBeenCalledWith(iplFav, 'IPL');
+      expect(result.source).toBe('live');
+    });
+
+    it('dispatches to getCricketTeamData with league BBL for BBL', async () => {
+      getCricketTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([bblFav]);
+      expect(getCricketTeamData).toHaveBeenCalledWith(bblFav, 'BBL');
       expect(result.source).toBe('live');
     });
 

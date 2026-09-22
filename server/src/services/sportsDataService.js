@@ -2,9 +2,11 @@ const { getNBATeamData } = require('./nbaService');
 const { getFDTeamData } = require('./footballService');
 const { getWCTeamData } = require('./worldCupService');
 const { getESPNTeamData } = require('./espnTeamSportService');
+const { getCricketTeamData } = require('./cricketService');
 const { getTeamColours } = require('./espnColourService');
 
 const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL', 'NRL', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA', 'TURKEY', 'SCOTLAND'];
+const CRICKET_LEAGUES = ['IPL', 'BBL'];
 
 // competition code for each football-data.org league
 const FD_COMPETITION_CODES = {
@@ -70,6 +72,7 @@ async function hydrateTeam(favourite) {
     if (favourite.league === 'NBA') return getNBATeamData(favourite);
     if (favourite.league === 'WC') return getWCTeamData(favourite);
     if (ESPN_TEAM_SPORT_LEAGUES.includes(favourite.league)) return getESPNTeamData(favourite, favourite.league);
+    if (CRICKET_LEAGUES.includes(favourite.league)) return getCricketTeamData(favourite, favourite.league);
     if (fdCode) return getFDTeamData(favourite, fdCode);
     return null;
   };

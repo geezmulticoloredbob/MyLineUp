@@ -656,4 +656,36 @@ export const teamsByLeague = {
     { teamId: 'scotland-stj',  teamName: 'St Johnstone' },
     { teamId: 'scotland-stm',  teamName: 'St Mirren' },
   ],
+
+  // First non-ESPN league — routes through cricketService.js (cricketdata.org)
+  // instead. Logos and team identity come straight from that API at request
+  // time, not a hand-built CDN URL, so abbreviations here matter less than
+  // for ESPN leagues; cricketService also falls back to matching by full
+  // team name, same safety net as espnTeamSportService's findTeamByName.
+  IPL: [
+    { teamId: 'ipl-csk',  teamName: 'Chennai Super Kings' },
+    { teamId: 'ipl-dc',   teamName: 'Delhi Capitals' },
+    { teamId: 'ipl-gt',   teamName: 'Gujarat Titans' },
+    { teamId: 'ipl-kkr',  teamName: 'Kolkata Knight Riders' },
+    { teamId: 'ipl-lsg',  teamName: 'Lucknow Super Giants' },
+    { teamId: 'ipl-mi',   teamName: 'Mumbai Indians' },
+    { teamId: 'ipl-pbks', teamName: 'Punjab Kings' },
+    { teamId: 'ipl-rr',   teamName: 'Rajasthan Royals' },
+    { teamId: 'ipl-rcb',  teamName: 'Royal Challengers Bengaluru' },
+    { teamId: 'ipl-srh',  teamName: 'Sunrisers Hyderabad' },
+  ],
+
+  // BBL's 2026-27 season doesn't start until December, so this team list came
+  // from the most recently completed season (2025-26) instead — the same 8
+  // franchises play every year, only the results/points table are season-specific.
+  BBL: [
+    { teamId: 'bbl-brh', teamName: 'Brisbane Heat' },
+    { teamId: 'bbl-syt', teamName: 'Sydney Thunder' },
+    { teamId: 'bbl-hbh', teamName: 'Hobart Hurricanes' },
+    { teamId: 'bbl-mlr', teamName: 'Melbourne Renegades' },
+    { teamId: 'bbl-sys', teamName: 'Sydney Sixers' },
+    { teamId: 'bbl-ads', teamName: 'Adelaide Strikers' },
+    { teamId: 'bbl-prs', teamName: 'Perth Scorchers' },
+    { teamId: 'bbl-mls', teamName: 'Melbourne Stars' },
+  ],
 };

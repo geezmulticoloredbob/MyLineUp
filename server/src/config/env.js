@@ -10,6 +10,7 @@ module.exports = {
   clientUrl: getEnv('CLIENT_URL', 'http://localhost:5173'),
   footballApiKey: getEnv('FOOTBALL_API_KEY'),
   basketballApiKey: getEnv('BASKETBALL_API_KEY'),
+  cricketApiKey: getEnv('CRICKET_API_KEY'),
   resendApiKey: getEnv('RESEND_API_KEY'),
   emailFrom: getEnv('EMAIL_FROM', 'MyLineUp <onboarding@resend.dev>'),
   internalRefreshSecret: getEnv('INTERNAL_REFRESH_SECRET'),

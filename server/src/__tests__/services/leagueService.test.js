@@ -14,12 +14,17 @@ jest.mock('../../services/espnTeamSportService', () => ({
   getESPNStandingsOverview: jest.fn(),
   getESPNLeagueGames: jest.fn(),
 }));
+jest.mock('../../services/cricketService', () => ({
+  getCricketStandingsOverview: jest.fn(),
+  getCricketLeagueGames: jest.fn(),
+}));
 
 const { hydrateFollowedLeagues } = require('../../services/leagueService');
 const { getNBAStandings, getNBALeagueGames } = require('../../services/nbaService');
 const { getFDStandingsForOverview, getFDLeagueGames } = require('../../services/footballService');
 const { getWCStandings, getWCLeagueGames } = require('../../services/worldCupService');
 const { getESPNStandingsOverview, getESPNLeagueGames } = require('../../services/espnTeamSportService');
+const { getCricketStandingsOverview, getCricketLeagueGames } = require('../../services/cricketService');
 
 const mockStandings = [{ position: 1, teamName: 'Team A' }];
 const mockGames = { recentResults: [], upcomingFixtures: [] };
@@ -198,6 +203,14 @@ describe('leagueService', () => {
       await hydrateFollowedLeagues([league]);
       expect(getESPNStandingsOverview).toHaveBeenCalledWith(league);
       expect(getESPNLeagueGames).toHaveBeenCalledWith(league);
+    });
+
+    it.each(['IPL', 'BBL'])('dispatches to cricketService with league %s', async (league) => {
+      getCricketStandingsOverview.mockResolvedValue(mockStandings);
+      getCricketLeagueGames.mockResolvedValue(mockGames);
+      await hydrateFollowedLeagues([league]);
+      expect(getCricketStandingsOverview).toHaveBeenCalledWith(league);
+      expect(getCricketLeagueGames).toHaveBeenCalledWith(league);
     });
 
     it('dispatches to worldCupService for WC', async () => {

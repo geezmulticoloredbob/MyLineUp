@@ -118,6 +118,16 @@ function SportIcon({ sport, league, size = 20, className }) {
       </svg>
     );
   }
+  if (sport === 'CRICKET') {
+    return (
+      <svg {...props}>
+        <circle cx="10" cy="10" r="9" fill="#a01f1f" />
+        <path d="M3.5,6 Q10,10 3.5,14" stroke="#fdf6e3" strokeWidth="0.7" strokeDasharray="0.6,0.5" fill="none" />
+        <path d="M16.5,6 Q10,10 16.5,14" stroke="#fdf6e3" strokeWidth="0.7" strokeDasharray="0.6,0.5" fill="none" />
+        <circle cx="10" cy="10" r="9" fill="none" stroke="#5c1010" strokeWidth="0.8" />
+      </svg>
+    );
+  }
   return null;
 }
 
