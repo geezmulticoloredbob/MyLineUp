@@ -145,3 +145,68 @@ export const SPORT_DISPLAY_NAMES = {
   RUGBY_LEAGUE: 'NRL',
   CRICKET: 'Cricket',
 };
+
+// Groups leagues by continent/region for the favourites menu's league list —
+// separate from SPORTS above, which groups by sport instead (used for the
+// dashboard's team strip). WC (World Cup) is international rather than
+// belonging to one continent; UCL is nominally pan-European but every club
+// in it is European, so it sits with the rest of Europe rather than its own
+// bucket. Mexico (LIGAMX) is grouped with North America (CONCACAF), matching
+// how it's usually categorised in football.
+export const REGIONS = {
+  INTERNATIONAL: 'INTERNATIONAL',
+  NORTH_AMERICA: 'NORTH_AMERICA',
+  SOUTH_AMERICA: 'SOUTH_AMERICA',
+  EUROPE: 'EUROPE',
+  ASIA: 'ASIA',
+  OCEANIA: 'OCEANIA',
+};
+
+export const REGION_DISPLAY_NAMES = {
+  INTERNATIONAL: 'International',
+  NORTH_AMERICA: 'North America',
+  SOUTH_AMERICA: 'South America',
+  EUROPE: 'Europe',
+  ASIA: 'Asia',
+  OCEANIA: 'Oceania',
+};
+
+// Display order when grouping the leagues UI by region.
+export const REGION_ORDER = [
+  REGIONS.INTERNATIONAL,
+  REGIONS.NORTH_AMERICA,
+  REGIONS.SOUTH_AMERICA,
+  REGIONS.EUROPE,
+  REGIONS.ASIA,
+  REGIONS.OCEANIA,
+];
+
+export const LEAGUE_REGION = {
+  WC: REGIONS.INTERNATIONAL,
+  NBA: REGIONS.NORTH_AMERICA,
+  NFL: REGIONS.NORTH_AMERICA,
+  NHL: REGIONS.NORTH_AMERICA,
+  MLB: REGIONS.NORTH_AMERICA,
+  WNBA: REGIONS.NORTH_AMERICA,
+  NWSL: REGIONS.NORTH_AMERICA,
+  LIGAMX: REGIONS.NORTH_AMERICA,
+  ARGENTINA: REGIONS.SOUTH_AMERICA,
+  BRASILEIRAO: REGIONS.SOUTH_AMERICA,
+  EPL: REGIONS.EUROPE,
+  LALIGA: REGIONS.EUROPE,
+  BUNDESLIGA: REGIONS.EUROPE,
+  SERIEA: REGIONS.EUROPE,
+  LIGUE1: REGIONS.EUROPE,
+  CHAMPIONSHIP: REGIONS.EUROPE,
+  EREDIVISIE: REGIONS.EUROPE,
+  UCL: REGIONS.EUROPE,
+  PRIMEIRALIGA: REGIONS.EUROPE,
+  TURKEY: REGIONS.EUROPE,
+  SCOTLAND: REGIONS.EUROPE,
+  IPL: REGIONS.ASIA,
+  SAUDIPL: REGIONS.ASIA,
+  AFL: REGIONS.OCEANIA,
+  NRL: REGIONS.OCEANIA,
+  ALEAGUE: REGIONS.OCEANIA,
+  BBL: REGIONS.OCEANIA,
+};

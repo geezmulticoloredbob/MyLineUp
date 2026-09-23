@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import FavouritesManager from '../../../features/favourites/components/FavouritesManager';
 import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
@@ -38,6 +38,24 @@ describe('FavouritesManager', () => {
     SUPPORTED_LEAGUES.forEach((league) => {
       expect(screen.getByRole('button', { name: LEAGUE_DISPLAY_NAMES[league] || league })).toBeInTheDocument();
     });
+  });
+
+  it('groups the leagues list by region, with a header per region', () => {
+    render(<FavouritesManager onClose={mockOnClose} />);
+    expect(screen.getByText('North America')).toBeInTheDocument();
+    expect(screen.getByText('Europe')).toBeInTheDocument();
+    expect(screen.getByText('South America')).toBeInTheDocument();
+    expect(screen.getByText('Asia')).toBeInTheDocument();
+    expect(screen.getByText('Oceania')).toBeInTheDocument();
+    expect(screen.getByText('International')).toBeInTheDocument();
+  });
+
+  it('lists a league under its own region section, not just anywhere on the page', () => {
+    render(<FavouritesManager onClose={mockOnClose} />);
+    const northAmerica = screen.getByText('North America').closest('.team-list__region');
+    expect(northAmerica).not.toBeNull();
+    expect(within(northAmerica).getByText('NBA')).toBeInTheDocument();
+    expect(within(northAmerica).queryByText('Premier League')).not.toBeInTheDocument();
   });
 
   it('shows Follow/Unfollow buttons for each league on the Leagues panel by default', () => {

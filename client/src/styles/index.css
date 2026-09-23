@@ -1582,6 +1582,30 @@ p {
   margin-top: 2px;
 }
 
+.team-list__region {
+  display: flex;
+  flex-direction: column;
+}
+
+.team-list__region-header {
+  padding: var(--space-md) var(--space-lg) var(--space-xs);
+  font-family: var(--font-heading);
+  font-size: var(--text-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.team-list__region:first-child .team-list__region-header {
+  padding-top: var(--space-sm);
+}
+
+.team-list__region-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
 .btn-toggle {
   background: transparent;
   border: 1px solid var(--border-default);

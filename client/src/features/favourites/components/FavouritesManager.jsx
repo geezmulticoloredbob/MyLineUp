@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
+import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES, REGION_DISPLAY_NAMES } from '../../../constants/leagues';
 import { teamsByLeague } from '../../../data/teamsByLeague';
+import { groupLeaguesByRegion } from '../utils/groupLeaguesByRegion';
 import { useFavourites } from '../hooks/useFavourites';
 import { useAuth } from '../../../contexts/AuthContext';
 
@@ -10,28 +11,37 @@ import { updateFollowedLeagues } from '../../../services/leagueApi';
 const TAB_LEAGUES = 'LEAGUES';
 
 function LeaguesPanel({ followedLeagues, onToggle, busy }) {
+  const regionGroups = groupLeaguesByRegion(SUPPORTED_LEAGUES);
+
   return (
     <ul className="team-list">
-      {SUPPORTED_LEAGUES.map((league) => {
-        const isFollowing = followedLeagues.includes(league);
-        const isBusy = Boolean(busy[league]);
-        return (
-          <li key={league} className="team-list__item">
-            <div>
-              <span className="team-list__name">{LEAGUE_DISPLAY_NAMES[league] || league}</span>
-              <p className="team-list__sub">Show {LEAGUE_DISPLAY_NAMES[league] || league} standings &amp; fixtures on your dashboard</p>
-            </div>
-            <button
-              type="button"
-              className={`btn-toggle${isFollowing ? ' btn-toggle--active' : ''}`}
-              onClick={() => onToggle(league)}
-              disabled={isBusy}
-            >
-              {isBusy ? '...' : isFollowing ? 'Unfollow' : 'Follow'}
-            </button>
-          </li>
-        );
-      })}
+      {regionGroups.map(({ region, leagues }) => (
+        <li key={region} className="team-list__region">
+          <span className="team-list__region-header">{REGION_DISPLAY_NAMES[region] || 'Other'}</span>
+          <ul className="team-list__region-items">
+            {leagues.map((league) => {
+              const isFollowing = followedLeagues.includes(league);
+              const isBusy = Boolean(busy[league]);
+              return (
+                <li key={league} className="team-list__item">
+                  <div>
+                    <span className="team-list__name">{LEAGUE_DISPLAY_NAMES[league] || league}</span>
+                    <p className="team-list__sub">Show {LEAGUE_DISPLAY_NAMES[league] || league} standings &amp; fixtures on your dashboard</p>
+                  </div>
+                  <button
+                    type="button"
+                    className={`btn-toggle${isFollowing ? ' btn-toggle--active' : ''}`}
+                    onClick={() => onToggle(league)}
+                    disabled={isBusy}
+                  >
+                    {isBusy ? '...' : isFollowing ? 'Unfollow' : 'Follow'}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </li>
+      ))}
     </ul>
   );
 }
