@@ -197,7 +197,7 @@ describe('leagueService', () => {
       expect(getESPNLeagueGames).toHaveBeenCalledWith('BRASILEIRAO');
     });
 
-    it.each(['ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA', 'TURKEY', 'SCOTLAND'])('dispatches to espnTeamSportService with league %s', async (league) => {
+    it.each(['ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA', 'TURKEY', 'SCOTLAND', 'JLEAGUE'])('dispatches to espnTeamSportService with league %s', async (league) => {
       getESPNStandingsOverview.mockResolvedValue(mockStandings);
       getESPNLeagueGames.mockResolvedValue(mockGames);
       await hydrateFollowedLeagues([league]);

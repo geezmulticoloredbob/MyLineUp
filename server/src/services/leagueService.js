@@ -30,6 +30,7 @@ const LEAGUE_FETCHERS = {
   PRIMEIRALIGA: { standings: () => getESPNStandingsOverview('PRIMEIRALIGA'), games: () => getESPNLeagueGames('PRIMEIRALIGA') },
   TURKEY:     { standings: () => getESPNStandingsOverview('TURKEY'),      games: () => getESPNLeagueGames('TURKEY') },
   SCOTLAND:   { standings: () => getESPNStandingsOverview('SCOTLAND'),    games: () => getESPNLeagueGames('SCOTLAND') },
+  JLEAGUE:    { standings: () => getESPNStandingsOverview('JLEAGUE'),     games: () => getESPNLeagueGames('JLEAGUE') },
   IPL:        { standings: () => getCricketStandingsOverview('IPL'),      games: () => getCricketLeagueGames('IPL') },
   BBL:        { standings: () => getCricketStandingsOverview('BBL'),      games: () => getCricketLeagueGames('BBL') },
 };
