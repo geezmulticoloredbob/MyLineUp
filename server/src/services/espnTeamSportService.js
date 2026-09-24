@@ -24,6 +24,7 @@ const ESPN_SPORT_CONFIG = {
   PRIMEIRALIGA: { sport: 'soccer', league: 'por.1' },
   TURKEY: { sport: 'soccer', league: 'tur.1' },
   SCOTLAND: { sport: 'soccer', league: 'sco.1' },
+  JLEAGUE: { sport: 'soccer', league: 'jpn.1' },
 };
 
 // Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
@@ -46,6 +47,7 @@ const DEFAULT_VENUE_TIMEZONE = {
   PRIMEIRALIGA: 'Europe/Lisbon',
   TURKEY: 'Europe/Istanbul',
   SCOTLAND: 'Europe/London',
+  JLEAGUE: 'Asia/Tokyo',
 };
 
 function espnFetch(path) {
@@ -75,6 +77,7 @@ const LOGO_ID_PATH_OVERRIDES = {
   PRIMEIRALIGA: 'soccer',
   TURKEY: 'soccer',
   SCOTLAND: 'soccer',
+  JLEAGUE: 'soccer',
 };
 
 function cdnLogoUrl(sportKey, team) {

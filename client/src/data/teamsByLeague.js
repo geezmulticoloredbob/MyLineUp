@@ -657,6 +657,35 @@ export const teamsByLeague = {
     { teamId: 'scotland-stm',  teamName: 'St Mirren' },
   ],
 
+  // Every abbreviation below is ESPN's own (checked against soccer/jpn.1's
+  // live team list), so each club resolves via abbreviation matching first.
+  // One name trap if that ever stops being true: ESPN's shortDisplayName for
+  // FC Tokyo is plain "Tokyo", a literal substring of "Tokyo Verdy" — safe
+  // only because findTeamByName checks for an exact name match (Tokyo
+  // Verdy's own shortDisplayName) before any fuzzy one. See that service's tests.
+  JLEAGUE: [
+    { teamId: 'jleague-avf',  teamName: 'Avispa Fukuoka' },
+    { teamId: 'jleague-cer',  teamName: 'Cerezo Osaka' },
+    { teamId: 'jleague-tok',  teamName: 'FC Tokyo' },
+    { teamId: 'jleague-oka',  teamName: 'Fagiano Okayama' },
+    { teamId: 'jleague-gam',  teamName: 'Gamba Osaka' },
+    { teamId: 'jleague-jef',  teamName: 'JEF United Ichihara-Chiba' },
+    { teamId: 'jleague-kan',  teamName: 'Kashima Antlers' },
+    { teamId: 'jleague-kre',  teamName: 'Kashiwa Reysol' },
+    { teamId: 'jleague-kaw',  teamName: 'Kawasaki Frontale' },
+    { teamId: 'jleague-kyo',  teamName: 'Kyoto Sanga' },
+    { teamId: 'jleague-zel',  teamName: 'Machida Zelvia' },
+    { teamId: 'jleague-mito', teamName: 'Mito Hollyhock' },
+    { teamId: 'jleague-nag',  teamName: 'Nagoya Grampus' },
+    { teamId: 'jleague-san',  teamName: 'Sanfrecce Hiroshima' },
+    { teamId: 'jleague-shi',  teamName: 'Shimizu S-Pulse' },
+    { teamId: 'jleague-tykv', teamName: 'Tokyo Verdy' },
+    { teamId: 'jleague-ura',  teamName: 'Urawa Red Diamonds' },
+    { teamId: 'jleague-vvn',  teamName: 'V-Varen Nagasaki' },
+    { teamId: 'jleague-vis',  teamName: 'Vissel Kobe' },
+    { teamId: 'jleague-yok',  teamName: 'Yokohama F. Marinos' },
+  ],
+
   // First non-ESPN league — routes through cricketService.js (cricketdata.org)
   // instead. Logos and team identity come straight from that API at request
   // time, not a hand-built CDN URL, so abbreviations here matter less than

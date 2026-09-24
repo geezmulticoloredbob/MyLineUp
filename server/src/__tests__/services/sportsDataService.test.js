@@ -46,6 +46,7 @@ const saudiFav    = { _id: 'f22', teamId: 'saudipl-hil',    teamName: 'Al Hilal'
 const primeiraFav = { _id: 'f23', teamId: 'primeiraliga-fcp', teamName: 'FC Porto',  league: 'PRIMEIRALIGA', teamLogoUrl: '' };
 const turkeyFav   = { _id: 'f24', teamId: 'turkey-fen', teamName: 'Fenerbahce',      league: 'TURKEY',      teamLogoUrl: '' };
 const scotlandFav = { _id: 'f25', teamId: 'scotland-cel', teamName: 'Celtic',        league: 'SCOTLAND',    teamLogoUrl: '' };
+const jleagueFav  = { _id: 'f28', teamId: 'jleague-kan', teamName: 'Kashima Antlers', league: 'JLEAGUE', teamLogoUrl: '' };
 const iplFav      = { _id: 'f26', teamId: 'ipl-csk',    teamName: 'Chennai Super Kings', league: 'IPL',      teamLogoUrl: '' };
 const bblFav      = { _id: 'f27', teamId: 'bbl-syt',    teamName: 'Sydney Thunder',   league: 'BBL',         teamLogoUrl: '' };
 
@@ -226,6 +227,13 @@ describe('sportsDataService', () => {
       expect(result.source).toBe('live');
     });
 
+    it('dispatches to getESPNTeamData with league JLEAGUE for JLEAGUE', async () => {
+      getESPNTeamData.mockResolvedValue(liveSportData);
+      const [result] = await hydrateFavouriteTeams([jleagueFav]);
+      expect(getESPNTeamData).toHaveBeenCalledWith(jleagueFav, 'JLEAGUE');
+      expect(result.source).toBe('live');
+    });
+
     it('dispatches to getCricketTeamData with league IPL for IPL', async () => {
       getCricketTeamData.mockResolvedValue(liveSportData);
       const [result] = await hydrateFavouriteTeams([iplFav]);
@@ -325,7 +333,7 @@ describe('sportsDataService', () => {
     });
 
     // NRL (and every other id-keyed league — NWSL/ALEAGUE/LIGAMX/BRASILEIRAO/
-    // ARGENTINA/SAUDIPL/PRIMEIRALIGA/TURKEY/SCOTLAND, same reasoning, not re-tested here) deliberately
+    // ARGENTINA/SAUDIPL/PRIMEIRALIGA/TURKEY/SCOTLAND/JLEAGUE, same reasoning, not re-tested here) deliberately
     // has NO fallback branch — unlike WNBA, our stored abbreviations aren't
     // guaranteed to match ESPN's, and the real CDN scheme is keyed by numeric
     // team id anyway, which this teamId-only fallback has no way to know.

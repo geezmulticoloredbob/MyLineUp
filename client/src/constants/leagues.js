@@ -24,6 +24,7 @@ export const LEAGUES = {
   PRIMEIRALIGA: 'PRIMEIRALIGA',
   TURKEY: 'TURKEY',
   SCOTLAND: 'SCOTLAND',
+  JLEAGUE: 'JLEAGUE',
   IPL: 'IPL',
   BBL: 'BBL',
 };
@@ -56,6 +57,7 @@ export const LEAGUE_DISPLAY_NAMES = {
   PRIMEIRALIGA: 'Primeira Liga',
   TURKEY: 'Süper Lig',
   SCOTLAND: 'Scottish Premiership',
+  JLEAGUE: 'J1 League',
   IPL: 'IPL',
   BBL: 'Big Bash League',
 };
@@ -87,6 +89,7 @@ export const LEAGUE_ABBR = {
   PRIMEIRALIGA: 'Primeira Liga',
   TURKEY: 'Süper Lig',
   SCOTLAND: 'Scot. Prem.',
+  JLEAGUE: 'J1 League',
   IPL: 'IPL',
   BBL: 'Big Bash',
 };
@@ -121,7 +124,7 @@ export const LEAGUE_SPORT = {
   NRL: SPORTS.RUGBY_LEAGUE,
   // Shares NBA's sport bucket rather than getting its own — same sport, same icon.
   WNBA: SPORTS.BASKETBALL,
-  // All nine share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
+  // All ten share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
   NWSL: SPORTS.SOCCER,
   ALEAGUE: SPORTS.SOCCER,
   LIGAMX: SPORTS.SOCCER,
@@ -131,6 +134,7 @@ export const LEAGUE_SPORT = {
   PRIMEIRALIGA: SPORTS.SOCCER,
   TURKEY: SPORTS.SOCCER,
   SCOTLAND: SPORTS.SOCCER,
+  JLEAGUE: SPORTS.SOCCER,
   IPL: SPORTS.CRICKET,
   BBL: SPORTS.CRICKET,
 };
@@ -205,6 +209,7 @@ export const LEAGUE_REGION = {
   SCOTLAND: REGIONS.EUROPE,
   IPL: REGIONS.ASIA,
   SAUDIPL: REGIONS.ASIA,
+  JLEAGUE: REGIONS.ASIA,
   AFL: REGIONS.OCEANIA,
   NRL: REGIONS.OCEANIA,
   ALEAGUE: REGIONS.OCEANIA,

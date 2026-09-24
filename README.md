@@ -50,6 +50,7 @@ Supported leagues:
 - Primeira Liga (Portugal)
 - Süper Lig (Turkey)
 - Scottish Premiership
+- J1 League (Japan)
 - IPL
 - Big Bash League
 

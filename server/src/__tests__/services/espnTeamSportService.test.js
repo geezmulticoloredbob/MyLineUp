@@ -271,6 +271,7 @@ describe('NWSL / A-League / Liga MX / Brasileirão / Argentina / Saudi PL / Prim
     ['PRIMEIRALIGA', 'primeiraliga-fcp', 'FC Porto', '437', 'FCP'],
     ['TURKEY', 'turkey-fen', 'Fenerbahce', '436', 'FEN'],
     ['SCOTLAND', 'scotland-cel', 'Celtic', '256', 'CEL'],
+    ['JLEAGUE', 'jleague-kan', 'Kashima Antlers', '7115', 'KAN'],
   ])('uses the "soccer" id-keyed path for %s', async (league, teamId, teamName, espnId, abbr) => {
     mockFetch.mockImplementation((url) => {
       if (url.includes(`/teams/${espnId}/schedule`)) return mockOk({ events: [] });
@@ -380,6 +381,53 @@ describe('Scotland — findTeamByName prefers an exact match over a fuzzy one', 
     );
 
     expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/261.png');
+  });
+});
+
+describe('J1 League — FC Tokyo vs Tokyo Verdy', () => {
+  // ESPN's shortDisplayName for FC Tokyo is plain "Tokyo" — a literal
+  // substring of "Tokyo Verdy", and FC Tokyo is listed first. Our stored
+  // abbreviations match ESPN's so neither normally reaches findTeamByName,
+  // but if one ever misses, the exact-match-first pass is what keeps
+  // "Tokyo Verdy" from fuzzily resolving to FC Tokyo.
+  const JPN_TEAMS_RESPONSE = {
+    sports: [{ leagues: [{ teams: [
+      { team: { id: '3384', abbreviation: 'TOK', displayName: 'FC Tokyo', shortDisplayName: 'Tokyo', name: 'FC Tokyo', location: 'FC Tokyo' } },
+      { team: { id: '3393', abbreviation: 'TYKV', displayName: 'Tokyo Verdy 1969', shortDisplayName: 'Tokyo Verdy', name: 'Tokyo Verdy 1969', location: 'Tokyo Verdy 1969' } },
+    ] }] }],
+  };
+
+  it('resolves Tokyo Verdy to itself by name when the abbreviation misses', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/3393/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(JPN_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'jleague-verdy', teamName: 'Tokyo Verdy', league: 'JLEAGUE' },
+      'JLEAGUE',
+    );
+
+    expect(result.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/3393.png');
+  });
+
+  it('resolves both clubs by their stored abbreviations', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(JPN_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const tokyo = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'jleague-tok', teamName: 'FC Tokyo', league: 'JLEAGUE' }, 'JLEAGUE',
+    );
+    const verdy = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'jleague-tykv', teamName: 'Tokyo Verdy', league: 'JLEAGUE' }, 'JLEAGUE',
+    );
+
+    expect(tokyo.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/3384.png');
+    expect(verdy.logoUrl).toBe('https://a.espncdn.com/i/teamlogos/soccer/500/3393.png');
   });
 });
 
