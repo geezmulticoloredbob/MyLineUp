@@ -51,6 +51,7 @@ Supported leagues:
 - Süper Lig (Turkey)
 - Scottish Premiership
 - J1 League (Japan)
+- Belgian Pro League
 - IPL
 - Big Bash League
 

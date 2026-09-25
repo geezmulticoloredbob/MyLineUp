@@ -686,6 +686,30 @@ export const teamsByLeague = {
     { teamId: 'jleague-yok',  teamName: 'Yokohama F. Marinos' },
   ],
 
+  // Every abbreviation below is ESPN's own (checked against soccer/bel.1's
+  // live team list for 2026-27), all unique, and no club's name is a
+  // substring of another's — so no disambiguation needed here.
+  BELGIUM: [
+    { teamId: 'belgium-and',  teamName: 'Anderlecht' },
+    { teamId: 'belgium-ant',  teamName: 'Antwerp' },
+    { teamId: 'belgium-cbk',  teamName: 'Cercle Brugge KSV' },
+    { teamId: 'belgium-bru',  teamName: 'Club Brugge' },
+    { teamId: 'belgium-gent', teamName: 'KAA Gent' },
+    { teamId: 'belgium-kvk',  teamName: 'KV Kortrijk' },
+    { teamId: 'belgium-kvm',  teamName: 'KV Mechelen' },
+    { teamId: 'belgium-kvcw', teamName: 'KVC Westerlo' },
+    { teamId: 'belgium-lom',  teamName: 'Lommel SK' },
+    { teamId: 'belgium-ohl',  teamName: 'OH Leuven' },
+    { teamId: 'belgium-rll',  teamName: 'RAAL La Louvière' },
+    { teamId: 'belgium-genk', teamName: 'Racing Genk' },
+    { teamId: 'belgium-cha',  teamName: 'Royal Charleroi SC' },
+    { teamId: 'belgium-stvv', teamName: 'Sint-Truidense' },
+    { teamId: 'belgium-stl',  teamName: 'Standard Liege' },
+    { teamId: 'belgium-usg',  teamName: 'Union St.-Gilloise' },
+    { teamId: 'belgium-waa',  teamName: 'Waasland-Beveren' },
+    { teamId: 'belgium-zul',  teamName: 'Zulte-Waregem' },
+  ],
+
   // First non-ESPN league — routes through cricketService.js (cricketdata.org)
   // instead. Logos and team identity come straight from that API at request
   // time, not a hand-built CDN URL, so abbreviations here matter less than
