@@ -447,6 +447,37 @@ describe('getESPNStandingsOverview', () => {
     expect(result[0].logoUrl).toBe('https://a.espncdn.com/i/teamlogos/nfl/500/kc.png');
   });
 
+  it('fetches standings from the apis/v2 root, not site/v2 (which no longer returns table data)', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/standings')) return mockOk(MOCK_STANDINGS_RESPONSE);
+      if (url.includes('/teams')) return mockOk(MOCK_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    await espnTeamSportService.getESPNStandingsOverview('NFL');
+
+    const standingsUrls = mockFetch.mock.calls.map(([url]) => url).filter((url) => url.includes('/standings'));
+    expect(standingsUrls).toEqual(['https://site.api.espn.com/apis/v2/sports/football/nfl/standings']);
+  });
+
+  it("reads NRL's gamesWon/gamesLost stat names as wins/losses", async () => {
+    const nrlStandings = {
+      children: [{ standings: { entries: [{
+        team: { id: '1', displayName: 'Panthers' },
+        stats: [{ name: 'gamesWon', value: 18 }, { name: 'gamesLost', value: 6 }, { name: 'rank', value: 1 }],
+      }] } }],
+    };
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/standings')) return mockOk(nrlStandings);
+      if (url.includes('/teams')) return mockOk({ sports: [{ leagues: [{ teams: [] }] }] });
+      return mockOk({});
+    });
+
+    const [row] = await espnTeamSportService.getESPNStandingsOverview('NRL');
+
+    expect(row).toMatchObject({ position: 1, teamName: 'Panthers', stats: { wins: 18, losses: 6 } });
+  });
+
   it('dedupes teams that appear in both a conference-level and division-level standings block', async () => {
     const nestedStandings = {
       children: [

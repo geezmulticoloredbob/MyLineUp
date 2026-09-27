@@ -2,6 +2,13 @@ const fetchWithTimeout = require('../utils/fetchWithTimeout');
 
 const USER_AGENT = 'MyLineUp/1.0 (personal sports dashboard)';
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
+// Standings come from a different ESPN API root (no "/site/" segment). As of
+// 2026-09-24 the site/v2 standings endpoint returns no table data for any
+// league — just a `fullViewLink` stub for US leagues/AFL/NRL, a bare `{}` for
+// every soccer league — while this one returns full tables in the same
+// children/standings/entries shape, with the same stat names. Checked live
+// for every ESPN-routed league before switching.
+const ESPN_STANDINGS_BASE = 'https://site.api.espn.com/apis/v2/sports';
 
 // ESPN sport/league path segments for each supported league code
 const ESPN_SPORT_CONFIG = {
@@ -52,8 +59,8 @@ const DEFAULT_VENUE_TIMEZONE = {
   BELGIUM: 'Europe/Brussels',
 };
 
-function espnFetch(path) {
-  return fetchWithTimeout(`${ESPN_BASE}${path}`, {
+function espnFetch(path, base = ESPN_BASE) {
+  return fetchWithTimeout(`${base}${path}`, {
     headers: { 'User-Agent': USER_AGENT },
   });
 }
@@ -187,7 +194,7 @@ async function getESPNStandingsEntries(sportKey) {
   if (cached && Date.now() - cached.at < STANDINGS_TTL_MS) return cached.data;
   if (_standingsInFlight.has(sportKey)) return _standingsInFlight.get(sportKey);
 
-  const promise = espnFetch(`/${config.sport}/${config.league}/standings`)
+  const promise = espnFetch(`/${config.sport}/${config.league}/standings`, ESPN_STANDINGS_BASE)
     .then(async (res) => {
       if (!res.ok) throw new Error(`ESPN ${sportKey} standings fetch failed: ${res.status}`);
       const json = await res.json();
@@ -305,8 +312,8 @@ async function getESPNTeamData(favourite, sportKey) {
   }
 
   const standingRow = standingsEntries.find((e) => String(e.team?.id) === String(team.id));
-  const wins = standingRow ? statValue(standingRow, 'wins') : null;
-  const losses = standingRow ? statValue(standingRow, 'losses') : null;
+  const wins = standingRow ? statValue(standingRow, 'wins') ?? statValue(standingRow, 'gamesWon') : null;
+  const losses = standingRow ? statValue(standingRow, 'losses') ?? statValue(standingRow, 'gamesLost') : null;
   const rank = standingRow ? statValue(standingRow, 'rank') ?? statValue(standingRow, 'playoffSeed') : null;
 
   return {
@@ -339,8 +346,9 @@ async function getESPNStandingsOverview(sportKey) {
   return uniqueEntries
     .map((entry) => {
       const team = teams.find((t) => String(t.id) === String(entry.team?.id));
-      const wins = statValue(entry, 'wins');
-      const losses = statValue(entry, 'losses');
+      // NRL names these gamesWon/gamesLost rather than wins/losses
+      const wins = statValue(entry, 'wins') ?? statValue(entry, 'gamesWon');
+      const losses = statValue(entry, 'losses') ?? statValue(entry, 'gamesLost');
       const rank = statValue(entry, 'rank') ?? statValue(entry, 'playoffSeed');
       return {
         position: rank !== null && rank !== undefined ? Number(rank) : null,
