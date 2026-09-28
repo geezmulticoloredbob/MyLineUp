@@ -1,6 +1,6 @@
 # Sports integration notes
 
-*Last touched 2026-09-27. Which additional team sports were investigated for `espnTeamSportService`/`cricketService`, and why some didn't make the cut.*
+*Last touched 2026-09-28. Which additional team sports were investigated for `espnTeamSportService`/`cricketService`, and why some didn't make the cut.*
 
 Investigated on 2026-09-16 while adding NRL and WNBA (both shipped — see `CLAUDE.md` for the code-level quirks: NRL's id-keyed logo CDN, its scoreboard endpoint rejecting date ranges, its lack of ESPN colour data).
 
@@ -48,7 +48,7 @@ Checked and NOT viable:
 
 **Cross-league issues found while adding J1 (2026-09-24) — affect leagues already live:**
 - **FIXED 2026-09-27 — Standings empty for every ESPN league.** `site.api.espn.com/apis/site/v2/sports/{sport}/{league}/standings` now returns only a `fullViewLink` stub (US leagues, AFL, NRL) or bare `{}` (every soccer league) — so `ladderPosition` is null and League Overview tables are empty everywhere. The real data is at `site.api.espn.com/apis/v2/sports/{sport}/{league}/standings` (note: no `/site/`), confirmed populated for all 17 ESPN leagues checked. **This also means MLS's "empty standings" disqualification below was probably this same issue, not an MLS problem** — MLS returns 30 rows on the `apis/v2` endpoint. Fixed by fetching standings from `apis/v2` (`ESPN_STANDINGS_BASE` in `espnTeamSportService.js`), verified live for all 17 ESPN leagues. Same fix also made NRL read `gamesWon`/`gamesLost` (its own stat names) as wins/losses. Known leftover, unchanged from before ESPN broke: conference/group leagues (NFL, NHL, MLB, WNBA, Argentina's Groups A/B) rank each group separately, so League Overview interleaves two teams per position.
-- **No next fixture for soccer leagues.** ESPN's soccer `/teams/{id}/schedule` returns only past matches; upcoming ones need `?fixture=true`. NFL etc. are unaffected (their `/schedule` includes future games). Confirmed for Celtic, Fenerbahçe and every J1 club.
+- **FIXED 2026-09-28 — No next fixture for soccer leagues.** ESPN's soccer `/teams/{id}/schedule` returns only past matches; upcoming ones need `?fixture=true`. NFL etc. are unaffected (their `/schedule` includes future games). Fixed by fetching both and concatenating in `getESPNSchedule` (only when `config.sport === 'soccer'` — confirmed live the two calls return disjoint event ids, so no dedup needed). Verified live: Celtic, Fenerbahçe, Kashima Antlers and Club Brugge all now get a real next fixture alongside their latest result.
 - **ESPN placeholder colours.** Many clubs have `color: 000000` with `alternateColor` `000000`/`C60000` — ESPN's "no data" default, not real colours. Since live ESPN colours take priority over `teamColors.js`, these render as black. Counts: J1 12/20, Turkey 11/18, Argentina 6/30, Saudi 2, Portugal 2, Ligue 1 1.
 
 **How to apply:** if asked to add more sports later, no pre-verified league is waiting — start with the checks used for J1/Belgium (live roster vs current standings, abbreviation + name-substring collision scan, per-team schedule, live smoke test). For more cricket leagues, check the shared 100/day budget can take it before adding to `SERIES_IDS`. Skip re-probing MLS/rugby-union/F1/AFLW/college sports from scratch — see above for why each didn't make the cut.

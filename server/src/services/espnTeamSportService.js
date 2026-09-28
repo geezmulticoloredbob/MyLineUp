@@ -214,6 +214,26 @@ const _scheduleCache = new Map();
 const _scheduleInFlight = new Map();
 const SCHEDULE_TTL_MS = 5 * 60 * 1000;
 
+async function fetchScheduleEvents(config, teamEspnId, sportKey) {
+  const res = await espnFetch(`/${config.sport}/${config.league}/teams/${teamEspnId}/schedule`);
+  if (!res.ok) throw new Error(`ESPN ${sportKey} schedule fetch failed: ${res.status}`);
+  const json = await res.json();
+  return json.events || [];
+}
+
+// ESPN's soccer schedule endpoint only ever returns past results — the
+// upcoming fixtures live behind a separate `?fixture=true` query, confirmed
+// live for every soccer league (checked on Celtic, Fenerbahçe, every J1
+// club): the two calls return disjoint event ids (all-completed vs.
+// all-scheduled), so concatenating is safe with no duplicates. NFL/NHL/etc.
+// don't need this — their single `/schedule` call already includes both.
+async function fetchSoccerFixtures(config, teamEspnId, sportKey) {
+  const res = await espnFetch(`/${config.sport}/${config.league}/teams/${teamEspnId}/schedule?fixture=true`);
+  if (!res.ok) throw new Error(`ESPN ${sportKey} fixtures fetch failed: ${res.status}`);
+  const json = await res.json();
+  return json.events || [];
+}
+
 async function getESPNSchedule(sportKey, teamEspnId) {
   const config = ESPN_SPORT_CONFIG[sportKey];
   const cacheKey = `${sportKey}-${teamEspnId}`;
@@ -221,16 +241,14 @@ async function getESPNSchedule(sportKey, teamEspnId) {
   if (cached && Date.now() - cached.at < SCHEDULE_TTL_MS) return cached.data;
   if (_scheduleInFlight.has(cacheKey)) return _scheduleInFlight.get(cacheKey);
 
-  const promise = espnFetch(`/${config.sport}/${config.league}/teams/${teamEspnId}/schedule`)
-    .then(async (res) => {
-      if (!res.ok) throw new Error(`ESPN ${sportKey} schedule fetch failed: ${res.status}`);
-      const json = await res.json();
-      const events = json.events || [];
-      _scheduleCache.set(cacheKey, { data: events, at: Date.now() });
-      _scheduleInFlight.delete(cacheKey);
-      return events;
-    })
-    .catch((err) => { _scheduleInFlight.delete(cacheKey); throw err; });
+  const promise = (async () => {
+    const results = await fetchScheduleEvents(config, teamEspnId, sportKey);
+    const fixtures = config.sport === 'soccer' ? await fetchSoccerFixtures(config, teamEspnId, sportKey) : [];
+    const events = [...results, ...fixtures];
+    _scheduleCache.set(cacheKey, { data: events, at: Date.now() });
+    _scheduleInFlight.delete(cacheKey);
+    return events;
+  })().catch((err) => { _scheduleInFlight.delete(cacheKey); throw err; });
 
   _scheduleInFlight.set(cacheKey, promise);
   return promise;
