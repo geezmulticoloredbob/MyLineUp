@@ -385,6 +385,72 @@ describe('Scotland — findTeamByName prefers an exact match over a fuzzy one', 
   });
 });
 
+describe('soccer schedule + fixture=true merge', () => {
+  // ESPN's soccer schedule endpoint only ever returns past results; the
+  // upcoming fixtures live behind a separate ?fixture=true query on the same
+  // URL. Confirmed live the two calls return disjoint event ids (results are
+  // all-completed, fixtures all-scheduled), so getESPNSchedule fetches both
+  // and concatenates — this exercises that merge with distinct mock
+  // responses per URL rather than one shared { events: [] } stub.
+  const SCO_TEAMS_RESPONSE = {
+    sports: [{ leagues: [{ teams: [
+      { team: { id: '256', abbreviation: 'CEL', displayName: 'Celtic', shortDisplayName: 'Celtic' } },
+    ] }] }],
+  };
+  const PAST_RESULT = {
+    date: '2026-09-20T15:00:00Z',
+    competitions: [{
+      date: '2026-09-20T15:00:00Z',
+      status: { type: { completed: true, name: 'STATUS_FULL_TIME' } },
+      competitors: [
+        { team: { id: '256', abbreviation: 'CEL' }, homeAway: 'home', score: { value: 3 }, winner: true },
+        { team: { id: '999', abbreviation: 'RAN', displayName: 'Rangers' }, homeAway: 'away', score: { value: 1 }, winner: false },
+      ],
+    }],
+  };
+  const FUTURE_FIXTURE = {
+    date: '2026-10-11T12:00:00Z',
+    competitions: [{
+      date: '2026-10-11T12:00:00Z',
+      status: { type: { completed: false, name: 'STATUS_SCHEDULED' } },
+      competitors: [
+        { team: { id: '256', abbreviation: 'CEL' }, homeAway: 'away', score: null, winner: null },
+        { team: { id: '888', abbreviation: 'MOT', displayName: 'Motherwell' }, homeAway: 'home', score: null, winner: null },
+      ],
+    }],
+  };
+
+  it('merges the plain schedule (results) with the fixture=true schedule (upcoming) for a soccer league', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('fixture=true')) return mockOk({ events: [FUTURE_FIXTURE] });
+      if (url.includes('/teams/256/schedule')) return mockOk({ events: [PAST_RESULT] });
+      if (url.includes('/teams')) return mockOk(SCO_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'scotland-cel', teamName: 'Celtic', league: 'SCOTLAND' },
+      'SCOTLAND',
+    );
+
+    expect(result.latestResult).toMatchObject({ opponent: 'Rangers', outcome: 'W', score: '3-1' });
+    expect(result.nextFixture).toMatchObject({ opponent: 'Motherwell', venue: 'Away' });
+  });
+
+  it('does not request fixture=true for a non-soccer league', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams/1/schedule')) return mockOk({ events: [] });
+      if (url.includes('/teams')) return mockOk(MOCK_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    await espnTeamSportService.getESPNTeamData({ teamId: 'nfl-kc', teamName: 'Kansas City Chiefs', league: 'NFL' }, 'NFL');
+
+    const fixtureCalls = mockFetch.mock.calls.map(([url]) => url).filter((url) => url.includes('fixture=true'));
+    expect(fixtureCalls).toHaveLength(0);
+  });
+});
+
 describe('J1 League — FC Tokyo vs Tokyo Verdy', () => {
   // ESPN's shortDisplayName for FC Tokyo is plain "Tokyo" — a literal
   // substring of "Tokyo Verdy", and FC Tokyo is listed first. Our stored
