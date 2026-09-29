@@ -31,7 +31,7 @@ const MOCK_TEAMS_RESPONSE = {
                 displayName: 'No Logo FC',
                 name: 'No Logo FC',
                 shortDisplayName: 'No Logo FC',
-                color: '000000',
+                color: '123456',
                 logos: [],
               },
             },
@@ -61,6 +61,39 @@ describe('getTeamColours', () => {
     mockFetch.mockResolvedValue(mockOk(MOCK_TEAMS_RESPONSE));
     const result = await espnColourService.getTeamColours('No Logo FC', 'BUNDESLIGA');
     expect(result.logoUrl).toBeNull();
+  });
+
+  it("skips a club with ESPN's placeholder colour (000000/000000) rather than treating it as real", async () => {
+    const response = {
+      sports: [{ leagues: [{ teams: [
+        { team: { displayName: 'No Data FC', name: 'No Data FC', shortDisplayName: 'No Data FC', color: '000000', alternateColor: '000000', logos: [] } },
+      ] }] }],
+    };
+    mockFetch.mockResolvedValue(mockOk(response));
+    const result = await espnColourService.getTeamColours('No Data FC', 'BUNDESLIGA');
+    expect(result).toBeNull();
+  });
+
+  it("also skips ESPN's other placeholder pairing (000000/C60000)", async () => {
+    const response = {
+      sports: [{ leagues: [{ teams: [
+        { team: { displayName: 'Still No Data FC', name: 'Still No Data FC', shortDisplayName: 'Still No Data FC', color: '000000', alternateColor: 'C60000', logos: [] } },
+      ] }] }],
+    };
+    mockFetch.mockResolvedValue(mockOk(response));
+    const result = await espnColourService.getTeamColours('Still No Data FC', 'BUNDESLIGA');
+    expect(result).toBeNull();
+  });
+
+  it('does not skip a genuinely all-black club (real color, no matching placeholder alternate)', async () => {
+    const response = {
+      sports: [{ leagues: [{ teams: [
+        { team: { displayName: 'Genuinely Black FC', name: 'Genuinely Black FC', shortDisplayName: 'Genuinely Black FC', color: '000000', alternateColor: 'ffffff', logos: [] } },
+      ] }] }],
+    };
+    mockFetch.mockResolvedValue(mockOk(response));
+    const result = await espnColourService.getTeamColours('Genuinely Black FC', 'BUNDESLIGA');
+    expect(result).toEqual(expect.objectContaining({ primary: '#000000', secondary: '#ffffff' }));
   });
 
   it('returns null when the league has no ESPN endpoint configured', async () => {

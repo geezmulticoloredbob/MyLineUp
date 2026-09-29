@@ -44,6 +44,24 @@ function normalize(str) {
   return str.toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
+// ESPN's "we have no colour data for this club" sentinel: color is always
+// black, alternateColor is either the same black or a fixed dark red — never
+// a genuine brand palette. Confirmed live across every league that has any
+// of these (12/20 J1 clubs, 11/18 Turkey, 6/30 Argentina, 2 Saudi, 2
+// Portugal, 1 Ligue 1): real clubs' alternateColor varies freely, only the
+// placeholder repeats this exact pair. Treating it as "no data" (skip, so
+// getTeamColours returns null and the client falls back to its own default
+// styling) is honest; treating it as a real colour renders a black card that
+// looks like a deliberate brand choice when it's really just ESPN's default.
+const PLACEHOLDER_COLOR = '000000';
+const PLACEHOLDER_ALTERNATES = new Set(['000000', 'c60000']);
+
+function isPlaceholderColour(color, alternateColor) {
+  const c = (color || '').toLowerCase();
+  const a = (alternateColor || c).toLowerCase();
+  return c === PLACEHOLDER_COLOR && PLACEHOLDER_ALTERNATES.has(a);
+}
+
 function pickLogoUrl(logos) {
   const full = (logos || []).find((l) => l.rel?.includes('full') && !l.rel?.includes('dark'));
   return full?.href || logos?.[0]?.href || null;
@@ -73,7 +91,7 @@ async function fetchLeagueColours(league) {
       const colourMap = new Map();
       for (const entry of raw) {
         const t = entry.team ?? entry;
-        if (!t.color) continue;
+        if (!t.color || isPlaceholderColour(t.color, t.alternateColor)) continue;
         const darkLogo = t.logos?.find((l) => l.rel?.includes('dark') && l.rel?.includes('full'));
         const colours = {
           primary: `#${t.color}`,
