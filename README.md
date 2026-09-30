@@ -52,6 +52,7 @@ Supported leagues:
 - Scottish Premiership
 - J1 League (Japan)
 - Belgian Pro League
+- MLS
 - IPL
 - Big Bash League
 

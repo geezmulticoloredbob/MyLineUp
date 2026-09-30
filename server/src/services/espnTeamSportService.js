@@ -33,6 +33,7 @@ const ESPN_SPORT_CONFIG = {
   SCOTLAND: { sport: 'soccer', league: 'sco.1' },
   JLEAGUE: { sport: 'soccer', league: 'jpn.1' },
   BELGIUM: { sport: 'soccer', league: 'bel.1' },
+  MLS: { sport: 'soccer', league: 'usa.1' },
 };
 
 // Fallback venue timezone when ESPN's schedule doesn't give us a per-venue one —
@@ -57,6 +58,7 @@ const DEFAULT_VENUE_TIMEZONE = {
   SCOTLAND: 'Europe/London',
   JLEAGUE: 'Asia/Tokyo',
   BELGIUM: 'Europe/Brussels',
+  MLS: 'America/New_York',
 };
 
 function espnFetch(path, base = ESPN_BASE) {
@@ -88,6 +90,7 @@ const LOGO_ID_PATH_OVERRIDES = {
   SCOTLAND: 'soccer',
   JLEAGUE: 'soccer',
   BELGIUM: 'soccer',
+  MLS: 'soccer',
 };
 
 function cdnLogoUrl(sportKey, team) {
