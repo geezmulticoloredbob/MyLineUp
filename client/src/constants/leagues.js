@@ -26,6 +26,7 @@ export const LEAGUES = {
   SCOTLAND: 'SCOTLAND',
   JLEAGUE: 'JLEAGUE',
   BELGIUM: 'BELGIUM',
+  MLS: 'MLS',
   IPL: 'IPL',
   BBL: 'BBL',
 };
@@ -60,6 +61,7 @@ export const LEAGUE_DISPLAY_NAMES = {
   SCOTLAND: 'Scottish Premiership',
   JLEAGUE: 'J1 League',
   BELGIUM: 'Belgian Pro League',
+  MLS: 'MLS',
   IPL: 'IPL',
   BBL: 'Big Bash League',
 };
@@ -93,6 +95,7 @@ export const LEAGUE_ABBR = {
   SCOTLAND: 'Scot. Prem.',
   JLEAGUE: 'J1 League',
   BELGIUM: 'Pro League',
+  MLS: 'MLS',
   IPL: 'IPL',
   BBL: 'Big Bash',
 };
@@ -127,7 +130,7 @@ export const LEAGUE_SPORT = {
   NRL: SPORTS.RUGBY_LEAGUE,
   // Shares NBA's sport bucket rather than getting its own — same sport, same icon.
   WNBA: SPORTS.BASKETBALL,
-  // All eleven share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
+  // All twelve share the soccer bucket with EPL/La Liga/etc. — same sport, same icon.
   NWSL: SPORTS.SOCCER,
   ALEAGUE: SPORTS.SOCCER,
   LIGAMX: SPORTS.SOCCER,
@@ -139,6 +142,7 @@ export const LEAGUE_SPORT = {
   SCOTLAND: SPORTS.SOCCER,
   JLEAGUE: SPORTS.SOCCER,
   BELGIUM: SPORTS.SOCCER,
+  MLS: SPORTS.SOCCER,
   IPL: SPORTS.CRICKET,
   BBL: SPORTS.CRICKET,
 };
@@ -198,6 +202,7 @@ export const LEAGUE_REGION = {
   WNBA: REGIONS.NORTH_AMERICA,
   NWSL: REGIONS.NORTH_AMERICA,
   LIGAMX: REGIONS.NORTH_AMERICA,
+  MLS: REGIONS.NORTH_AMERICA,
   ARGENTINA: REGIONS.SOUTH_AMERICA,
   BRASILEIRAO: REGIONS.SOUTH_AMERICA,
   EPL: REGIONS.EUROPE,

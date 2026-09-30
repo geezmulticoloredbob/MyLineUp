@@ -59,6 +59,7 @@ const STANDINGS_STATS = {
   SCOTLAND: ['wins', 'losses'],
   JLEAGUE: ['wins', 'losses'],
   BELGIUM: ['wins', 'losses'],
+  MLS: ['wins', 'losses'],
   IPL: ['wins', 'losses'],
   BBL: ['wins', 'losses'],
 };

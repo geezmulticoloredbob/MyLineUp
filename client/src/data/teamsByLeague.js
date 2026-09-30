@@ -710,6 +710,43 @@ export const teamsByLeague = {
     { teamId: 'belgium-zul',  teamName: 'Zulte-Waregem' },
   ],
 
+  // Every abbreviation below is ESPN's own (checked against soccer/usa.1's
+  // live team list), all 30 unique, and no club's name is a substring of
+  // another's — so no disambiguation needed here. All 30 also have real
+  // ESPN colour data (no placeholder 000000/000000 or 000000/C60000 pairs).
+  MLS: [
+    { teamId: 'mls-atl',  teamName: 'Atlanta United FC' },
+    { teamId: 'mls-atx',  teamName: 'Austin FC' },
+    { teamId: 'mls-mtl',  teamName: 'CF Montréal' },
+    { teamId: 'mls-clt',  teamName: 'Charlotte FC' },
+    { teamId: 'mls-chi',  teamName: 'Chicago Fire FC' },
+    { teamId: 'mls-col',  teamName: 'Colorado Rapids' },
+    { teamId: 'mls-clb',  teamName: 'Columbus Crew' },
+    { teamId: 'mls-dc',   teamName: 'D.C. United' },
+    { teamId: 'mls-cin',  teamName: 'FC Cincinnati' },
+    { teamId: 'mls-dal',  teamName: 'FC Dallas' },
+    { teamId: 'mls-hou',  teamName: 'Houston Dynamo FC' },
+    { teamId: 'mls-mia',  teamName: 'Inter Miami CF' },
+    { teamId: 'mls-la',   teamName: 'LA Galaxy' },
+    { teamId: 'mls-lafc', teamName: 'LAFC' },
+    { teamId: 'mls-min',  teamName: 'Minnesota United FC' },
+    { teamId: 'mls-nsh',  teamName: 'Nashville SC' },
+    { teamId: 'mls-ne',   teamName: 'New England Revolution' },
+    { teamId: 'mls-nyc',  teamName: 'New York City FC' },
+    { teamId: 'mls-orl',  teamName: 'Orlando City SC' },
+    { teamId: 'mls-phi',  teamName: 'Philadelphia Union' },
+    { teamId: 'mls-por',  teamName: 'Portland Timbers' },
+    { teamId: 'mls-rsl',  teamName: 'Real Salt Lake' },
+    { teamId: 'mls-rbny', teamName: 'Red Bull New York' },
+    { teamId: 'mls-sd',   teamName: 'San Diego FC' },
+    { teamId: 'mls-sj',   teamName: 'San Jose Earthquakes' },
+    { teamId: 'mls-sea',  teamName: 'Seattle Sounders FC' },
+    { teamId: 'mls-skc',  teamName: 'Sporting Kansas City' },
+    { teamId: 'mls-stl',  teamName: 'St. Louis CITY SC' },
+    { teamId: 'mls-tor',  teamName: 'Toronto FC' },
+    { teamId: 'mls-van',  teamName: 'Vancouver Whitecaps' },
+  ],
+
   // First non-ESPN league — routes through cricketService.js (cricketdata.org)
   // instead. Logos and team identity come straight from that API at request
   // time, not a hand-built CDN URL, so abbreviations here matter less than

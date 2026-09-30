@@ -273,6 +273,7 @@ describe('NWSL / A-League / Liga MX / Brasileirão / Argentina / Saudi PL / Prim
     ['SCOTLAND', 'scotland-cel', 'Celtic', '256', 'CEL'],
     ['JLEAGUE', 'jleague-kan', 'Kashima Antlers', '7115', 'KAN'],
     ['BELGIUM', 'belgium-bru', 'Club Brugge', '570', 'BRU'],
+    ['MLS', 'mls-la', 'LA Galaxy', '187', 'LA'],
   ])('uses the "soccer" id-keyed path for %s', async (league, teamId, teamName, espnId, abbr) => {
     mockFetch.mockImplementation((url) => {
       if (url.includes(`/teams/${espnId}/schedule`)) return mockOk({ events: [] });

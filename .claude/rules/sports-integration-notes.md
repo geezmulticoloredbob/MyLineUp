@@ -1,10 +1,10 @@
 # Sports integration notes
 
-*Last touched 2026-09-29. Which additional team sports were investigated for `espnTeamSportService`/`cricketService`, and why some didn't make the cut.*
+*Last touched 2026-09-30. Which additional team sports were investigated for `espnTeamSportService`/`cricketService`, and why some didn't make the cut.*
 
 Investigated on 2026-09-16 while adding NRL and WNBA (both shipped — see `CLAUDE.md` for the code-level quirks: NRL's id-keyed logo CDN, its scoreboard endpoint rejecting date ranges, its lack of ESPN colour data).
 
-**MLS — not shipped, don't re-add without re-checking first.** ESPN's site API has real MLS team data (`soccer/usa.1`) and even a genuine numeric-id-keyed logo scheme matching NRL's pattern. But its `/standings` endpoint returned a genuinely empty response (`{}`, no `fullViewLink` wrapper even) when checked directly — a different failure from NRL/AFL/WNBA's "empty right now" shape (which do return the `fullViewLink`-only structure the app's `flattenStandingsEntries` already tolerates). Whether that's permanent or a temporary ESPN quirk for that competition wasn't determined. Re-verify the standings endpoint directly before trying again.
+**MLS — shipped 2026-09-30** as `MLS` (`soccer/usa.1`, team IDs `mls-{espn abbr}`), grouped under North America. Its old disqualification (empty `/standings` response) turned out to be the same site/v2-standings-is-broken-for-everyone issue fixed 2026-09-27 — `apis/v2` returns a full 30-row table (East/West conferences, same shape as NFL/NHL/MLB/WNBA, same known interleaving in League Overview). 30 clubs, all unique ESPN abbreviations, no name-substring collisions, no placeholder colours (checked programmatically, not just by eye) — the four clubs whose primary colour is genuinely `#000000` (Columbus Crew, D.C. United, LAFC, Minnesota United) each have a distinct real alternate colour, confirmed not to match the placeholder pattern. Verified live: all 30 resolve to distinct ids with real, mutually consistent results (e.g. Chicago 1-0 Charlotte from both sides) plus real next fixtures and ladder positions.
 
 **Rugby union — not investigated in depth.** ESPN's core API lists 25+ separate rugby union competitions (Six Nations, Rugby Championship, URC, Premiership Rugby, etc.) with no single obvious "the" league the way NRL has exactly one. Would need a decision on which specific competition(s) to add, not just a slug lookup.
 
@@ -35,7 +35,6 @@ Still-viable-but-unshipped soccer leagues: none left from the 2026-09-20 batch �
 - Also fixed a real pre-existing bug found while touching `LeagueCard.jsx`: every league shipped since NRL (11 of them) was missing from its `STANDINGS_STATS` map, so the League Overview table silently had no W/L columns for any of them. Fixed for all of them at once, not just IPL/BBL.
 
 Checked and NOT viable:
-- **MLS** — real team/logo data, but its `/standings` endpoint returned a genuinely empty response (`{}`, no `fullViewLink` wrapper even) — a different failure from every other league's "empty right now" shape. Re-verify directly before retrying.
 - **AFLW** — no separate league exists in ESPN's API at all; `australian-football` only has `afl`.
 - **NCAAF / NCAAB** (college football/basketball) — real data, but rosters are 130-200+ teams (FBS alone, before FCS/D-II noise like "Amherst Mammoths" showing up in the raw list). A real curation cost, not a quick config add — every other league shipped so far tops out around 20-30 teams.
 - **Rugby union** — 25+ separate ESPN competitions, no single obvious "the" league.
