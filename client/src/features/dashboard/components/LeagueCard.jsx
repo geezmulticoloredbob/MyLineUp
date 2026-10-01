@@ -87,13 +87,83 @@ function getUpcomingLabel(dateStr) {
 }
 
 const STANDINGS_PREVIEW_COUNT = 5;
+// ESPN ranks conference/group-split leagues (NFL/NHL/MLB/WNBA/Argentina/MLS)
+// 1..N independently per group rather than one global ladder, so a single
+// flat preview would show "1. Chiefs, 1. Seahawks, 2. Bills..." — each row's
+// `group` (set server-side, null for every other league) lets this render as
+// separate per-group tables instead. 3 per group (most have 2 groups) keeps
+// the preview close in size to the flat leagues' top 5.
+const GROUPED_STANDINGS_PREVIEW_COUNT = 3;
+
+function StandingsTable({ rows, keys, seasonComplete }) {
+  return (
+    <table className="lc-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Team</th>
+          {keys.map((k) => <th key={k}>{STAT_LABELS[k]}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.teamName}>
+            <td>{row.position ?? '-'}</td>
+            <td className="lc-table__team">
+              {row.logoUrl && (
+                <img
+                  src={row.logoUrl}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="lc-table__logo"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              )}
+              <span>{row.teamName}</span>
+              {seasonComplete && row.position === 1 && (
+                <Trophy size={12} strokeWidth={2} className="lc-table__champion-icon" aria-label="Season champion" />
+              )}
+            </td>
+            {keys.map((k) => <td key={k}>{row.stats?.[k] ?? '-'}</td>)}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 function StandingsSection({ league, standings, seasonComplete }) {
   const [expanded, setExpanded] = useState(false);
   const keys = STANDINGS_STATS[league] || [];
   const allRows = standings || [];
-  const hasMore = allRows.length > STANDINGS_PREVIEW_COUNT;
-  const rows = expanded ? allRows : allRows.slice(0, STANDINGS_PREVIEW_COUNT);
+
+  const groups = [];
+  allRows.forEach((row) => {
+    if (row.group && !groups.includes(row.group)) groups.push(row.group);
+  });
+  const isGrouped = groups.length > 1;
+
+  let body;
+  let hasMore;
+  if (isGrouped) {
+    const rowsByGroup = groups.map((g) => allRows.filter((row) => row.group === g));
+    hasMore = rowsByGroup.some((rows) => rows.length > GROUPED_STANDINGS_PREVIEW_COUNT);
+    body = groups.map((g, i) => {
+      const groupRows = rowsByGroup[i];
+      const rows = expanded ? groupRows : groupRows.slice(0, GROUPED_STANDINGS_PREVIEW_COUNT);
+      return (
+        <div key={g} className="lc-standings-group">
+          <h4 className="lc-standings-group__title">{g}</h4>
+          <StandingsTable rows={rows} keys={keys} seasonComplete={seasonComplete} />
+        </div>
+      );
+    });
+  } else {
+    hasMore = allRows.length > STANDINGS_PREVIEW_COUNT;
+    const rows = expanded ? allRows : allRows.slice(0, STANDINGS_PREVIEW_COUNT);
+    body = <StandingsTable rows={rows} keys={keys} seasonComplete={seasonComplete} />;
+  }
 
   return (
     <div className="lc-section">
@@ -104,43 +174,11 @@ function StandingsSection({ league, standings, seasonComplete }) {
         <p className="lc-empty">Unavailable</p>
       ) : (
         <>
-          <table className="lc-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Team</th>
-                {keys.map((k) => <th key={k}>{STAT_LABELS[k]}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.teamName}>
-                  <td>{row.position ?? '-'}</td>
-                  <td className="lc-table__team">
-                    {row.logoUrl && (
-                      <img
-                        src={row.logoUrl}
-                        alt=""
-                        width={16}
-                        height={16}
-                        className="lc-table__logo"
-                        onError={(e) => { e.target.style.display = 'none'; }}
-                      />
-                    )}
-                    <span>{row.teamName}</span>
-                    {seasonComplete && row.position === 1 && (
-                      <Trophy size={12} strokeWidth={2} className="lc-table__champion-icon" aria-label="Season champion" />
-                    )}
-                  </td>
-                  {keys.map((k) => <td key={k}>{row.stats?.[k] ?? '-'}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {body}
           {hasMore && (
             <button type="button" className="lc-table__toggle" onClick={() => setExpanded((v) => !v)}>
               {expanded ? (
-                <>Show top {STANDINGS_PREVIEW_COUNT} <ChevronUp size={12} strokeWidth={2} /></>
+                <>Show top {isGrouped ? GROUPED_STANDINGS_PREVIEW_COUNT : STANDINGS_PREVIEW_COUNT} <ChevronUp size={12} strokeWidth={2} /></>
               ) : (
                 <>Show full table ({allRows.length}) <ChevronDown size={12} strokeWidth={2} /></>
               )}

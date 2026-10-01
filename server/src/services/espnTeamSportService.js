@@ -174,11 +174,29 @@ function findTeamByName(teams, teamName) {
 // --- Standings (per-league, 5min cache) ---
 // ESPN nests standings under an arbitrary depth of conference/division "children" groups —
 // walk recursively and flatten rather than assuming a fixed depth.
-function flattenStandingsEntries(node, out = []) {
+//
+// Every conference/group-split league checked live (NFL, NHL, MLB, WNBA,
+// Argentina, MLS) has the exact same two-level shape: one top-level node
+// whose `children` are the two groups (e.g. AFC/NFC, Group A/Group B), each
+// directly holding its own `standings.entries` with its own rank 1..N — not
+// a global rank across both groups. A fan-out point (a node with more than
+// one child) is where a group boundary exists; `groupLabel` is only
+// (re)assigned there, using each child's own name, so single-group leagues
+// (everything else — they have a single "Regular Season" wrapper child, not
+// a real split) keep every entry's group as null, unchanged from before.
+function flattenStandingsEntries(node, out = [], groupLabel = null) {
   if (!node) return out;
-  if (Array.isArray(node.entries)) out.push(...node.entries);
-  if (node.standings) flattenStandingsEntries(node.standings, out);
-  if (Array.isArray(node.children)) node.children.forEach((child) => flattenStandingsEntries(child, out));
+  if (Array.isArray(node.entries)) {
+    node.entries.forEach((entry) => out.push(groupLabel ? { ...entry, group: groupLabel } : entry));
+  }
+  if (node.standings) flattenStandingsEntries(node.standings, out, groupLabel);
+  if (Array.isArray(node.children)) {
+    const isGroupSplit = node.children.length > 1;
+    node.children.forEach((child) => {
+      const childLabel = isGroupSplit ? (child.name || child.abbreviation || groupLabel) : groupLabel;
+      flattenStandingsEntries(child, out, childLabel);
+    });
+  }
   return out;
 }
 
@@ -364,6 +382,13 @@ async function getESPNStandingsOverview(sportKey) {
     return true;
   });
 
+  // First-seen order of each group name, so groups stay in ESPN's own listed
+  // order (e.g. AFC before NFC) rather than alphabetically.
+  const groupOrder = [];
+  uniqueEntries.forEach((entry) => {
+    if (entry.group && !groupOrder.includes(entry.group)) groupOrder.push(entry.group);
+  });
+
   return uniqueEntries
     .map((entry) => {
       const team = teams.find((t) => String(t.id) === String(entry.team?.id));
@@ -376,9 +401,23 @@ async function getESPNStandingsOverview(sportKey) {
         teamName: team?.displayName || entry.team?.displayName || 'Unknown',
         logoUrl: cdnLogoUrl(sportKey, team || entry.team),
         stats: wins !== null ? { wins: Number(wins), losses: Number(losses) } : {},
+        group: entry.group ?? null,
       };
     })
-    .sort((a, b) => (a.position ?? 99) - (b.position ?? 99));
+    .sort((a, b) => {
+      // Conference/group-split leagues (NFL/NHL/MLB/WNBA/Argentina/MLS) rank
+      // each group 1..N independently, so a plain position sort interleaves
+      // two teams per rank. Keep groups contiguous, in the order ESPN itself
+      // lists them, then sort by position within each group. Leagues with no
+      // group (every entry's `group` is null) fall through unchanged — this
+      // is the same position-only sort as before.
+      if (a.group !== b.group) {
+        const orderA = a.group ? groupOrder.indexOf(a.group) : -1;
+        const orderB = b.group ? groupOrder.indexOf(b.group) : -1;
+        if (orderA !== orderB) return orderA - orderB;
+      }
+      return (a.position ?? 99) - (b.position ?? 99);
+    });
 }
 
 const _leagueGamesCache = new Map();

@@ -568,6 +568,51 @@ describe('getESPNStandingsOverview', () => {
     expect(result).toHaveLength(2);
     expect(result.filter((r) => r.teamName === 'Kansas City Chiefs')).toHaveLength(1);
   });
+
+  it('tags each entry with its conference and keeps groups contiguous instead of interleaving by rank', async () => {
+    // Real shape confirmed live for NFL/NHL/MLB/WNBA/Argentina/MLS: one
+    // top-level node whose children ARE the two groups (more than one
+    // child — the fan-out point), each ranking its own teams 1..N
+    // independently rather than sharing one global rank.
+    const twoConferenceStandings = {
+      children: [
+        { name: 'American Football Conference', standings: { entries: [
+          { team: { id: '1', displayName: 'Chiefs' }, stats: [{ name: 'wins', value: 12 }, { name: 'losses', value: 5 }, { name: 'rank', value: 1 }] },
+          { team: { id: '2', displayName: 'Bills' }, stats: [{ name: 'wins', value: 10 }, { name: 'losses', value: 7 }, { name: 'rank', value: 2 }] },
+        ] } },
+        { name: 'National Football Conference', standings: { entries: [
+          { team: { id: '3', displayName: 'Seahawks' }, stats: [{ name: 'wins', value: 11 }, { name: 'losses', value: 6 }, { name: 'rank', value: 1 }] },
+          { team: { id: '4', displayName: 'Eagles' }, stats: [{ name: 'wins', value: 9 }, { name: 'losses', value: 8 }, { name: 'rank', value: 2 }] },
+        ] } },
+      ],
+    };
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/standings')) return mockOk(twoConferenceStandings);
+      if (url.includes('/teams')) return mockOk({ sports: [{ leagues: [{ teams: [] }] }] });
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNStandingsOverview('NFL');
+
+    expect(result.map((r) => [r.group, r.teamName, r.position])).toEqual([
+      ['American Football Conference', 'Chiefs', 1],
+      ['American Football Conference', 'Bills', 2],
+      ['National Football Conference', 'Seahawks', 1],
+      ['National Football Conference', 'Eagles', 2],
+    ]);
+  });
+
+  it('leaves group null for a single-group league (no fan-out point)', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/standings')) return mockOk(MOCK_STANDINGS_RESPONSE);
+      if (url.includes('/teams')) return mockOk(MOCK_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNStandingsOverview('NFL');
+
+    expect(result.every((r) => r.group === null)).toBe(true);
+  });
 });
 
 describe('getESPNLeagueGames', () => {
