@@ -1977,6 +1977,18 @@ p {
   color: var(--text-secondary);
 }
 
+.lc-standings-group + .lc-standings-group {
+  margin-top: var(--space-sm);
+}
+
+.lc-standings-group__title {
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0 0 4px;
+}
+
 /* Standings table */
 .lc-table {
   width: 100%;

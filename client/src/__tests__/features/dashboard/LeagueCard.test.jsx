@@ -87,6 +87,59 @@ describe('LeagueCard', () => {
     }
   });
 
+  it('splits a conference/group-tagged standings list into separate per-group tables instead of one interleaved table', () => {
+    const standings = [
+      standingsRow(1, 'Chiefs', { group: 'AFC' }),
+      standingsRow(2, 'Bills', { group: 'AFC' }),
+      standingsRow(1, 'Seahawks', { group: 'NFC' }),
+      standingsRow(2, 'Eagles', { group: 'NFC' }),
+    ];
+    render(<LeagueCard league="NFL" standings={standings} recentResults={[]} upcomingFixtures={[]} />);
+
+    expect(screen.getByText('AFC')).toBeInTheDocument();
+    expect(screen.getByText('NFC')).toBeInTheDocument();
+    // Two separate tables, each with its own 2 rows — not one flat table
+    // interleaving "1. Chiefs, 1. Seahawks, 2. Bills, 2. Eagles".
+    const tables = document.querySelectorAll('table.lc-table');
+    expect(tables).toHaveLength(2);
+    expect(tables[0].querySelectorAll('tbody tr')).toHaveLength(2);
+    expect(tables[1].querySelectorAll('tbody tr')).toHaveLength(2);
+  });
+
+  it('previews 3 rows per group for a grouped league, with a toggle to show the rest', () => {
+    const standings = [
+      ...Array.from({ length: 5 }, (_, i) => standingsRow(i + 1, `AFC Team ${i + 1}`, { group: 'AFC' })),
+      ...Array.from({ length: 5 }, (_, i) => standingsRow(i + 1, `NFC Team ${i + 1}`, { group: 'NFC' })),
+    ];
+    render(<LeagueCard league="NFL" standings={standings} recentResults={[]} upcomingFixtures={[]} />);
+
+    expect(screen.getByText('AFC Team 3')).toBeInTheDocument();
+    expect(screen.queryByText('AFC Team 4')).not.toBeInTheDocument();
+    expect(screen.getByText('NFC Team 3')).toBeInTheDocument();
+    expect(screen.queryByText('NFC Team 4')).not.toBeInTheDocument();
+
+    const toggle = screen.getByRole('button', { name: /Show full table \(10\)/ });
+    act(() => { toggle.click(); });
+
+    expect(screen.getByText('AFC Team 5')).toBeInTheDocument();
+    expect(screen.getByText('NFC Team 5')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Show top 3/ })).toBeInTheDocument();
+  });
+
+  it('does not treat a single-group league as grouped (falls back to the one flat table)', () => {
+    // Every non-conference league's rows either omit `group` entirely or
+    // carry the same null group for every row — neither should trigger the
+    // per-group rendering path.
+    const standings = [
+      standingsRow(1, 'Celtic', { group: null }),
+      standingsRow(2, 'Rangers', { group: null }),
+    ];
+    render(<LeagueCard league="SCOTLAND" standings={standings} recentResults={[]} upcomingFixtures={[]} />);
+
+    expect(document.querySelectorAll('.lc-standings-group')).toHaveLength(0);
+    expect(document.querySelectorAll('table')).toHaveLength(1);
+  });
+
   it('renders upcoming fixtures with team names', () => {
     render(
       <LeagueCard
