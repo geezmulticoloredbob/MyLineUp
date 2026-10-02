@@ -326,4 +326,41 @@ export const teamColors = {
   'bbl-ads':  { primary: '#FFD100', secondary: '#003DA5' },
   'bbl-prs':  { primary: '#F5811F', secondary: '#000000' },
   'bbl-mls':  { primary: '#006442', secondary: '#FDB913' },
+
+  // J1 League — unlike NRL/IPL/BBL above, ESPN *does* have real colour data
+  // for most of this league; these 12 clubs are only here because ESPN's
+  // live data for them is specifically the placeholder sentinel
+  // espnColourService.isPlaceholderColour() now skips (color 000000 paired
+  // with alternateColor 000000/C60000 — see CLAUDE.md). The other 8 J1 clubs
+  // deliberately have no entry here: their live ESPN colours are real and
+  // take priority over this map, so a static entry would just be dead code.
+  // Sourced from jleague.jp's own official site (each club's own page embeds
+  // a `"variant":"club-details","primaryColor":"#...","secondaryColor":"#..."`
+  // block — confirmed this is genuinely per-club, not a site-wide colour, by
+  // fetching two different clubs' pages and seeing two different pairs).
+  // Two exceptions, each noted on its own line below: FC Tokyo (J.League's
+  // page couldn't be found at a guessable URL) and Tokyo Verdy (a
+  // genuinely single-colour club — J.League's own site only gives one).
+  'jleague-avf':  { primary: '#002159', secondary: '#00002E' }, // Avispa Fukuoka
+  // FC Tokyo: primary from J.League's site (seen consistently across two
+  // other clubs' "nearby fixtures" widgets, which embed it); J.League's own
+  // page for this specific club wasn't reachable at any guessable URL, so
+  // the secondary is instead the red sock colour from Wikipedia's current
+  // kit infobox — consistent with the club's own nickname, "Aoaka" (青赤,
+  // "Blue and Reds").
+  'jleague-tok':  { primary: '#000A6E', secondary: '#FF0000' }, // FC Tokyo
+  'jleague-oka':  { primary: '#B10342', secondary: '#7C001B' }, // Fagiano Okayama
+  'jleague-jef':  { primary: '#FFDD00', secondary: '#CEAC00' }, // JEF United Ichihara-Chiba
+  'jleague-kre':  { primary: '#FFF200', secondary: '#CEC000' }, // Kashiwa Reysol
+  'jleague-kyo':  { primary: '#72246C', secondary: '#450041' }, // Kyoto Sanga
+  'jleague-mito': { primary: '#1D2088', secondary: '#005CA2' }, // Mito Hollyhock
+  'jleague-nag':  { primary: '#D80C18', secondary: '#F8B500' }, // Nagoya Grampus
+  // Tokyo Verdy's kit (and J.League's own site) is a single green — no real
+  // second colour exists to source, so secondary repeats primary, the same
+  // convention espnColourService.js itself falls back to when ESPN has a
+  // primary colour but no alternateColor.
+  'jleague-tykv': { primary: '#046A38', secondary: '#046A38' }, // Tokyo Verdy
+  'jleague-vvn':  { primary: '#17479E', secondary: '#EA6000' }, // V-Varen Nagasaki
+  'jleague-vis':  { primary: '#A9002E', secondary: '#000000' }, // Vissel Kobe
+  'jleague-yok':  { primary: '#034EA2', secondary: '#002072' }, // Yokohama F. Marinos
 };
