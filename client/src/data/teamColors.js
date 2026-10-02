@@ -363,4 +363,41 @@ export const teamColors = {
   'jleague-vvn':  { primary: '#17479E', secondary: '#EA6000' }, // V-Varen Nagasaki
   'jleague-vis':  { primary: '#A9002E', secondary: '#000000' }, // Vissel Kobe
   'jleague-yok':  { primary: '#034EA2', secondary: '#002072' }, // Yokohama F. Marinos
+
+  // Turkey, Saudi PL, Portugal — same situation as J1 above: ESPN's live
+  // colour data for these clubs is specifically its placeholder sentinel,
+  // not real data, so they need a static fallback. Sourced from each club's
+  // own-language Wikipedia infobox where it carries a literal hex field
+  // (Turkish infoboxes use an explicit `renkler` colour-box field with real
+  // hex baked in — more precise than the English-wiki kit diagrams used for
+  // J1, which are often pattern images with blank body-colour fields for
+  // striped kits). Checked every one against at least one other source
+  // (English-wiki kit colours, an official brand-guideline PDF, or explicit
+  // colour-name prose) before using it.
+  //
+  // Not all 34 originally-placeholder clubs are here: Ligue 1's one flagged
+  // club (Paris FC) was from ESPN's raw soccer/fra.1 data, checked while
+  // investigating this league generally — but this app's LIGUE1 is
+  // football-data.org-routed and its roster (teamsByLeague.js, `l1-` ids)
+  // never included Paris FC as a followable team, so there's no card for it
+  // to fix. Colour lookup for LIGUE1 still separately queries ESPN's
+  // soccer/fra.1 by name (see ESPN_LEAGUE_URLS in espnColourService.js) for
+  // the 18 clubs that ARE in the roster, but none of those are placeholder.
+  'turkey-ala':  { primary: '#E67019', secondary: '#1F8633' }, // Alanyaspor — orange/green, Wikipedia kit (sock/shorts), order matches Turkish wiki's "Turuncu-Yeşil"
+  'turkey-amed': { primary: '#008000', secondary: '#FF0000', tertiary: '#FFFFFF' }, // Amed SFK — green/red/white; green from the kit, red/white confirmed by name only (Turkish wiki's "Renk kutusu" gave no hex for this club), so red/white use the standard representation of those names
+  'turkey-cay':  { primary: '#00FF00', secondary: '#0000FF' }, // Çaykur Rizespor — green/blue, Turkish Wikipedia's literal infobox hex
+  'turkey-erz':  { primary: '#0000FF', secondary: '#FFFFFF' }, // Erzurum BB (ESPN's name for the continuously-renamed "Erzurumspor FK") — blue/white, Turkish Wikipedia's literal infobox hex; confirmed this is the same club via its "Erzurum Büyükşehir Belediyesi" ownership and BB-prefixed name history, not a different entity
+  'turkey-eyu':  { primary: '#E5D100', secondary: '#65539D' }, // Eyüpspor — yellow/purple ("Eflatun-Sarı"), Turkish Wikipedia's literal infobox hex; yellow set as primary to match the actual shirt colour (English wiki's kit data is solid pale yellow)
+  'turkey-gaz':  { primary: '#FF0000', secondary: '#000000' }, // Gaziantep FK — red/black, Turkish Wikipedia's literal infobox hex, matches English wiki's black shorts/socks
+  'turkey-goz':  { primary: '#FFFF00', secondary: '#FF0000' }, // Göztepe — yellow/red ("Sarı-Kırmızı"); name-only confirmation (no hex found anywhere, home kit is a striped pattern image on every wiki checked), standard representation of those names
+  'turkey-kas':  { primary: '#000080', secondary: '#FFFFFF' }, // Kasımpaşa — navy/white ("Lacivert-Beyaz"), Turkish Wikipedia's literal infobox hex; this season's kit happens to be all-white, so the English-wiki kit data alone would have been misleading here
+  'turkey-koc':  { primary: '#008000', secondary: '#000000' }, // Kocaelispor — green/black ("Yeşil-Siyah"), Turkish Wikipedia's literal infobox hex, matches English wiki's black shorts/socks
+  'turkey-sam':  { primary: '#C70A0C', secondary: '#FFFFFF', tertiary: '#000000' }, // Samsunspor — red/white/black; red hex sourced from the club's own 2024 official brand-guideline PDF, cited directly in Turkish Wikipedia
+  'turkey-cor':  { primary: '#FF0000', secondary: '#000000' }, // Çorum FK — red/black, Turkish Wikipedia's literal infobox hex, exact match with English wiki's kit colours
+
+  'saudipl-dir': { primary: '#D2BA9C', secondary: '#D2BA9C' }, // Al Diriyah — rebranded "Diriyah Club" in Sept. 2025 to a single tan colour ("Diriyah Tan", inspired by At-Turaif's mudbrick architecture) in place of its old maroon; English Wikipedia's infobox kit is this one colour throughout, so secondary repeats primary, same convention as Tokyo Verdy above
+  'saudipl-riy': { primary: '#FF0000', secondary: '#000000' }, // Al Riyadh — red/black, English Wikipedia's infobox kit colours
+
+  'primeiraliga-acv':  { primary: '#000000', secondary: '#FFFFFF' }, // Académico de Viseu — black home / white away, Portuguese Wikipedia's literal infobox kit colours
+  'primeiraliga-cpac': { primary: '#000000', secondary: '#FFFFFF' }, // Casa Pia — black is explicitly this club's defining historic colour per its own Portuguese Wikipedia article ("o preto característico do Casa Pia" — Casa Pia's characteristic black), not just this season's kit; white from the away kit and the crest's own red-and-white-on-black design
 };
