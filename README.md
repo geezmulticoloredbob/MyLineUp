@@ -92,7 +92,8 @@ Supported leagues:
 **External data**
 - BallDontLie API (NBA)
 - football-data.org (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, Champions League, World Cup)
-- ESPN's public site API (NFL, NHL, MLB, AFL) and CDN (team logos and brand colours across all leagues)
+- ESPN's public site API and CDN — a single config-driven service covering NFL, NHL, MLB, AFL, NRL, WNBA, NWSL, A-League, Liga MX, Brasileirão, Argentina, Saudi Pro League, Primeira Liga, Süper Lig, Scottish Premiership, J1 League, Belgian Pro League, and MLS, plus team logos and brand colours for all of them (with a maintained fallback for the handful of clubs ESPN itself has no real colour data for)
+- cricketdata.org (IPL, Big Bash League)
 
 ## 🧠 Core Features
 
@@ -119,7 +120,7 @@ Supported leagues:
 
 **User**
 - `username`, `email`, `password` (bcrypt-hashed)
-- `followedLeagues[]` — one or more of `NBA`, `EPL`, `AFL`, `WC`, `LALIGA`, `BUNDESLIGA`, `SERIEA`, `LIGUE1`, `CHAMPIONSHIP`, `EREDIVISIE`, `UCL`, `NFL`, `NHL`, `MLB`
+- `followedLeagues[]` — any of the leagues listed under Supported leagues above (enum lives in `constants/leagues.js`)
 - `onboardingComplete`
 - `iconId` — selected avatar icon
 
@@ -133,7 +134,7 @@ Team IDs follow the pattern `{league}-{abbr}` (e.g. `nba-gsw`, `epl-ars`, `afl-h
 
 1. User logs in and completes onboarding (or lands on the dashboard if already onboarded)
 2. Dashboard requests the user's favourites and followed leagues
-3. The server's league services (NBA, football, World Cup, and NFL/NHL/MLB/AFL via ESPN's public site API) fetch and normalise data from each external API, each caching in-memory to minimise external calls — team lists 24h, standings 5min, scorers 1h, and match/game fetches 5min
+3. The server's league services fetch and normalise data from each external API — NBA, the football-data.org-routed leagues, World Cup, a single config-driven service covering 18 ESPN-routed leagues (NFL, NHL, MLB, AFL and 14 more — see External data above), and cricketdata.org (IPL, BBL) — each caching in-memory to minimise external calls: team lists 24h, standings 5min, scorers 1h, and match/game fetches 5min
 4. Results are aggregated into a single dashboard payload and rendered on the client as league/team cards, a "Today" feed, and a "Next Matches" view
 
 ## 📁 Project Structure
