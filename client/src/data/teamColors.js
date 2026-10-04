@@ -400,4 +400,22 @@ export const teamColors = {
 
   'primeiraliga-acv':  { primary: '#000000', secondary: '#FFFFFF' }, // Académico de Viseu — black home / white away, Portuguese Wikipedia's literal infobox kit colours
   'primeiraliga-cpac': { primary: '#000000', secondary: '#FFFFFF' }, // Casa Pia — black is explicitly this club's defining historic colour per its own Portuguese Wikipedia article ("o preto característico do Casa Pia" — Casa Pia's characteristic black), not just this season's kit; white from the away kit and the crest's own red-and-white-on-black design
+
+  // Argentina — the last 6 of the original 33 placeholder-colour clubs.
+  // Spanish Wikipedia has the same explicit named-colour infobox field the
+  // Turkish batch used ("Colores", a {{Cuadro color|#hex}} template), plus
+  // literal kit hex for most. Each of these 6 needed the exact-club check
+  // Erzurum BB and Dundee/Independiente Rivadavia needed before shipping:
+  // Argentine football has multiple clubs sharing "Central Córdoba",
+  // "Gimnasia", and "Talleres" in their name across different cities and
+  // divisions — fetched each one by its full disambiguated name (matching
+  // ESPN's own displayName exactly, e.g. "Central Córdoba (Santiago del
+  // Estero)", not the Rosario club of a near-identical name) rather than
+  // trusting a plain-name search to land on the right page.
+  'argentina-bar':  { primary: '#FF0000', secondary: '#FFFFFF' }, // Barracas Central — red/white ("Rojo y blanco"), Spanish Wikipedia's literal infobox hex
+  'argentina-ctr':  { primary: '#000000', secondary: '#FFFFFF' }, // Central Córdoba (Santiago del Estero) — black/white ("Negro y Blanco"), Spanish Wikipedia's literal infobox hex
+  'argentina-gmz':  { primary: '#FFFFFF', secondary: '#000000' }, // Gimnasia (Mendoza) — white/black ("Blanco y negro"); name-only confirmation (current kit is a white/black striped pattern image with no plain body hex), standard representation of those names
+  'argentina-nob':  { primary: '#FF0000', secondary: '#000000' }, // Newell's Old Boys — red/black ("Rojinegro" — literally the club's own nickname); confirmed by its own founding story (its colours combine England's red and Germany's black) in prose, but no literal hex exists anywhere (current kit is a white shirt with a red/black sash pattern image), so uses the standard representation of those names
+  'argentina-pla':  { primary: '#4E3629', secondary: '#FFFFFF' }, // Platense — brown/white ("Marrón y Blanco"), Spanish Wikipedia's literal infobox hex
+  'argentina-tall': { primary: '#75AADB', secondary: '#FFFFFF' }, // Talleres (Córdoba) — sky blue/white ("celeste y blanco" / "albiazul"), extensively confirmed by prose but no literal hex found (current kit is an all-white pattern image); uses the standard representation of Argentine "celeste"
 };
