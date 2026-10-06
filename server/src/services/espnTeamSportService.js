@@ -264,7 +264,18 @@ async function getESPNSchedule(sportKey, teamEspnId) {
 
   const promise = (async () => {
     const results = await fetchScheduleEvents(config, teamEspnId, sportKey);
-    const fixtures = config.sport === 'soccer' ? await fetchSoccerFixtures(config, teamEspnId, sportKey) : [];
+    // A failure here is isolated from `results` above: this second call is
+    // purely additive (upcoming fixtures only), so if it fails alone — a
+    // transient blip, ESPN rate-limiting this specific query shape, etc. —
+    // the team card should still show its latest result and ladder position
+    // with just no next fixture, not go fully unavailable the way it would
+    // if this threw and rejected the whole getESPNSchedule call.
+    const fixtures = config.sport === 'soccer'
+      ? await fetchSoccerFixtures(config, teamEspnId, sportKey).catch((err) => {
+          console.error(`ESPN ${sportKey} fixtures fetch failed, continuing without upcoming fixtures:`, err.message);
+          return [];
+        })
+      : [];
     const events = [...results, ...fixtures];
     _scheduleCache.set(cacheKey, { data: events, at: Date.now() });
     _scheduleInFlight.delete(cacheKey);
