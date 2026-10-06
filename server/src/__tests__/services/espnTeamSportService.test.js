@@ -438,6 +438,24 @@ describe('soccer schedule + fixture=true merge', () => {
     expect(result.nextFixture).toMatchObject({ opponent: 'Motherwell', venue: 'Away' });
   });
 
+  it('still returns the latest result when only the fixture=true call fails, instead of rejecting the whole schedule', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('fixture=true')) return mockFail(500);
+      if (url.includes('/teams/256/schedule')) return mockOk({ events: [PAST_RESULT] });
+      if (url.includes('/teams')) return mockOk(SCO_TEAMS_RESPONSE);
+      return mockOk({});
+    });
+
+    const result = await espnTeamSportService.getESPNTeamData(
+      { teamId: 'scotland-cel', teamName: 'Celtic', league: 'SCOTLAND' },
+      'SCOTLAND',
+    );
+
+    expect(result).not.toBeNull();
+    expect(result.latestResult).toMatchObject({ opponent: 'Rangers', outcome: 'W', score: '3-1' });
+    expect(result.nextFixture).toBeNull();
+  });
+
   it('does not request fixture=true for a non-soccer league', async () => {
     mockFetch.mockImplementation((url) => {
       if (url.includes('/teams/1/schedule')) return mockOk({ events: [] });
