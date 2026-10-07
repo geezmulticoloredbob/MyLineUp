@@ -137,8 +137,18 @@ function findTeamByAbbr(teams, abbr) {
   return teams.find((t) => (t.abbreviation || '').toLowerCase() === target);
 }
 
+// Folds accented characters to their base letter before stripping (NFD
+// decomposes "é" into "e" + a separate combining-acute-accent codepoint,
+// which the second replace then removes) rather than deleting them outright
+// — without this, "Atlético Madrid" normalized to "atlticomadrid" (the é
+// vanished entirely) while a plain-ASCII stored name like "Atletico Madrid"
+// normalized to "atleticomadrid" — never equal, so findTeamByName's
+// abbreviation-fallback could never match any accented club name. Same fix
+// as espnColourService.js's identical normalize() — confirmed live this
+// silently broke colour lookups for accented names there; fixed here too
+// since this function backs real team-data matching, not just colours.
 function normalizeTeamName(name) {
-  return (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return (name || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 // Falls back to matching by team name when the abbreviation lookup misses —

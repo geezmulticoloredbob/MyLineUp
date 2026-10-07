@@ -35,14 +35,27 @@ const ESPN_LEAGUE_URLS = {
 // Our stored team names that differ from ESPN's displayName / shortDisplayName
 const TEAM_NAME_OVERRIDES = {
   'Wolves':    'Wolverhampton Wanderers',
-  'Brighton':  'Brighton and Hove Albion',
+  // ESPN's own displayName is "Brighton & Hove Albion" — the "&" gets
+  // stripped to nothing by normalize(), not replaced with the word "and".
+  // The override used to say "Brighton and Hove Albion", which normalized
+  // to a different string ("brightonandhovealbion" vs ESPN's own
+  // "brightonhovealbion") and could never match. Confirmed live.
+  'Brighton':  'Brighton & Hove Albion',
   'GWS Giants': 'Greater Western Sydney Giants',
   'LA Clippers': 'Los Angeles Clippers',
 };
 
-// Strip punctuation and whitespace for fuzzy key matching
+// Strip punctuation and whitespace for fuzzy key matching. Folds accented
+// characters to their base letter first (NFD decomposes "é" into "e" plus a
+// separate combining-acute-accent codepoint, which the second replace then
+// strips) rather than just deleting them outright — without this step,
+// "Atlético Madrid" normalized to "atlticomadrid" (the é vanished entirely)
+// while our own stored "Atletico Madrid" normalized to "atleticomadrid" —
+// never equal, so the two could never match. Confirmed live this silently
+// broke colour lookups for every accented club name across every
+// ESPN-colour-routed league, not just Spanish ones.
 function normalize(str) {
-  return str.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return str.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 // ESPN's "we have no colour data for this club" sentinel: color is always
