@@ -63,6 +63,28 @@ describe('getTeamColours', () => {
     expect(result.logoUrl).toBeNull();
   });
 
+  it('matches a stored plain-ASCII name against ESPN\'s accented one (e.g. "Atletico Madrid" vs "Atlético Madrid")', async () => {
+    const response = {
+      sports: [{ leagues: [{ teams: [
+        { team: { displayName: 'Atlético Madrid', name: 'Atlético Madrid', shortDisplayName: 'Atlético', color: 'ce3524', alternateColor: '1c2c5b', logos: [] } },
+      ] }] }],
+    };
+    mockFetch.mockResolvedValue(mockOk(response));
+    const result = await espnColourService.getTeamColours('Atletico Madrid', 'LALIGA');
+    expect(result).toMatchObject({ primary: '#ce3524', secondary: '#1c2c5b' });
+  });
+
+  it('resolves "Brighton" via the override against ESPN\'s actual "Brighton & Hove Albion" (not "and")', async () => {
+    const response = {
+      sports: [{ leagues: [{ teams: [
+        { team: { displayName: 'Brighton & Hove Albion', name: 'Brighton & Hove Albion', shortDisplayName: 'Brighton', color: '0054a6', alternateColor: 'ffffff', logos: [] } },
+      ] }] }],
+    };
+    mockFetch.mockResolvedValue(mockOk(response));
+    const result = await espnColourService.getTeamColours('Brighton', 'EPL');
+    expect(result).toMatchObject({ primary: '#0054a6', secondary: '#ffffff' });
+  });
+
   it("skips a club with ESPN's placeholder colour (000000/000000) rather than treating it as real", async () => {
     const response = {
       sports: [{ leagues: [{ teams: [
