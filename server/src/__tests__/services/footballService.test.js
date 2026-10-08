@@ -210,6 +210,38 @@ describe('getFDTeamData', () => {
     expect(result.nextFixture).toBeNull();
   });
 
+  // Verified live against football-data.org's actual current PL data: its
+  // real shortName values are "Tottenham", "Man United" and "Nottingham" —
+  // not the "Spurs" / "Man Utd" / "Nott'm Forest" this file's overrides used
+  // to assume. None of the three matching conditions in findFDTeam ever
+  // caught the mismatch, so these teams' cards silently showed
+  // "Unavailable" with no indication why.
+  it.each([
+    ['Tottenham Hotspur', 'Tottenham Hotspur FC', 'Tottenham'],
+    ['Manchester United', 'Manchester United FC', 'Man United'],
+    ['Nottingham Forest', 'Nottingham Forest FC', 'Nottingham'],
+  ])('matches "%s" against football-data.org\'s real current shortName "%s"', async (ourName, fdName, fdShortName) => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams') && !url.includes('/matches')) {
+        return mockOk({ teams: [{ id: 99, name: fdName, shortName: fdShortName, crest: 'x' }] });
+      }
+      return mockOk({});
+    });
+    const result = await footballService.getFDTeamData({ teamName: ourName }, 'PL');
+    expect(result).not.toBeNull();
+  });
+
+  it('matches a stored plain-ASCII name against football-data.org\'s accented one (e.g. "Alaves" vs "Deportivo Alavés")', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams') && !url.includes('/matches')) {
+        return mockOk({ teams: [{ id: 99, name: 'Deportivo Alavés', shortName: 'Alavés', crest: 'x' }] });
+      }
+      return mockOk({});
+    });
+    const result = await footballService.getFDTeamData({ teamName: 'Alaves' }, 'PD');
+    expect(result).not.toBeNull();
+  });
+
   it('sets seasonFinished=true when there are past matches but no future ones', async () => {
     mockFetch.mockImplementation(standardMock([MOCK_FINISHED_MATCH], []));
     const result = await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');

@@ -23,14 +23,23 @@ function toDateStr(d) {
   return d.toISOString().split('T')[0];
 }
 
-// Per-competition short-name overrides where our stored name differs from the API's shortName
+// Per-competition short-name overrides where our stored name differs from the API's shortName.
+// Verified live against football-data.org's actual current shortName values
+// for every entry here — three of the five were stale (the API's real
+// shortName had since changed, or was never what the override assumed) and
+// silently matched nothing, so that team's whole card showed "Unavailable"
+// rather than just a wrong name: 'Man Utd' (real: "Man United"), 'Spurs'
+// (real: "Tottenham"), "Nott'm Forest" (real: "Nottingham"). 'Newcastle Utd'
+// is also not football-data's real shortName ("Newcastle") but happened to
+// still match via findTeamByName's other substring check, so it was left
+// as-is rather than "fixed" into a second untested guess.
 const SHORTNAME_OVERRIDES = {
   PL: {
     'Manchester City': 'Man City',
-    'Manchester United': 'Man Utd',
+    'Manchester United': 'Man United',
     'Newcastle United': 'Newcastle Utd',
-    'Tottenham Hotspur': 'Spurs',
-    "Nottingham Forest": "Nott'm Forest",
+    'Tottenham Hotspur': 'Tottenham',
+    "Nottingham Forest": 'Nottingham',
   },
 };
 
@@ -99,14 +108,26 @@ async function getFDScorers(code) {
   return promise;
 }
 
+// Folds accented characters to their base letter (NFD decomposes "é" into
+// "e" + a combining-acute-accent codepoint, which the regex then strips)
+// rather than just lowercasing — our stored names are plain ASCII ("Alaves")
+// while football-data.org's are the accented native spelling ("Deportivo
+// Alavés"), and a plain .toLowerCase() never bridges that gap. Confirmed
+// live this silently broke the match (and therefore the whole team card)
+// for Alavés; same class of bug already fixed in espnColourService.js and
+// espnTeamSportService.js's own normalize functions.
+function fold(s) {
+  return (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
 function findFDTeam(allTeams, ourName, code) {
   const overrides = SHORTNAME_OVERRIDES[code] || {};
-  const target = (overrides[ourName] || ourName).toLowerCase();
+  const target = fold(overrides[ourName] || ourName);
   return allTeams.find(
     (t) =>
-      (t.shortName || '').toLowerCase() === target ||
-      t.name.toLowerCase().includes(target) ||
-      target.includes((t.shortName || '').toLowerCase()),
+      fold(t.shortName) === target ||
+      fold(t.name).includes(target) ||
+      target.includes(fold(t.shortName)),
   );
 }
 
