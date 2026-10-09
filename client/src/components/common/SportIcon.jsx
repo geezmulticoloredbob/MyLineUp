@@ -121,9 +121,16 @@ function SportIcon({ sport, league, size = 20, className }) {
   if (sport === 'CRICKET') {
     return (
       <svg {...props}>
-        <circle cx="10" cy="10" r="9" fill="#a01f1f" />
-        <path d="M3.5,6 Q10,10 3.5,14" stroke="#fdf6e3" strokeWidth="0.7" strokeDasharray="0.6,0.5" fill="none" />
-        <path d="M16.5,6 Q10,10 16.5,14" stroke="#fdf6e3" strokeWidth="0.7" strokeDasharray="0.6,0.5" fill="none" />
+        <circle cx="10" cy="10" r="9" fill="#b3181e" />
+        {/* One straight stitched seam across the middle (two seam lines, a row
+            of stitches outside each) — the old side-seam design read as a red
+            baseball, since curved seams on either side are baseball's pattern. */}
+        <g transform="rotate(-35 10 10)" fill="none" stroke="#f6ead2">
+          <path d="M1.2,9.6 Q10,8.4 18.8,9.6" strokeWidth="0.6" />
+          <path d="M1.2,10.9 Q10,9.7 18.8,10.9" strokeWidth="0.6" />
+          <path d="M2.2,8.5 Q10,7.3 17.8,8.5" strokeWidth="1" strokeDasharray="0.45,0.75" />
+          <path d="M2.2,12 Q10,10.8 17.8,12" strokeWidth="1" strokeDasharray="0.45,0.75" />
+        </g>
         <circle cx="10" cy="10" r="9" fill="none" stroke="#5c1010" strokeWidth="0.8" />
       </svg>
     );
