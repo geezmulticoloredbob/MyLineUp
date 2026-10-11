@@ -22,11 +22,15 @@ const FD_COMPETITION_CODES = {
 
 const NBA_ESPN_OVERRIDES = { gsw: 'gs', nop: 'no', nyk: 'ny', sas: 'sa', uta: 'utah', was: 'wsh' };
 
+// Kept in sync with EPL's current 20 clubs in teamsByLeague.js — see that
+// file's own comment for the 2026-10 promotion/relegation refresh. IDs for
+// the 4 new entries (cov/hul/lee/sun) confirmed live against ESPN's own
+// soccer/eng.1 team list.
 const EPL_ESPN_IDS = {
   'epl-ars': 359, 'epl-avl': 362, 'epl-bou': 349, 'epl-bre': 337, 'epl-bha': 331,
-  'epl-che': 363, 'epl-cry': 384, 'epl-eve': 368, 'epl-ful': 370, 'epl-ips': 373,
-  'epl-lei': 375, 'epl-liv': 364, 'epl-mci': 382, 'epl-mun': 360, 'epl-new': 361,
-  'epl-nfo': 393, 'epl-sou': 376, 'epl-tot': 367, 'epl-whu': 371, 'epl-wol': 380,
+  'epl-che': 363, 'epl-cov': 388, 'epl-cry': 384, 'epl-eve': 368, 'epl-ful': 370,
+  'epl-hul': 306, 'epl-ips': 373, 'epl-lee': 357, 'epl-liv': 364, 'epl-mci': 382,
+  'epl-mun': 360, 'epl-new': 361, 'epl-nfo': 393, 'epl-sun': 366, 'epl-tot': 367,
 };
 
 // Last-resort fallback when the primary sport service returns no logoUrl at

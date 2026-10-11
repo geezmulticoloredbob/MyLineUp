@@ -32,6 +32,18 @@ export const teamsByLeague = {
     { teamId: 'nba-was', teamName: 'Washington Wizards' },
   ],
 
+  // Promotion/relegation means this roster needs a manual refresh each
+  // season — see .claude/rules/sports-integration-notes.md for the full
+  // audit (2026-10-09/11) that found this one (and 7 other football-data.org
+  // leagues) had drifted. Verified live against football-data.org's current
+  // PL roster before this edit, not assumed: Leicester City, Southampton,
+  // West Ham United and Wolves are no longer in the Premier League (all
+  // confirmed live in the Championship below instead — see that list's own
+  // comment); Coventry City, Hull City, Leeds United and Sunderland are the
+  // teams that replaced them. Every new entry's stored name was checked
+  // against findFDTeam's actual matching logic before being added, not just
+  // assumed plausible — see the Man Utd/Spurs/Nott'm Forest lesson earlier
+  // in this file's own history.
   EPL: [
     { teamId: 'epl-ars', teamName: 'Arsenal' },
     { teamId: 'epl-avl', teamName: 'Aston Villa' },
@@ -39,20 +51,20 @@ export const teamsByLeague = {
     { teamId: 'epl-bre', teamName: 'Brentford' },
     { teamId: 'epl-bha', teamName: 'Brighton' },
     { teamId: 'epl-che', teamName: 'Chelsea' },
+    { teamId: 'epl-cov', teamName: 'Coventry City' },
     { teamId: 'epl-cry', teamName: 'Crystal Palace' },
     { teamId: 'epl-eve', teamName: 'Everton' },
     { teamId: 'epl-ful', teamName: 'Fulham' },
+    { teamId: 'epl-hul', teamName: 'Hull City' },
     { teamId: 'epl-ips', teamName: 'Ipswich Town' },
-    { teamId: 'epl-lei', teamName: 'Leicester City' },
+    { teamId: 'epl-lee', teamName: 'Leeds United' },
     { teamId: 'epl-liv', teamName: 'Liverpool' },
     { teamId: 'epl-mci', teamName: 'Manchester City' },
     { teamId: 'epl-mun', teamName: 'Manchester United' },
     { teamId: 'epl-new', teamName: 'Newcastle United' },
     { teamId: 'epl-nfo', teamName: 'Nottingham Forest' },
-    { teamId: 'epl-sou', teamName: 'Southampton' },
+    { teamId: 'epl-sun', teamName: 'Sunderland' },
     { teamId: 'epl-tot', teamName: 'Tottenham Hotspur' },
-    { teamId: 'epl-whu', teamName: 'West Ham United' },
-    { teamId: 'epl-wol', teamName: 'Wolves' },
   ],
 
   AFL: [
@@ -207,13 +219,24 @@ export const teamsByLeague = {
     { teamId: 'l1-asse',teamName: 'Saint-Etienne' },
   ],
 
+  // Same yearly-refresh need as EPL above — verified live against
+  // football-data.org's current ELC roster before this edit. Oxford United,
+  // Leicester City and Sheffield Wednesday are no longer in the
+  // Championship (nor the Premier League — confirmed against both; they've
+  // dropped to a tier this app doesn't track at all, the same way a real
+  // League Two side can fall out of the whole EFL). Coventry City, Ipswich
+  // Town and Hull City moved up to the Premier League (see that list
+  // above); Bolton Wanderers, Burnley, Cardiff City, Lincoln City, West Ham
+  // United and Wolverhampton Wanderers are this season's actual Championship
+  // clubs that replace all six. "Wolves" (the old EPL short name) isn't
+  // used here — it doesn't match football-data.org's name for this club at
+  // all (no override exists for it, unlike the fixed PL overrides earlier
+  // in this file's history), so the full "Wolverhampton Wanderers" is used
+  // instead, checked live against findFDTeam's actual matching logic.
   CHAMPIONSHIP: [
-    { teamId: 'cha-cov', teamName: 'Coventry City' },
-    { teamId: 'cha-ips', teamName: 'Ipswich Town' },
     { teamId: 'cha-mil', teamName: 'Millwall' },
     { teamId: 'cha-sou', teamName: 'Southampton' },
     { teamId: 'cha-mid', teamName: 'Middlesbrough' },
-    { teamId: 'cha-hul', teamName: 'Hull City' },
     { teamId: 'cha-wre', teamName: 'Wrexham' },
     { teamId: 'cha-der', teamName: 'Derby County' },
     { teamId: 'cha-nor', teamName: 'Norwich City' },
@@ -229,9 +252,12 @@ export const teamsByLeague = {
     { teamId: 'cha-chr', teamName: 'Charlton Athletic' },
     { teamId: 'cha-bla', teamName: 'Blackburn Rovers' },
     { teamId: 'cha-wba', teamName: 'West Bromwich Albion' },
-    { teamId: 'cha-oxu', teamName: 'Oxford United' },
-    { teamId: 'cha-lei', teamName: 'Leicester City' },
-    { teamId: 'cha-shw', teamName: 'Sheffield Wednesday' },
+    { teamId: 'cha-bol', teamName: 'Bolton Wanderers' },
+    { teamId: 'cha-bur', teamName: 'Burnley' },
+    { teamId: 'cha-car', teamName: 'Cardiff City' },
+    { teamId: 'cha-lin', teamName: 'Lincoln City' },
+    { teamId: 'cha-whu', teamName: 'West Ham United' },
+    { teamId: 'cha-wol', teamName: 'Wolverhampton Wanderers' },
   ],
 
   EREDIVISIE: [
