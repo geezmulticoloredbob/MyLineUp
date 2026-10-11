@@ -41,17 +41,26 @@ export const teamColors = {
   'epl-cry': { primary: '#1B458F', secondary: '#C4122E' },
   'epl-eve': { primary: '#003399', secondary: '#FFFFFF' },
   'epl-ful': { primary: '#CC0000', secondary: '#000000' },
+  // Promoted into the Premier League 2026-27 — colours carried over from
+  // this same real club's old Championship entry (cha-cov), not re-sourced.
+  'epl-cov': { primary: '#6CADDF', secondary: '#FFFFFF' },
+  'epl-hul': { primary: '#F5A623', secondary: '#000000' },
   'epl-ips': { primary: '#3A6AC5', secondary: '#0A1E8C' },
-  'epl-lei': { primary: '#003090', secondary: '#FDBE11' },
+  // Leeds United — genuinely mono-colour: "The team's traditional kit
+  // colours are white shirts, white shorts and white socks" (Leeds United's
+  // own Wikipedia article, verbatim) — not a missing-data gap, the real
+  // identity. Secondary repeats primary, same convention as Tokyo Verdy.
+  'epl-lee': { primary: '#FFFFFF', secondary: '#FFFFFF' },
   'epl-liv': { primary: '#C8102E', secondary: '#F6EB61' },
   'epl-mci': { primary: '#6CABDD', secondary: '#1C2C5B' },
   'epl-mun': { primary: '#DA291C', secondary: '#FBE122' },
   'epl-new': { primary: '#241F20', secondary: '#FFFFFF' },
   'epl-nfo': { primary: '#DD0000', secondary: '#FFFFFF' },
-  'epl-sou': { primary: '#D71920', secondary: '#FFFFFF' },
+  // Sunderland — "They play in red and white-striped shirts and black
+  // shorts" (Wikipedia); using the stated red/white identity rather than
+  // the literal current black shorts.
+  'epl-sun': { primary: '#FF0000', secondary: '#FFFFFF' },
   'epl-tot': { primary: '#132257', secondary: '#FFFFFF' },
-  'epl-whu': { primary: '#7A263A', secondary: '#1BB1E7' },
-  'epl-wol': { primary: '#FDB913', secondary: '#231F20' },
 
   // World Cup — tertiary added where the flag has 3 distinct colours
   // primary→secondary→tertiary maps to left→centre→right of the gradient (flag stripe order where possible)
@@ -201,12 +210,9 @@ export const teamColors = {
   'afl-wbd': { primary: '#014896', secondary: '#CC2031' },
 
   // EFL Championship
-  'cha-cov': { primary: '#6CADDF', secondary: '#FFFFFF' },
-  'cha-ips': { primary: '#3A64A3', secondary: '#FFFFFF' },
   'cha-mil': { primary: '#001C58', secondary: '#FFFFFF' },
   'cha-sou': { primary: '#D71920', secondary: '#FFFFFF' },
   'cha-mid': { primary: '#CC0000', secondary: '#FFFFFF' },
-  'cha-hul': { primary: '#F5A623', secondary: '#000000' },
   'cha-wre': { primary: '#C8102E', secondary: '#FFFFFF' },
   'cha-der': { primary: '#FFFFFF', secondary: '#000000' },
   'cha-nor': { primary: '#FFF200', secondary: '#00A650' },
@@ -222,9 +228,29 @@ export const teamColors = {
   'cha-chr': { primary: '#D2122E', secondary: '#000000' },
   'cha-bla': { primary: '#009EE0', secondary: '#FFFFFF' },
   'cha-wba': { primary: '#122F67', secondary: '#FFFFFF' },
-  'cha-oxu': { primary: '#FEE800', secondary: '#001958' },
-  'cha-lei': { primary: '#003090', secondary: '#FDBE11' },
-  'cha-shw': { primary: '#0066B3', secondary: '#FFFFFF' },
+  // Relegated into the Championship 2026-27 — colours carried over from
+  // this same real club's old Premier League entry (epl-whu / epl-wol
+  // respectively), not re-sourced.
+  'cha-whu': { primary: '#7A263A', secondary: '#1BB1E7' },
+  'cha-wol': { primary: '#FDB913', secondary: '#231F20' },
+  // Bolton Wanderers — genuinely all-white home kit, and one of the club's
+  // own stated nicknames is literally "The Whites" (Wikipedia). Secondary
+  // uses the real away-kit maroon rather than repeating white, since that's
+  // sourced data rather than an assumption.
+  'cha-bol': { primary: '#FFFFFF', secondary: '#800000' },
+  // Burnley — "the club colours of claret and blue were adopted in 1910"
+  // (Wikipedia, verbatim); no literal hex found in the infobox (current kit
+  // is a pattern image, not a plain colour), so this uses the standard
+  // representation of "claret" rather than a guess.
+  'cha-bur': { primary: '#6C1D45', secondary: '#6CABDD' },
+  // Cardiff City — "home colours of blue and white since 1908, from which
+  // their nickname 'The Bluebirds' derives" (Wikipedia), matches the
+  // infobox's literal kit hex too.
+  'cha-car': { primary: '#0000FF', secondary: '#FFFFFF' },
+  // Lincoln City — "a red and white striped shirt along with black shorts"
+  // (Wikipedia); red from the infobox's literal current kit hex, white and
+  // black from the stated identity.
+  'cha-lin': { primary: '#CE131A', secondary: '#FFFFFF', tertiary: '#1C1819' },
 
   // Eredivisie
   'ere-ajx': { primary: '#D2122E', secondary: '#FFFFFF', tertiary: '#000000' },
