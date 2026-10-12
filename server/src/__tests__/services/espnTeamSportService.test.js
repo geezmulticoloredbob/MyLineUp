@@ -409,10 +409,15 @@ describe('soccer schedule + fixture=true merge', () => {
       ],
     }],
   };
+  // Computed relative to the real clock, not hardcoded — a fixed future
+  // date eventually stops being future and turns this into a flake. Found
+  // live: this literally happened to this exact fixture (originally
+  // '2026-10-11', which had already passed by the time this was caught).
+  const FUTURE_FIXTURE_DATE = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
   const FUTURE_FIXTURE = {
-    date: '2026-10-11T12:00:00Z',
+    date: FUTURE_FIXTURE_DATE,
     competitions: [{
-      date: '2026-10-11T12:00:00Z',
+      date: FUTURE_FIXTURE_DATE,
       status: { type: { completed: false, name: 'STATUS_SCHEDULED' } },
       competitors: [
         { team: { id: '256', abbreviation: 'CEL' }, homeAway: 'away', score: null, winner: null },
