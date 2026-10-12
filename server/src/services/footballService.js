@@ -199,7 +199,14 @@ async function getFDTeamData(favourite, code) {
       ? lastMatch.awayTeam.shortName || lastMatch.awayTeam.name
       : lastMatch.homeTeam.shortName || lastMatch.homeTeam.name;
     const winner = lastMatch.score.winner;
-    const outcome = winner === null ? 'D' : (winner === 'HOME_TEAM') === isHome ? 'W' : 'L';
+    // football-data.org's real value for a drawn match is the literal
+    // string 'DRAW', not null — confirmed live (Málaga 1-1 Espanyol).
+    // Checking only `=== null` here meant a draw could never be detected;
+    // the code fell through to the W/L branch and reported a definite win
+    // or loss for every single drawn match instead. `null` is kept as a
+    // second, defensive check in case some other match shape ever omits
+    // winner entirely rather than using 'DRAW'.
+    const outcome = (winner === 'DRAW' || winner === null) ? 'D' : (winner === 'HOME_TEAM') === isHome ? 'W' : 'L';
     latestResult = {
       date: lastMatch.utcDate.split('T')[0],
       outcome,

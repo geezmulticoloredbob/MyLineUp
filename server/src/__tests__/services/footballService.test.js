@@ -194,7 +194,23 @@ describe('getFDTeamData', () => {
     expect(result.latestResult.outcome).toBe('L');
   });
 
-  it('sets outcome to D for a draw', async () => {
+  // football-data.org's real value for a drawn match is the literal string
+  // 'DRAW' — confirmed live (Málaga 1-1 Espanyol, 2026-10-09). The old
+  // version of this test used winner: null, which isn't what the real API
+  // actually sends for a draw; it matched the code's own wrong assumption
+  // rather than reality, so it passed while every real drawn match was
+  // silently reported as a win or loss.
+  it("sets outcome to D for a draw (winner: 'DRAW', football-data.org's real value)", async () => {
+    const drawMatch = {
+      ...MOCK_FINISHED_MATCH,
+      score: { fullTime: { home: 1, away: 1 }, winner: 'DRAW' },
+    };
+    mockFetch.mockImplementation(standardMock([drawMatch], []));
+    const result = await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');
+    expect(result.latestResult.outcome).toBe('D');
+  });
+
+  it('also treats a null winner as a draw (defensive fallback, not the real API shape)', async () => {
     const drawMatch = {
       ...MOCK_FINISHED_MATCH,
       score: { fullTime: { home: 1, away: 1 }, winner: null },

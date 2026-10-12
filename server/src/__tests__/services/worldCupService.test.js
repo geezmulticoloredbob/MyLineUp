@@ -75,6 +75,29 @@ describe('getWCTeamData', () => {
     expect(result.ladderPosition).toBe(1);
   });
 
+  // football-data.org's real value for a drawn match is the literal string
+  // 'DRAW' — see footballService.js's identical fix/test for the live
+  // confirmation (both services read this field the same way).
+  it("sets outcome to D for a draw (winner: 'DRAW', football-data.org's real value)", async () => {
+    const drawMatch = {
+      ...MOCK_FINISHED_MATCH,
+      score: { fullTime: { home: 1, away: 1 }, winner: 'DRAW' },
+    };
+    mockFetch.mockImplementation(standardMock([drawMatch], []));
+    const result = await worldCupService.getWCTeamData({ teamName: 'England' });
+    expect(result.latestResult.outcome).toBe('D');
+  });
+
+  it('also treats a null winner as a draw (defensive fallback, not the real API shape)', async () => {
+    const drawMatch = {
+      ...MOCK_FINISHED_MATCH,
+      score: { fullTime: { home: 1, away: 1 }, winner: null },
+    };
+    mockFetch.mockImplementation(standardMock([drawMatch], []));
+    const result = await worldCupService.getWCTeamData({ teamName: 'England' });
+    expect(result.latestResult.outcome).toBe('D');
+  });
+
   it('uses cache on second call for the same team (matches fetched only once)', async () => {
     mockFetch.mockImplementation(standardMock([MOCK_FINISHED_MATCH], []));
     await worldCupService.getWCTeamData({ teamName: 'England' });
