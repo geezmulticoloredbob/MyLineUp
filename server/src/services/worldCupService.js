@@ -121,8 +121,12 @@ async function getWCTeamData(favourite) {
     const opponent = isHome
       ? lastMatch.awayTeam.shortName || lastMatch.awayTeam.name
       : lastMatch.homeTeam.shortName || lastMatch.homeTeam.name;
+    // football-data.org's real value for a drawn match is the literal
+    // string 'DRAW', not null — see footballService.js's identical fix for
+    // the live confirmation (both services read this field the same way).
+    // `null` is kept as a second, defensive check.
     const winner = lastMatch.score.winner;
-    const outcome = winner === null ? 'D' : (winner === 'HOME_TEAM') === isHome ? 'W' : 'L';
+    const outcome = (winner === 'DRAW' || winner === null) ? 'D' : (winner === 'HOME_TEAM') === isHome ? 'W' : 'L';
     latestResult = {
       date: lastMatch.utcDate.split('T')[0],
       outcome,
