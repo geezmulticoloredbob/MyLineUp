@@ -2,7 +2,7 @@ const { getNBATeamData } = require('./nbaService');
 const { getFDTeamData } = require('./footballService');
 const { getWCTeamData } = require('./worldCupService');
 const { getESPNTeamData } = require('./espnTeamSportService');
-const { getCricketTeamData } = require('./cricketService');
+const { getCricketTeamData, cricketLogoFromTeamId } = require('./cricketService');
 const { getTeamColours } = require('./espnColourService');
 
 const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL', 'NRL', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA', 'TURKEY', 'SCOTLAND', 'JLEAGUE', 'BELGIUM', 'MLS'];
@@ -93,7 +93,7 @@ async function hydrateTeam(favourite) {
     favouriteId: favourite._id,
     teamId: favourite.teamId,
     teamName: favourite.teamName,
-    teamLogoUrl: sportData?.logoUrl || favourite.teamLogoUrl || espnLogoFromTeamId(favourite.teamId) || colours?.logoUrl,
+    teamLogoUrl: sportData?.logoUrl || favourite.teamLogoUrl || espnLogoFromTeamId(favourite.teamId) || cricketLogoFromTeamId(favourite.teamId) || colours?.logoUrl,
     league: favourite.league,
     latestResult: sportData?.latestResult ?? null,
     nextFixture: sportData?.nextFixture ?? null,
