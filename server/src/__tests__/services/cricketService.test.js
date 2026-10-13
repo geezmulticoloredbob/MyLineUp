@@ -126,7 +126,7 @@ describe('getCricketTeamData', () => {
     const result = await cricketService.getCricketTeamData({ teamId: 'ipl-csk', teamName: 'Chennai Super Kings' }, 'IPL');
 
     expect(result.nextFixture).toMatchObject({ date: '2026-04-20', opponent: 'Mumbai Indians' });
-    expect(result.nextFixture.opponentLogoUrl).toBe(MI.img);
+    expect(result.nextFixture.opponentLogoUrl).toBe('https://scores.iplt20.com/ipl/teamlogos/MI.png');
   });
 
   it('derives ladderPosition and stats from the points table, ranked by wins', async () => {
@@ -142,7 +142,7 @@ describe('getCricketTeamData', () => {
     expect(result.ladderPosition).toBe(1); // MI has the most wins of the three
   });
 
-  it('uses the team\'s own logo directly from the API, no CDN URL construction needed', async () => {
+  it('prefers the official league logo over the API\'s own img', async () => {
     mockFetch.mockImplementation((url) => {
       if (url.includes('series_info')) return mockOk(SERIES_INFO_RESPONSE);
       if (url.includes('series_points')) return mockOk(POINTS_RESPONSE);
@@ -150,7 +150,23 @@ describe('getCricketTeamData', () => {
     });
 
     const result = await cricketService.getCricketTeamData({ teamId: 'ipl-csk', teamName: 'Chennai Super Kings' }, 'IPL');
-    expect(result.logoUrl).toBe(CSK.img);
+    expect(result.logoUrl).toBe('https://scores.iplt20.com/ipl/teamlogos/CSK.png');
+  });
+
+  it('falls back to the API\'s img for a team with no official logo mapped', async () => {
+    const NEW_TEAM = team('Expansion XI', 'EXP', 'https://example.com/exp.png');
+    const fixture = match({
+      id: 'm9', status: 'Expansion XI won by 5 wickets', date: '2026-04-11', dateTimeGMT: '2026-04-11T14:00:00',
+      matchStarted: true, matchEnded: true, teams: [NEW_TEAM, CSK],
+    });
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('series_info')) return mockOk({ status: 'success', data: { matchList: [fixture] } });
+      if (url.includes('series_points')) return mockOk({ status: 'success', data: [] });
+      return mockOk({});
+    });
+
+    const result = await cricketService.getCricketTeamData({ teamId: 'ipl-exp', teamName: 'Expansion XI' }, 'IPL');
+    expect(result.logoUrl).toBe(NEW_TEAM.img);
   });
 
   it('falls back to matching by team name when the abbreviation is not found', async () => {
@@ -165,7 +181,7 @@ describe('getCricketTeamData', () => {
       'IPL',
     );
     expect(result).not.toBeNull();
-    expect(result.logoUrl).toBe(CSK.img);
+    expect(result.logoUrl).toBe('https://scores.iplt20.com/ipl/teamlogos/CSK.png');
   });
 
   it('marks seasonFinished true once a team has played but has no matches left', async () => {
@@ -208,12 +224,27 @@ describe('getCricketStandingsOverview', () => {
 
     expect(result).toHaveLength(3);
     expect(result[0]).toMatchObject({ position: 1, teamName: 'Mumbai Indians', stats: { wins: 2, losses: 1 } });
+    expect(result[0].logoUrl).toBe('https://scores.iplt20.com/ipl/teamlogos/MI.png');
   });
 
   it('returns an empty array for a season with no matches played yet', async () => {
     mockFetch.mockImplementation(() => mockOk({ status: 'success', data: [] }));
     const result = await cricketService.getCricketStandingsOverview('BBL');
     expect(result).toEqual([]);
+  });
+});
+
+describe('cricketLogoFromTeamId', () => {
+  it('has an official logo for every IPL and BBL team', () => {
+    const ids = ['ipl-csk', 'ipl-dc', 'ipl-gt', 'ipl-kkr', 'ipl-lsg', 'ipl-mi', 'ipl-pbks', 'ipl-rr', 'ipl-rcb', 'ipl-srh',
+      'bbl-brh', 'bbl-syt', 'bbl-hbh', 'bbl-mlr', 'bbl-sys', 'bbl-ads', 'bbl-prs', 'bbl-mls'];
+    const urls = ids.map((id) => cricketService.cricketLogoFromTeamId(id));
+    urls.forEach((url) => expect(url).toMatch(/^https:\/\//));
+    expect(new Set(urls).size).toBe(ids.length);
+  });
+
+  it('returns null for a non-cricket team id', () => {
+    expect(cricketService.cricketLogoFromTeamId('nba-lal')).toBeNull();
   });
 });
 

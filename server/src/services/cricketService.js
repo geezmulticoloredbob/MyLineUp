@@ -17,6 +17,48 @@ const SERIES_IDS = {
   BBL: 'c6ae878d-fcb7-4342-a7d7-a65ee3fe3de2', // Big Bash League 2026-27 (empty until the season starts in December)
 };
 
+// Official team logos, keyed by our own team id. cricketdata.org's `img`
+// field isn't reliable enough to be the only source: it's a small thumbnail
+// at best, and a BBL team has no logo at all until its new season's fixtures
+// exist (getCricketTeamData returns null with no match list to read `img`
+// from). These come from each league's own site instead — the IPL's
+// scores.iplt20.com CDN and bigbash.com.au's own asset bucket — and were
+// checked to load in a real browser. Note scores.iplt20.com's Akamai edge
+// 403s a "HeadlessChrome" user agent (normal Chrome/Safari load fine), so a
+// headless Playwright check needs a regular userAgent set to see them.
+const IPL_LOGO_BASE = 'https://scores.iplt20.com/ipl/teamlogos';
+const BBL_LOGO_BASE = 'https://resources.bigbash.pulselive.com/bigbash/document';
+const TEAM_LOGOS = {
+  'ipl-csk':  { name: 'Chennai Super Kings',          url: `${IPL_LOGO_BASE}/CSK.png` },
+  'ipl-dc':   { name: 'Delhi Capitals',               url: `${IPL_LOGO_BASE}/DC.png` },
+  'ipl-gt':   { name: 'Gujarat Titans',               url: `${IPL_LOGO_BASE}/GT.png` },
+  'ipl-kkr':  { name: 'Kolkata Knight Riders',        url: `${IPL_LOGO_BASE}/KKR.png` },
+  'ipl-lsg':  { name: 'Lucknow Super Giants',         url: `${IPL_LOGO_BASE}/LSG.png` },
+  'ipl-mi':   { name: 'Mumbai Indians',               url: `${IPL_LOGO_BASE}/MI.png` },
+  'ipl-pbks': { name: 'Punjab Kings',                 url: `${IPL_LOGO_BASE}/PBKS.png` },
+  'ipl-rr':   { name: 'Rajasthan Royals',             url: `${IPL_LOGO_BASE}/RR.png` },
+  'ipl-rcb':  { name: 'Royal Challengers Bengaluru',  url: `${IPL_LOGO_BASE}/RCB.png` },
+  'ipl-srh':  { name: 'Sunrisers Hyderabad',          url: `${IPL_LOGO_BASE}/SRH.png` },
+  'bbl-brh':  { name: 'Brisbane Heat',       url: `${BBL_LOGO_BASE}/2024/07/22/f05b78b1-5dc9-4e09-8ae4-08f10d49adbc/brisbane-heat.svg` },
+  'bbl-syt':  { name: 'Sydney Thunder',      url: `${BBL_LOGO_BASE}/2026/07/20/46324104-07a6-4453-a0ea-210d948801b1/SydneyThunder.svg` },
+  'bbl-hbh':  { name: 'Hobart Hurricanes',   url: `${BBL_LOGO_BASE}/2024/07/22/27c8e87c-0a60-4169-91f7-46f8d70c0ef6/hobart-hurricanes.svg` },
+  'bbl-mlr':  { name: 'Melbourne Renegades', url: `${BBL_LOGO_BASE}/2024/08/08/5e0f404d-a233-4685-9ea8-cd4bb8026dd9/melbourne-renegades-red.svg` },
+  'bbl-sys':  { name: 'Sydney Sixers',       url: `${BBL_LOGO_BASE}/2024/07/22/00f1af01-40fb-49af-9cb6-8f0536934ac3/sydney-sixers.svg` },
+  'bbl-ads':  { name: 'Adelaide Strikers',   url: `${BBL_LOGO_BASE}/2024/07/22/41593230-b94e-4154-a4b0-a5d9e0170c3b/adelaide-strikers.svg` },
+  'bbl-prs':  { name: 'Perth Scorchers',     url: `${BBL_LOGO_BASE}/2024/07/22/00862a65-bb8c-4cb3-bb81-c8d91dec6645/perth-scorchers.svg` },
+  'bbl-mls':  { name: 'Melbourne Stars',     url: `${BBL_LOGO_BASE}/2024/07/22/9e61e982-0472-4131-83f5-2e88e562526a/melbourne-stars.svg` },
+};
+
+function cricketLogoFromTeamId(teamId) {
+  return TEAM_LOGOS[teamId]?.url || null;
+}
+
+// Opponents and points-table rows only carry the API's team name, not our id.
+function cricketLogoFromTeamName(teamName) {
+  const target = (teamName || '').toLowerCase();
+  return Object.values(TEAM_LOGOS).find((t) => t.name.toLowerCase() === target)?.url || null;
+}
+
 // Free tier is a hard 100 requests/day shared across every league and every
 // user of this app — nothing like ESPN's effectively-unlimited free tier.
 // Long TTLs here are deliberate headroom, not laziness: T20 matches happen
@@ -157,7 +199,7 @@ async function getCricketTeamData(favourite, leagueKey) {
       utcDate: m.dateTimeGMT ? `${m.dateTimeGMT}Z` : null,
       venue: m.venue || null,
       opponent: opponent?.name || 'TBD',
-      opponentLogoUrl: opponent?.img || null,
+      opponentLogoUrl: cricketLogoFromTeamName(opponent?.name) || opponent?.img || null,
     };
   }
 
@@ -176,7 +218,7 @@ async function getCricketTeamData(favourite, leagueKey) {
     nextFixture,
     ladderPosition,
     stats: pointsRow ? { wins: pointsRow.wins ?? 0, losses: pointsRow.loss ?? 0 } : {},
-    logoUrl: myTeamInfo.img || null,
+    logoUrl: cricketLogoFromTeamId(favourite.teamId) || cricketLogoFromTeamName(myTeamInfo.name) || myTeamInfo.img || null,
     topScorers: [],
     seasonFinished: teamMatches.length > 0 && upcoming.length === 0,
   };
@@ -189,7 +231,7 @@ async function getCricketStandingsOverview(leagueKey) {
     .map((row, i) => ({
       position: i + 1,
       teamName: row.teamname,
-      logoUrl: row.img || null,
+      logoUrl: cricketLogoFromTeamName(row.teamname) || row.img || null,
       stats: { wins: row.wins ?? 0, losses: row.loss ?? 0 },
     }));
 }
@@ -207,6 +249,7 @@ async function getCricketLeagueGames() {
 
 module.exports = {
   getCricketTeamData,
+  cricketLogoFromTeamId,
   getCricketStandingsOverview,
   getCricketLeagueGames,
 };

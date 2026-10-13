@@ -2,7 +2,10 @@ jest.mock('../../services/nbaService', () => ({ getNBATeamData: jest.fn() }));
 jest.mock('../../services/footballService', () => ({ getFDTeamData: jest.fn() }));
 jest.mock('../../services/worldCupService', () => ({ getWCTeamData: jest.fn() }));
 jest.mock('../../services/espnTeamSportService', () => ({ getESPNTeamData: jest.fn() }));
-jest.mock('../../services/cricketService', () => ({ getCricketTeamData: jest.fn() }));
+jest.mock('../../services/cricketService', () => ({
+  getCricketTeamData: jest.fn(),
+  cricketLogoFromTeamId: jest.requireActual('../../services/cricketService').cricketLogoFromTeamId,
+}));
 
 const { hydrateFavouriteTeams } = require('../../services/sportsDataService');
 const { getNBATeamData } = require('../../services/nbaService');
@@ -262,6 +265,13 @@ describe('sportsDataService', () => {
       const [result] = await hydrateFavouriteTeams([bblFav]);
       expect(getCricketTeamData).toHaveBeenCalledWith(bblFav, 'BBL');
       expect(result.source).toBe('live');
+    });
+
+    it('still shows a BBL team\'s official logo when there\'s no season data yet', async () => {
+      getCricketTeamData.mockResolvedValue(null);
+      const [result] = await hydrateFavouriteTeams([bblFav]);
+      expect(result.source).toBe('unavailable');
+      expect(result.teamLogoUrl).toMatch(/bigbash\.pulselive\.com\/.*SydneyThunder\.svg$/);
     });
 
     it('returns source=unavailable for an unknown league without throwing', async () => {
