@@ -164,6 +164,16 @@ export const teamsByLeague = {
     { teamId: 'lla-rac', teamName: 'Racing Santander' },
   ],
 
+  // Same yearly-refresh need as EPL/Championship/La Liga — see those comment
+  // blocks and sports-integration-notes.md for the full promotion/relegation
+  // audit. Verified live against football-data.org's current BL1 team list
+  // AND standings (both agree, 18 rows each) before this edit. VfL Wolfsburg,
+  // Heidenheim, VfL Bochum, St. Pauli and Holstein Kiel are no longer in the
+  // Bundesliga (no German second division is tracked by this app, so
+  // they're removed outright); 1. FC Köln, FC Schalke 04, Hamburger SV, SC
+  // Paderborn 07 and SV 07 Elversberg are this season's actual replacements.
+  // Every new entry's stored name was checked against findFDTeam's actual
+  // matching logic before being added.
   BUNDESLIGA: [
     { teamId: 'bun-bay', teamName: 'Bayern Munich' },
     { teamId: 'bun-bvb', teamName: 'Borussia Dortmund' },
@@ -171,7 +181,6 @@ export const teamsByLeague = {
     { teamId: 'bun-rbl', teamName: 'RB Leipzig' },
     { teamId: 'bun-sge', teamName: 'Eintracht Frankfurt' },
     { teamId: 'bun-vfb', teamName: 'VfB Stuttgart' },
-    { teamId: 'bun-wob', teamName: 'VfL Wolfsburg' },
     { teamId: 'bun-bmg', teamName: 'Borussia Mönchengladbach' },
     { teamId: 'bun-scf', teamName: 'SC Freiburg' },
     { teamId: 'bun-tsg', teamName: 'Hoffenheim' },
@@ -179,10 +188,11 @@ export const teamsByLeague = {
     { teamId: 'bun-wer', teamName: 'Werder Bremen' },
     { teamId: 'bun-fcu', teamName: 'Union Berlin' },
     { teamId: 'bun-m05', teamName: 'Mainz 05' },
-    { teamId: 'bun-hei', teamName: 'Heidenheim' },
-    { teamId: 'bun-boc', teamName: 'VfL Bochum' },
-    { teamId: 'bun-stp', teamName: 'St. Pauli' },
-    { teamId: 'bun-kil', teamName: 'Holstein Kiel' },
+    { teamId: 'bun-koe', teamName: 'FC Koln' },
+    { teamId: 'bun-s04', teamName: 'Schalke 04' },
+    { teamId: 'bun-hsv', teamName: 'Hamburger SV' },
+    { teamId: 'bun-scp', teamName: 'SC Paderborn' },
+    { teamId: 'bun-elv', teamName: 'Elversberg' },
   ],
 
   SERIEA: [
