@@ -148,7 +148,6 @@ export const teamColors = {
   'bun-rbl': { primary: '#DD0741', secondary: '#001533' },
   'bun-sge': { primary: '#E1000F', secondary: '#000000' },
   'bun-vfb': { primary: '#E32219', secondary: '#FFFFFF' },
-  'bun-wob': { primary: '#65B32E', secondary: '#005C2E' },
   'bun-bmg': { primary: '#000000', secondary: '#FFFFFF' },
   'bun-scf': { primary: '#E50013', secondary: '#000000' },
   'bun-tsg': { primary: '#1961AC', secondary: '#FFFFFF' },
@@ -156,10 +155,26 @@ export const teamColors = {
   'bun-wer': { primary: '#1D8448', secondary: '#FFFFFF' },
   'bun-fcu': { primary: '#EB1923', secondary: '#FFFFFF' },
   'bun-m05': { primary: '#C3001F', secondary: '#FFFFFF' },
-  'bun-hei': { primary: '#E30615', secondary: '#000000' },
-  'bun-boc': { primary: '#024999', secondary: '#FFFFFF' },
-  'bun-stp': { primary: '#6B2737', secondary: '#FFFFFF' },
-  'bun-kil': { primary: '#003C82', secondary: '#E30015' },
+  // Bundesliga 2026-27 promotions — real colours sourced from Wikipedia
+  // ("Vereinsfarben" field, named only, no literal hex) cross-checked
+  // against club-branding colour-code sites for the actual hex, same
+  // discipline as the rest of this file.
+  // FC Koln — "Rot und Weiss" (red and white); no hex on Wikipedia, cross-
+  // verified brand red converges tightly across independent sources.
+  'bun-koe': { primary: '#ED1C24', secondary: '#FFFFFF' },
+  // Schalke 04 — "Blau-Weiss" (blue and white), "Die Koenigsblauen"/the
+  // Royal Blues; no hex on Wikipedia, cross-verified royal blue.
+  'bun-s04': { primary: '#004D9D', secondary: '#FFFFFF' },
+  // Hamburger SV — "Blau-Weiss-Schwarz" (blue, white, black); no hex on
+  // Wikipedia, cross-verified blue, black kept as the secondary accent.
+  'bun-hsv': { primary: '#0A3F86', secondary: '#000000' },
+  // SC Paderborn — "Blau und Schwarz" (blue and black); no hex on
+  // Wikipedia, cross-verified brand blue.
+  'bun-scp': { primary: '#005CA8', secondary: '#000000' },
+  // SV Elversberg — "Schwarz und Weiss" (black and white, "Schwarz-Weiss"
+  // nickname); no literal hex exists anywhere, standard representation of
+  // the named colours.
+  'bun-elv': { primary: '#000000', secondary: '#FFFFFF' },
 
   // Serie A
   'ser-int': { primary: '#010E80', secondary: '#000000' },
