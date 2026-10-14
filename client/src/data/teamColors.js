@@ -117,15 +117,29 @@ export const teamColors = {
   'lla-val': { primary: '#FF7F00', secondary: '#000000' },
   'lla-osa': { primary: '#D10028', secondary: '#002B5E' },
   'lla-cel': { primary: '#77B5D9', secondary: '#FFFFFF' },
-  'lla-gir': { primary: '#CC0000', secondary: '#FFFFFF' },
   'lla-ray': { primary: '#CC0000', secondary: '#FFFFFF' },
   'lla-get': { primary: '#004B8D', secondary: '#FFFFFF' },
-  'lla-mal': { primary: '#C8102E', secondary: '#0A0A0A' },
-  'lla-lpa': { primary: '#F7D11B', secondary: '#003070' },
-  'lla-leg': { primary: '#2B62AE', secondary: '#FFFFFF' },
   'lla-ala': { primary: '#0F4D8C', secondary: '#FFFFFF' },
   'lla-esp': { primary: '#003F8A', secondary: '#FFDE00' },
-  'lla-vll': { primary: '#6B0070', secondary: '#FFFFFF' },
+  // La Liga 2026-27 promotions — real colours sourced from Wikipedia, same
+  // discipline as every other colour in this file this week.
+  // Málaga — "Los Albicelestes"/"Los Blanquiazules" (white and sky-blue),
+  // matches the infobox's literal white shirt/blue shorts kit exactly.
+  'lla-mga': { primary: '#FFFFFF', secondary: '#103E9E' },
+  // Levante — "Los Azulgranas" (blue and garnet); infobox's literal kit
+  // (dark navy body, garnet sleeves) matches this identity.
+  'lla-lev': { primary: '#222730', secondary: '#661424' },
+  // Elche — "Los Franjiverdes" (green-striped); no literal hex exists (kit
+  // is a striped pattern image with no plain body colour), so this is the
+  // standard representation of "green", matching the named identity only.
+  'lla-elc': { primary: '#008000', secondary: '#FFFFFF' },
+  // Deportivo La Coruña — "Os Branquiazuis" (blue and white), matches the
+  // infobox's literal blue shorts/socks (body blank — real kit is a blue
+  // and white striped pattern image).
+  'lla-dep': { primary: '#0000FF', secondary: '#FFFFFF' },
+  // Racing Santander — "Verdiblancos" (green and white); infobox's literal
+  // kit is white body with green socks, matching this identity.
+  'lla-rac': { primary: '#FFFFFF', secondary: '#369028' },
 
   // Bundesliga
   'bun-bay': { primary: '#DC052D', secondary: '#FFFFFF' },

@@ -131,6 +131,16 @@ export const teamsByLeague = {
     { teamId: 'wc-ven', teamName: 'Venezuela' },
   ],
 
+  // Same yearly-refresh need as EPL/Championship — see that comment block
+  // and sports-integration-notes.md for the full promotion/relegation audit
+  // (2026-10-09/12). Verified live against football-data.org's current PD
+  // roster before this edit. Girona, Mallorca, Las Palmas, Leganés and
+  // Valladolid are no longer in La Liga (no Spanish second division is
+  // tracked by this app, so they're removed outright, same as EPL's
+  // Leicester/Oxford/Sheffield Wednesday situation); Elche CF, Levante UD,
+  // Málaga CF, RC Deportivo La Coruña and Real Racing Club de Santander are
+  // this season's actual replacements. Every new entry's stored name was
+  // checked against findFDTeam's actual matching logic before being added.
   LALIGA: [
     { teamId: 'lla-rma', teamName: 'Real Madrid' },
     { teamId: 'lla-bar', teamName: 'Barcelona' },
@@ -143,15 +153,15 @@ export const teamsByLeague = {
     { teamId: 'lla-val', teamName: 'Valencia' },
     { teamId: 'lla-osa', teamName: 'Osasuna' },
     { teamId: 'lla-cel', teamName: 'Celta Vigo' },
-    { teamId: 'lla-gir', teamName: 'Girona' },
     { teamId: 'lla-ray', teamName: 'Rayo Vallecano' },
     { teamId: 'lla-get', teamName: 'Getafe' },
-    { teamId: 'lla-mal', teamName: 'Mallorca' },
-    { teamId: 'lla-lpa', teamName: 'Las Palmas' },
-    { teamId: 'lla-leg', teamName: 'Leganes' },
     { teamId: 'lla-ala', teamName: 'Alaves' },
     { teamId: 'lla-esp', teamName: 'Espanyol' },
-    { teamId: 'lla-vll', teamName: 'Valladolid' },
+    { teamId: 'lla-mga', teamName: 'Malaga' },
+    { teamId: 'lla-lev', teamName: 'Levante' },
+    { teamId: 'lla-elc', teamName: 'Elche' },
+    { teamId: 'lla-dep', teamName: 'Deportivo La Coruna' },
+    { teamId: 'lla-rac', teamName: 'Racing Santander' },
   ],
 
   BUNDESLIGA: [
