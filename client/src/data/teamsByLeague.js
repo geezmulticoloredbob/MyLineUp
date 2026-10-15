@@ -226,6 +226,20 @@ export const teamsByLeague = {
     { teamId: 'ser-sas', teamName: 'Sassuolo' },
   ],
 
+  // Same yearly-refresh need as EPL/Championship/La Liga/Bundesliga/Serie A
+  // — see those comment blocks and sports-integration-notes.md for the full
+  // promotion/relegation audit. Verified live against football-data.org's
+  // current FL1 standings before this edit. Reims, Montpellier, Nantes and
+  // Saint-Etienne are no longer in Ligue 1 (no French second division is
+  // tracked by this app, so they're removed outright); Paris FC, Lorient,
+  // Le Mans and Troyes are this season's actual replacements. Also fixed a
+  // pre-existing matching bug found during this audit: the stored "Rennes"
+  // never matched findFDTeam at all (real name "Stade Rennais FC 1901",
+  // shortName "Stade Rennais" — "Rennes" fails all three of its
+  // conditions, since the real name says "Rennais" not "Rennes") — renamed
+  // to "Stade Rennais" (exact shortName match). Every new/renamed entry's
+  // stored name was checked against findFDTeam's actual matching logic
+  // before being added.
   LIGUE1: [
     { teamId: 'l1-psg', teamName: 'Paris Saint-Germain' },
     { teamId: 'l1-mon', teamName: 'Monaco' },
@@ -233,18 +247,18 @@ export const teamsByLeague = {
     { teamId: 'l1-ol',  teamName: 'Lyon' },
     { teamId: 'l1-ogc', teamName: 'Nice' },
     { teamId: 'l1-rcl', teamName: 'Lens' },
-    { teamId: 'l1-ren', teamName: 'Rennes' },
+    { teamId: 'l1-ren', teamName: 'Stade Rennais' },
     { teamId: 'l1-om',  teamName: 'Marseille' },
-    { teamId: 'l1-rei', teamName: 'Reims' },
     { teamId: 'l1-tfc', teamName: 'Toulouse' },
-    { teamId: 'l1-mhsc',teamName: 'Montpellier' },
     { teamId: 'l1-rcsa',teamName: 'Strasbourg' },
-    { teamId: 'l1-fcn', teamName: 'Nantes' },
     { teamId: 'l1-sbb', teamName: 'Brest' },
     { teamId: 'l1-auxi',teamName: 'Auxerre' },
     { teamId: 'l1-ang', teamName: 'Angers' },
     { teamId: 'l1-hac', teamName: 'Le Havre' },
-    { teamId: 'l1-asse',teamName: 'Saint-Etienne' },
+    { teamId: 'l1-pfc', teamName: 'Paris FC' },
+    { teamId: 'l1-lor', teamName: 'Lorient' },
+    { teamId: 'l1-lma', teamName: 'Le Mans' },
+    { teamId: 'l1-tro', teamName: 'Troyes' },
   ],
 
   // Same yearly-refresh need as EPL above — verified live against
