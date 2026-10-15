@@ -190,13 +190,21 @@ export const teamColors = {
   'ser-udi': { primary: '#000000', secondary: '#FFFFFF' },
   'ser-cag': { primary: '#BE2026', secondary: '#FFFFFF' },
   'ser-mon': { primary: '#CC0000', secondary: '#FFFFFF' },
-  'ser-emp': { primary: '#005BAB', secondary: '#FFFFFF' },
   'ser-gen': { primary: '#BD162C', secondary: '#00549A' },
   'ser-lec': { primary: '#F5C518', secondary: '#CC0000' },
   'ser-com': { primary: '#002147', secondary: '#FFFFFF' },
   'ser-par': { primary: '#FFDE00', secondary: '#003876' },
-  'ser-ver': { primary: '#003366', secondary: '#F5C400' },
   'ser-ven': { primary: '#004590', secondary: '#FF6600' },
+  // Serie A 2026-27 promotions — real colours sourced from Wikipedia, same
+  // discipline as every other colour in this file.
+  // Frosinone — "Giallo, azzurro" (yellow and light blue); the infobox
+  // names the specific shades "Blu Savoia e Giallo Ombreggiato" (Savoy
+  // Blue and shaded yellow) — Blu Savoia is itself a documented historical
+  // colour (#4B61D1); yellow cross-checked against brand colour-code sites.
+  'ser-fro': { primary: '#FFDD00', secondary: '#4B61D1' },
+  // Sassuolo — "Nero, verde" (black and green), "neroverdi"; no hex on
+  // Wikipedia, cross-verified brand green (Pantone 2257 XGC match).
+  'ser-sas': { primary: '#00A752', secondary: '#000000' },
 
   // Ligue 1
   'l1-psg':  { primary: '#004170', secondary: '#DA291C' },

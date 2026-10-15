@@ -195,6 +195,14 @@ export const teamsByLeague = {
     { teamId: 'bun-elv', teamName: 'Elversberg' },
   ],
 
+  // Same yearly-refresh need as EPL/Championship/La Liga/Bundesliga — see
+  // those comment blocks and sports-integration-notes.md for the full
+  // promotion/relegation audit. Verified live against football-data.org's
+  // current SA standings before this edit. Empoli and Verona are no longer
+  // in Serie A (no Italian second division is tracked by this app, so
+  // they're removed outright); Frosinone and Sassuolo are this season's
+  // actual replacements. Both checked against findFDTeam's actual matching
+  // logic before being added.
   SERIEA: [
     { teamId: 'ser-int', teamName: 'Inter Milan' },
     { teamId: 'ser-acm', teamName: 'AC Milan' },
@@ -209,13 +217,13 @@ export const teamsByLeague = {
     { teamId: 'ser-udi', teamName: 'Udinese' },
     { teamId: 'ser-cag', teamName: 'Cagliari' },
     { teamId: 'ser-mon', teamName: 'Monza' },
-    { teamId: 'ser-emp', teamName: 'Empoli' },
     { teamId: 'ser-gen', teamName: 'Genoa' },
     { teamId: 'ser-lec', teamName: 'Lecce' },
     { teamId: 'ser-com', teamName: 'Como' },
     { teamId: 'ser-par', teamName: 'Parma' },
-    { teamId: 'ser-ver', teamName: 'Verona' },
     { teamId: 'ser-ven', teamName: 'Venezia' },
+    { teamId: 'ser-fro', teamName: 'Frosinone' },
+    { teamId: 'ser-sas', teamName: 'Sassuolo' },
   ],
 
   LIGUE1: [
