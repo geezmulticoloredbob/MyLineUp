@@ -215,16 +215,28 @@ export const teamColors = {
   'l1-rcl':  { primary: '#CC0000', secondary: '#F5C518' },
   'l1-ren':  { primary: '#000000', secondary: '#CC0000' },
   'l1-om':   { primary: '#009DDE', secondary: '#FFFFFF' },
-  'l1-rei':  { primary: '#CC0000', secondary: '#FFFFFF' },
   'l1-tfc':  { primary: '#7E1A2E', secondary: '#FFFFFF' },
-  'l1-mhsc': { primary: '#005BAB', secondary: '#F5A623' },
   'l1-rcsa': { primary: '#003189', secondary: '#FFFFFF' },
-  'l1-fcn':  { primary: '#F5C518', secondary: '#007A4D' },
   'l1-sbb':  { primary: '#D40000', secondary: '#FFFFFF' },
   'l1-auxi': { primary: '#CF0921', secondary: '#FFFFFF' },
   'l1-ang':  { primary: '#000000', secondary: '#FFFFFF' },
   'l1-hac':  { primary: '#005BAB', secondary: '#FFFFFF' },
-  'l1-asse': { primary: '#1C6B30', secondary: '#FFFFFF' },
+  // Ligue 1 2026-27 promotions — real colours sourced from Wikipedia, same
+  // discipline as every other colour in this file.
+  // Paris FC — "Bleu marine" (navy blue), single named colour; no hex on
+  // Wikipedia, cross-verified navy from independent sources (which disagree
+  // slightly on the exact shade, so this is an average of the two).
+  'l1-pfc': { primary: '#0C183F', secondary: '#FFFFFF' },
+  // Lorient — "Tango et noir" (a specific named orange shade, "Tango", and
+  // black); no hex on Wikipedia, cross-verified brand orange converging
+  // across independent sources with a Pantone match.
+  'l1-lor': { primary: '#F58113', secondary: '#000000' },
+  // Le Mans — "Rouge et jaune" (red and yellow); no hex on Wikipedia,
+  // sourced from the club's own listed brand palette.
+  'l1-lma': { primary: '#E2001A', secondary: '#F1C100' },
+  // Troyes — "Bleu et blanc" (blue and white); no hex on Wikipedia,
+  // cross-verified brand blue.
+  'l1-tro': { primary: '#006EB2', secondary: '#FFFFFF' },
 
   // AFL
   'afl-ade': { primary: '#002B5C', secondary: '#E21937' },
