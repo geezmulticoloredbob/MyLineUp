@@ -5,6 +5,14 @@
 
 A personalised sports dashboard that lets users follow their favourite teams across multiple leagues in one unified interface — fixtures, results, ladders and stats, aggregated into a single feed.
 
+**[Live demo → my-line-up.vercel.app](https://my-line-up.vercel.app)** — the API runs on Render's free tier, so the first load after a quiet spell can take 30–60s while the server wakes up. Don't want to wait? Here's what it looks like:
+
+<p align="center">
+  <img src="docs/screenshots/hero.png" alt="Arsenal and Chelsea team cards showing the same match from both sides, next fixture, top scorers and season stats" width="660" />
+</p>
+
+<p align="center"><a href="#-screenshots">More screenshots ↓</a></p>
+
 ## 📌 Overview
 
 MyLineup is a full-stack MERN application (React + Vite on the client, Express + MongoDB on the server). Users register, pick the leagues and teams they follow, and land on a personalised dashboard that pulls live data from each league's sports API.
