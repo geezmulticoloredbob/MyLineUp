@@ -53,8 +53,12 @@ function getNextGamePanel(team, windowDays = 30, dateFormat = 'DD-MM-YYYY') {
     };
   }
 
+  // Measure from the start of today, not from now: a date-only fixture parses
+  // to midnight, so on match day `date - now` is already negative and a game
+  // later today would wrongly read as outside the window.
   const now = new Date();
-  const diffDays = (date - now) / (1000 * 60 * 60 * 24);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffDays = (date - startOfToday) / (1000 * 60 * 60 * 24);
   const isWithinWindow = diffDays >= 0 && diffDays <= windowDays;
   const dateStr = formatDate(team?.nextFixture?.date, dateFormat);
 
