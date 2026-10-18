@@ -323,6 +323,36 @@ export const teamsByLeague = {
     { teamId: 'ere-exc', teamName: 'Excelsior Rotterdam' },
   ],
 
+  // UCL is structurally different from the other football-data.org leagues
+  // above: its 36-club league-phase roster changes completely every season
+  // (no promotion/relegation pattern, just a fresh draw), so this needs a
+  // full re-derivation from the live standings each time, not an
+  // incremental diff. Verified live against football-data.org's current CL
+  // /teams endpoint (confirmed it now exactly matches /standings — 36 for
+  // 36, zero discrepancy — unlike the "includes qualifying-only clubs"
+  // problem assumed here previously, which was apparently never actually
+  // re-checked against live data). 18 of the 36 previously-stored clubs are
+  // no longer in this season's competition and are removed outright: Bayer
+  // Leverkusen, Chelsea, Juventus, Atalanta, Benfica, Athletic Club,
+  // Tottenham Hotspur, Newcastle United, Marseille, Monaco, Ajax,
+  // Copenhagen, Olympiacos, Union Saint-Gilloise, Qarabag, Kairat Almaty,
+  // Pafos, Eintracht Frankfurt. Replaced by this season's actual 18: VfB
+  // Stuttgart, Aston Villa, Manchester United, Real Betis, Roma, FC Porto,
+  // Lille, Lens, Fenerbahce, Feyenoord, RB Leipzig, Shakhtar Donetsk, AEK,
+  // LASK Linz, Viking, Como, Slovan Bratislava, Sabah FK.
+  //
+  // Also fixed a real matching bug on an unrelated, still-present entry:
+  // "Bodo/Glimt" (plain ASCII o) never matched findFDTeam at all — the
+  // real club is "FK Bodø/Glimt", and unlike é/í/ö (which fold() handles by
+  // NFD-decomposing into base+combining-mark and stripping the mark), ø is
+  // its own distinct Unicode letter with no decomposition, so fold() can't
+  // normalise "ø" to "o". Storing the real accented spelling fixes the
+  // match directly without needing to touch fold() itself.
+  //
+  // Every current and new name here was checked against findFDTeam's
+  // actual matching logic before being added, and the complete 36-entry
+  // list was validated together for collisions (confirmed: 36 distinct
+  // real teams, zero collisions, full coverage of the real 36-club field).
   UCL: [
     { teamId: 'ucl-rma', teamName: 'Real Madrid' },
     { teamId: 'ucl-bar', teamName: 'Barcelona' },
@@ -333,33 +363,33 @@ export const teamsByLeague = {
     { teamId: 'ucl-psg', teamName: 'Paris Saint-Germain' },
     { teamId: 'ucl-int', teamName: 'Inter Milan' },
     { teamId: 'ucl-bvb', teamName: 'Borussia Dortmund' },
-    { teamId: 'ucl-b04', teamName: 'Bayer Leverkusen' },
     { teamId: 'ucl-atm', teamName: 'Atletico Madrid' },
-    { teamId: 'ucl-che', teamName: 'Chelsea' },
-    { teamId: 'ucl-juv', teamName: 'Juventus' },
     { teamId: 'ucl-nap', teamName: 'Napoli' },
-    { teamId: 'ucl-ata', teamName: 'Atalanta' },
-    { teamId: 'ucl-ben', teamName: 'Benfica' },
     { teamId: 'ucl-spo', teamName: 'Sporting CP' },
     { teamId: 'ucl-vil', teamName: 'Villarreal' },
-    { teamId: 'ucl-ath', teamName: 'Athletic Club' },
-    { teamId: 'ucl-tot', teamName: 'Tottenham Hotspur' },
-    { teamId: 'ucl-new', teamName: 'Newcastle United' },
-    { teamId: 'ucl-om',  teamName: 'Marseille' },
-    { teamId: 'ucl-mon', teamName: 'Monaco' },
     { teamId: 'ucl-clb', teamName: 'Club Brugge' },
-    { teamId: 'ucl-ajx', teamName: 'Ajax' },
     { teamId: 'ucl-psv', teamName: 'PSV' },
     { teamId: 'ucl-gal', teamName: 'Galatasaray' },
-    { teamId: 'ucl-cop', teamName: 'Copenhagen' },
-    { teamId: 'ucl-oly', teamName: 'Olympiacos' },
     { teamId: 'ucl-slp', teamName: 'Slavia Praha' },
-    { teamId: 'ucl-usg', teamName: 'Union Saint-Gilloise' },
-    { teamId: 'ucl-qar', teamName: 'Qarabag' },
-    { teamId: 'ucl-bod', teamName: 'Bodo/Glimt' },
-    { teamId: 'ucl-kai', teamName: 'Kairat Almaty' },
-    { teamId: 'ucl-paf', teamName: 'Pafos' },
-    { teamId: 'ucl-sge', teamName: 'Eintracht Frankfurt' },
+    { teamId: 'ucl-bod', teamName: 'Bodø/Glimt' },
+    { teamId: 'ucl-vfb', teamName: 'VfB Stuttgart' },
+    { teamId: 'ucl-avl', teamName: 'Aston Villa' },
+    { teamId: 'ucl-mun', teamName: 'Manchester United' },
+    { teamId: 'ucl-bet', teamName: 'Real Betis' },
+    { teamId: 'ucl-rom', teamName: 'Roma' },
+    { teamId: 'ucl-por', teamName: 'FC Porto' },
+    { teamId: 'ucl-lil', teamName: 'Lille' },
+    { teamId: 'ucl-rcl', teamName: 'Lens' },
+    { teamId: 'ucl-fen', teamName: 'Fenerbahce' },
+    { teamId: 'ucl-fey', teamName: 'Feyenoord' },
+    { teamId: 'ucl-rbl', teamName: 'RB Leipzig' },
+    { teamId: 'ucl-shk', teamName: 'Shakhtar Donetsk' },
+    { teamId: 'ucl-aek', teamName: 'AEK' },
+    { teamId: 'ucl-lask',teamName: 'LASK Linz' },
+    { teamId: 'ucl-vik', teamName: 'Viking' },
+    { teamId: 'ucl-com', teamName: 'Como' },
+    { teamId: 'ucl-slb', teamName: 'Slovan Bratislava' },
+    { teamId: 'ucl-sab', teamName: 'Sabah FK' },
   ],
 
   NFL: [

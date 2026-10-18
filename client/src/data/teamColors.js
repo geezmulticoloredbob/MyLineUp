@@ -331,33 +331,66 @@ export const teamColors = {
   'ucl-psg': { primary: '#004170', secondary: '#DA291C' },
   'ucl-int': { primary: '#010E80', secondary: '#000000' },
   'ucl-bvb': { primary: '#FDE100', secondary: '#000000' },
-  'ucl-b04': { primary: '#E32221', secondary: '#000000' },
   'ucl-atm': { primary: '#CB3524', secondary: '#FFFFFF' },
-  'ucl-che': { primary: '#034694', secondary: '#D4AF37' },
-  'ucl-juv': { primary: '#000000', secondary: '#FFFFFF' },
   'ucl-nap': { primary: '#13A6E0', secondary: '#FFFFFF' },
-  'ucl-ata': { primary: '#1C4598', secondary: '#000000' },
-  'ucl-ben': { primary: '#E2231A', secondary: '#FFFFFF' },
   'ucl-spo': { primary: '#007A33', secondary: '#FFFFFF' },
   'ucl-vil': { primary: '#FCD000', secondary: '#004F9F' },
-  'ucl-ath': { primary: '#EE2523', secondary: '#FFFFFF' },
-  'ucl-tot': { primary: '#132257', secondary: '#FFFFFF' },
-  'ucl-new': { primary: '#241F20', secondary: '#FFFFFF' },
-  'ucl-om':  { primary: '#009DDE', secondary: '#FFFFFF' },
-  'ucl-mon': { primary: '#D4211A', secondary: '#FFFFFF' },
   'ucl-clb': { primary: '#0E1E63', secondary: '#000000' },
-  'ucl-ajx': { primary: '#D2122E', secondary: '#FFFFFF', tertiary: '#000000' },
   'ucl-psv': { primary: '#ED1C24', secondary: '#FFFFFF' },
   'ucl-gal': { primary: '#FDB913', secondary: '#A90432' },
-  'ucl-cop': { primary: '#FFFFFF', secondary: '#C60C30' },
-  'ucl-oly': { primary: '#D2122E', secondary: '#FFFFFF', tertiary: '#000000' },
   'ucl-slp': { primary: '#D2122E', secondary: '#FFFFFF' },
-  'ucl-usg': { primary: '#FFE800', secondary: '#002F6C' },
-  'ucl-qar': { primary: '#002B5C', secondary: '#FFFFFF' },
+  // Bodo/Glimt's own real name uses o-with-stroke (o), which fold() can't
+  // normalise the way it normalises accented letters like e/o - storing the
+  // correctly-spelled name is what makes this one keep matching (see the
+  // big comment on the UCL roster block in teamsByLeague.js).
   'ucl-bod': { primary: '#FFE800', secondary: '#FFFFFF' },
-  'ucl-kai': { primary: '#FFE800', secondary: '#000000' },
-  'ucl-paf': { primary: '#003DA5', secondary: '#FFFFFF' },
-  'ucl-sge': { primary: '#E1000F', secondary: '#000000' },
+  // UCL 2026-27 roster refresh — see the big comment on the UCL block in
+  // teamsByLeague.js for why this season's UCL field is almost entirely
+  // different clubs. Colours for the 10 of these 18 that are also tracked
+  // in their domestic league are reused verbatim from that league's entry
+  // in this file, for cross-league consistency (same club, same colour).
+  'ucl-vfb': { primary: '#E32219', secondary: '#FFFFFF' },  // = bun-vfb
+  'ucl-avl': { primary: '#670E36', secondary: '#95BFE5' },  // = epl-avl
+  'ucl-mun': { primary: '#DA291C', secondary: '#FBE122' },  // = epl-mun
+  'ucl-bet': { primary: '#00954C', secondary: '#FFFFFF' },  // = lla-bet
+  'ucl-rom': { primary: '#8B1C2C', secondary: '#F5C400' },  // = ser-rom
+  'ucl-lil': { primary: '#CC0000', secondary: '#002060' },  // = l1-lil
+  'ucl-rcl': { primary: '#CC0000', secondary: '#F5C518' },  // = l1-rcl
+  'ucl-fey': { primary: '#E21118', secondary: '#FFFFFF', tertiary: '#000000' },  // = ere-fey
+  'ucl-rbl': { primary: '#DD0741', secondary: '#001533' },  // = bun-rbl
+  'ucl-com': { primary: '#002147', secondary: '#FFFFFF' },  // = ser-com
+  // The remaining 8 new clubs aren't tracked in any other league here, so
+  // their colours are freshly sourced from Wikipedia, same discipline as
+  // the rest of this file.
+  // Porto — "Azuis e brancos" (blue and white); no hex on Wikipedia, but
+  // its brand blue is well-documented with a cited Pantone match.
+  'ucl-por': { primary: '#00428C', secondary: '#FFFFFF' },
+  // Fenerbahce — "Sari Lacivert" (yellow-navy), the whole club's identity
+  // since 1908, not football-specific; no football-specific hex found, so
+  // this uses the same pair documented for the club's other sections.
+  'ucl-fen': { primary: '#FFED00', secondary: '#00417F' },
+  // Shakhtar Donetsk — "black and orange" since 1961; no hex on Wikipedia,
+  // cross-verified brand orange (Pantone match).
+  'ucl-shk': { primary: '#F0612C', secondary: '#000000' },
+  // AEK — yellow and black (Byzantine-inspired); no hex on Wikipedia, only
+  // one third-party source found for the yellow (less cross-verified than
+  // most entries in this file, flagged here for future revisiting).
+  'ucl-aek': { primary: '#FCD20F', secondary: '#000000' },
+  // LASK Linz — "Schwarz und Weiss" (black and white); no literal hex
+  // anywhere, standard representation of the named colours.
+  'ucl-lask': { primary: '#000000', secondary: '#FFFFFF' },
+  // Viking FK — "De Morkebla"/The Dark Blues; no hex on Wikipedia, sourced
+  // from the club's own documented "Viking Blue" brand colour.
+  'ucl-vik': { primary: '#132436', secondary: '#FFFFFF' },
+  // Slovan Bratislava — "Belasi" (sky blue), a specific lighter-blue named
+  // identity, not generic blue; no hex on Wikipedia, cross-verified
+  // specifically for the football club (not the separate hockey club,
+  // which uses a different palette).
+  'ucl-slb': { primary: '#43B1E6', secondary: '#FFFFFF' },
+  // Sabah FK — "black-pink" (the pink reflects nearby Lake Masazir); no
+  // hex found anywhere for this specific, unusual pairing, so this uses a
+  // standard representation of the named pink.
+  'ucl-sab': { primary: '#E6007E', secondary: '#000000' },
 
   // NRL — ESPN doesn't provide colour data for this league (unlike every
   // other league here), so this static map is NRL's only colour source
