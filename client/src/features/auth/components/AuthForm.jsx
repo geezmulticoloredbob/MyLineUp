@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useSlowLoading } from '../../../hooks/useSlowLoading';
 
 function AuthForm({ mode }) {
   const isLogin = mode === 'login';
@@ -11,6 +12,7 @@ function AuthForm({ mode }) {
   const [fields, setFields] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const isSlow = useSlowLoading(submitting);
 
   function handleChange(e) {
     setFields((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -99,8 +101,14 @@ function AuthForm({ mode }) {
       )}
 
       <button className="btn-primary" type="submit" disabled={submitting}>
-        {submitting ? 'Please wait...' : isLogin ? 'Log in' : 'Create account'}
+        {submitting ? (isSlow ? 'Waking up the server…' : 'Please wait...') : isLogin ? 'Log in' : 'Create account'}
       </button>
+
+      {submitting && isSlow && (
+        <p className="auth-form__hint" role="status">
+          This can take up to a minute on our free hosting tier — hang tight.
+        </p>
+      )}
 
       <p className="auth-form__switch">
         {isLogin ? (
