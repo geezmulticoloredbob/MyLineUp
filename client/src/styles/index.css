@@ -94,6 +94,16 @@ body {
 .auth-loading {
   min-height: 100vh;
   background: var(--bg-app);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  text-align: center;
+}
+
+.auth-loading__message {
+  color: var(--text-secondary);
+  font-size: var(--text-body);
 }
 
 h1,
