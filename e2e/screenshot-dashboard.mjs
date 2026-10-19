@@ -44,7 +44,12 @@ const RICH_FAVS = [
   { league: 'LALIGA', teamId: 'lla-rma', teamName: 'Real Madrid' },
   { league: 'LALIGA', teamId: 'lla-atm', teamName: 'Atletico Madrid' },
   { league: 'AFL', teamId: 'afl-haw', teamName: 'Hawthorn' },
-  { league: 'AFL', teamId: 'afl-car', teamName: 'Carlton' },
+  // Not Carlton: its real crest colour is a deep navy, which is close
+  // enough to this app's AFL-section navy background that the logo nearly
+  // disappears in the small team-strip icon (confirmed live - it's a
+  // colour-contrast coincidence, not a loading bug). Richmond's
+  // yellow-and-black crest reads clearly against the same background.
+  { league: 'AFL', teamId: 'afl-ric', teamName: 'Richmond' },
   { league: 'NFL', teamId: 'nfl-kc', teamName: 'Kansas City Chiefs' },
   { league: 'NFL', teamId: 'nfl-buf', teamName: 'Buffalo Bills' },
   { league: 'NHL', teamId: 'nhl-bos', teamName: 'Boston Bruins' },
