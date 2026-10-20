@@ -1,10 +1,10 @@
 # Deployment stack
 
-*Last touched 2026-09-12.*
+*Last touched 2026-10-20.*
 
 MyLineUp is deployed and live on a free-tier stack:
 - **Client** (Vercel): https://my-line-up.vercel.app
-- **Server** (Render): https://mylineup.onrender.com — free tier spins down after 15 min idle, so the first request after a gap has a ~30-60s cold-start delay
+- **Server** (Render): https://mylineup.onrender.com — free tier spins down after 15 min idle, so the first request after a gap has a ~30-60s cold-start delay. As of 2026-10-20, kept warm by a free UptimeRobot HTTP monitor pinging `GET /api/health` every 5 min — see the "Keeping the server warm" subsection of the README's Deployment section for the hour-budget math and why this is meant to be temporary. The client also independently surfaces a "Waking up the server…" message if a request is slow regardless, so cold starts degrade gracefully either way.
 - **Database**: MongoDB Atlas free M0 cluster
 
 **Why the deploy order matters:** CORS only allows one `CLIENT_URL` origin. Deploy Render first (to get its URL), set `VITE_API_URL` on Vercel to that, then go back and set `CLIENT_URL` on Render to the real Vercel URL — see the "☁️ Deployment" section in the repo's own `README.md` for the full runbook, which is kept current.
