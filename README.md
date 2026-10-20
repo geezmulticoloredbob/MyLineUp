@@ -101,6 +101,7 @@ Supported leagues:
 - Register / login with JWT-backed sessions
 - Guided onboarding flow to pick followed leagues and favourite teams before reaching the dashboard
 - Account menu for updating profile details, password, and avatar icon
+- A reassuring message ("Waking up the server…") replaces the bare loading state if the free-tier backend is cold-starting, rather than looking like a hang
 
 ### 2️⃣ Personal Dashboard
 - Per-team cards showing latest result, next fixture, ladder position, and stats, hydrated live from each league's API (with graceful fallback if a source is unavailable)
@@ -230,6 +231,10 @@ Deploy order matters, because CORS on the server only allows a single origin (`C
    - Leave `DNS_SERVERS` unset — Render's network doesn't have the local-resolver issue that var works around.
 3. **Vercel** — import the repo, Root Directory `client` (Framework Preset auto-detects Vite once that's set). Add `VITE_API_URL=<your Render URL>` as an env var — set it for **all** environments (Production/Preview/Development), since `vite.config.js` fails the build entirely if it's unset, regardless of environment.
 4. **Back to Render** — update `CLIENT_URL` to the real Vercel URL and let it redeploy. Until this step, the deployed frontend's API calls will fail CORS even though both services are individually up.
+
+### Keeping the server warm
+
+Render's free web service spins down after 15 minutes idle, so the first request after a gap takes ~30-60s to wake it back up. The client surfaces this with a "Waking up the server…" message rather than a bare loading state (see Accounts & Onboarding above), but as of 2026-10-20 the server is also kept warm with a free [UptimeRobot](https://uptimerobot.com) HTTP monitor pinging `GET /api/health` every 5 minutes — no auth, no DB call, cheap to hit. Render's free tier gives 750 instance-hours/month per workspace; pinging continuously uses nearly all of it (~720-744 hours depending on the month), which is fine as the only free service in this workspace but would need rethinking if a second one ever joined it. Meant to be temporary — remove the monitor if the app ever gets a real enough user base to justify a paid Render instance instead (at which point this stops mattering anyway), or if another free service needs the headroom.
 
 ### Snapshot history
 
