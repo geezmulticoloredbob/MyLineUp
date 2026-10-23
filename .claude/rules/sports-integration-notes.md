@@ -1,6 +1,6 @@
 # Sports integration notes
 
-*Last touched 2026-10-22. Which additional team sports were investigated for `espnTeamSportService`/`cricketService`, and why some didn't make the cut.*
+*Last touched 2026-10-23. Which additional team sports were investigated for `espnTeamSportService`/`cricketService`, and why some didn't make the cut.*
 
 Investigated on 2026-09-16 while adding NRL and WNBA (both shipped — see `CLAUDE.md` for the code-level quirks: NRL's id-keyed logo CDN, its scoreboard endpoint rejecting date ranges, its lack of ESPN colour data).
 
@@ -129,6 +129,8 @@ A separate, open-ended audit: do the 18 ESPN-routed leagues (no promotion/relega
 
 **Lesson for this audit's own tooling, not the app:** a verification script is itself code and can have its own bugs that produce false findings — worth a moment's suspicion before writing up a "missing club" as a real finding, the same scrutiny this project already applies to the app's own matching logic.
 
-**Still to audit:** Primeira Liga, Turkey, Scotland, J1, Belgium, MLS (day 3).
+**Day 3 — Primeira Liga, Turkey, Scotland, J1, Belgium, MLS: no live bugs found, all six completely clean.** Not even a benign abbreviation mismatch this time — every stored name and abbreviation matches ESPN's live data exactly across all six leagues. Scotland specifically re-confirmed the Dundee/Dundee United fix still holds: ESPN's live data still has both clubs sharing the abbreviation `DUN` (confirmed via the duplicate-abbreviation check), and the full resolution simulation confirms both still resolve to distinct real clubs today, exactly as the exact-match-first fix was designed to guarantee.
+
+**This closes the full ESPN-routed league audit** (18 leagues across 3 days: NFL/NHL/MLB/WNBA/AFL/NRL → NWSL/A-League/Liga MX/Brasileirão/Argentina/Saudi PL → Primeira Liga/Turkey/Scotland/J1/Belgium/MLS). **Zero live app bugs found across all 18 leagues** — genuinely clean, not just "nothing obvious." The audit's real yield was elsewhere: it caught and fixed a bug in its own verification script (day 2's quote-style parsing gap), and it re-confirmed — rather than assumed — that several previously-fragile-looking situations (MLB's cws/chw, AFL's duplicate Sydney Swans, NRL's nickname-only data, Argentina's and Scotland's known abbreviation collisions) are all still correctly handled by the app's existing matching logic. Worth remembering as a standing shape of fragility even without a bug attached today: any league where ESPN's `/teams` endpoint has its own internal duplicate abbreviations or duplicate display names (AFL, Argentina, Scotland, and apparently NRL too) depends on `findTeamByName`'s exact-match-first ordering and, in AFL's/NRL's case, on ESPN's own array ordering — not provably stable, just empirically correct right now. A full re-audit isn't warranted on a schedule, but if a specific team's card ever starts looking wrong in one of these four leagues, this is the first place to look.
 
 **How to apply:** if asked to add more sports later, no pre-verified league is waiting — start with the checks used for J1/Belgium (live roster vs current standings, abbreviation + name-substring collision scan, per-team schedule, live smoke test). For more cricket leagues, check the shared 100/day budget can take it before adding to `SERIES_IDS`. Skip re-probing MLS/rugby-union/F1/AFLW/college sports from scratch — see above for why each didn't make the cut.
