@@ -19,9 +19,14 @@ const MOCK_STANDINGS_TABLE = [
   { position: 2, team: { id: 61, name: 'Chelsea FC', shortName: 'Chelsea' }, playedGames: 30, won: 18, draw: 6, lost: 6, points: 60, goalDifference: 20 },
 ];
 
+// status is a real field the service filters on (m.status === 'FINISHED' /
+// m.status !== 'FINISHED' with a future utcDate) now that finished and
+// upcoming matches come back from one combined call instead of two
+// separately-filtered ones — see footballService.js's getFDTeamMatches.
 const MOCK_FINISHED_MATCH = {
   id: 201,
   utcDate: '2024-01-15T20:00:00Z',
+  status: 'FINISHED',
   homeTeam: { id: 57, name: 'Arsenal FC', shortName: 'Arsenal' },
   awayTeam: { id: 61, name: 'Chelsea FC', shortName: 'Chelsea' },
   score: { fullTime: { home: 2, away: 1 }, winner: 'HOME_TEAM' },
@@ -30,19 +35,21 @@ const MOCK_FINISHED_MATCH = {
 const MOCK_SCHEDULED_MATCH = {
   id: 202,
   utcDate: '2099-03-01T15:00:00Z',
+  status: 'TIMED', // football-data.org's real status value for an upcoming match
   homeTeam: { id: 57, name: 'Arsenal FC', shortName: 'Arsenal' },
   awayTeam: { id: 61, name: 'Chelsea FC', shortName: 'Chelsea' },
   score: { fullTime: { home: null, away: null }, winner: null },
 };
 
+// One combined /matches response (status + date range are filtered
+// client-side in footballService.js, not via separate FINISHED/SCHEDULED
+// query params/calls) — mirrors the real getFDTeamMatches/getFDLeagueMatches
+// shape, which fetches once and splits the result itself.
 function standardMock(finished = [], scheduled = []) {
   return (url) => {
-    // Check FINISHED/SCHEDULED before /teams because team match URLs
-    // (/teams/57/matches?...status=FINISHED) also contain '/teams'
     if (url.includes('/scorers')) return mockOk({ scorers: [] });
     if (url.includes('/standings')) return mockOk({ standings: [{ type: 'TOTAL', table: MOCK_STANDINGS_TABLE }] });
-    if (url.includes('FINISHED')) return mockOk({ matches: finished });
-    if (url.includes('SCHEDULED')) return mockOk({ matches: scheduled });
+    if (url.includes('/matches')) return mockOk({ matches: [...finished, ...scheduled] });
     if (url.includes('/teams')) return mockOk({ teams: MOCK_TEAMS });
     return mockOk({});
   };
@@ -152,14 +159,14 @@ describe('getFDLeagueGames', () => {
     await footballService.getFDLeagueGames('PL');
     await footballService.getFDLeagueGames('PL');
     const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/competitions/PL/matches'));
-    expect(matchCalls.length).toBe(2); // one FINISHED + one SCHEDULED fetch, not doubled
+    expect(matchCalls.length).toBe(1); // one combined fetch, not doubled
   });
 
   it('keeps separate match caches per competition code', async () => {
     await footballService.getFDLeagueGames('PL');
     await footballService.getFDLeagueGames('BL1');
     const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/matches'));
-    expect(matchCalls.length).toBe(4);
+    expect(matchCalls.length).toBe(2);
   });
 });
 
@@ -284,7 +291,7 @@ describe('getFDTeamData', () => {
     await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');
     await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');
     const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/teams/57/matches'));
-    expect(matchCalls.length).toBe(2); // one FINISHED + one SCHEDULED fetch, not doubled
+    expect(matchCalls.length).toBe(1); // one combined fetch, not doubled
   });
 
   it('keeps separate match caches per team/competition pair', async () => {
@@ -292,6 +299,6 @@ describe('getFDTeamData', () => {
     await footballService.getFDTeamData({ teamName: 'Arsenal' }, 'PL');
     await footballService.getFDTeamData({ teamName: 'Chelsea' }, 'PL');
     const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/matches') && url.includes('/teams/'));
-    expect(matchCalls.length).toBe(4);
+    expect(matchCalls.length).toBe(2);
   });
 });
