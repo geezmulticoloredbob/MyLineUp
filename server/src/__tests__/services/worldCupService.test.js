@@ -23,9 +23,14 @@ const MOCK_STANDINGS = [
   },
 ];
 
+// status is a real field the service filters on (m.status === 'FINISHED' /
+// m.status !== 'FINISHED' with a future utcDate) now that finished and
+// upcoming matches come back from one combined call instead of two
+// separately-filtered ones — see worldCupService.js's getWCTeamMatches.
 const MOCK_FINISHED_MATCH = {
   id: 501,
   utcDate: '2026-06-15T18:00:00Z',
+  status: 'FINISHED',
   homeTeam: { id: 1, name: 'England', shortName: 'England' },
   awayTeam: { id: 2, name: 'France', shortName: 'France' },
   score: { fullTime: { home: 2, away: 0 }, winner: 'HOME_TEAM' },
@@ -34,16 +39,20 @@ const MOCK_FINISHED_MATCH = {
 const MOCK_SCHEDULED_MATCH = {
   id: 502,
   utcDate: '2099-06-22T18:00:00Z',
+  status: 'TIMED', // football-data.org's real status value for an upcoming match
   homeTeam: { id: 1, name: 'England', shortName: 'England' },
   awayTeam: { id: 2, name: 'France', shortName: 'France' },
   score: { fullTime: { home: null, away: null }, winner: null },
 };
 
+// One combined /matches response (status + date range are filtered
+// client-side in worldCupService.js, not via separate FINISHED/SCHEDULED
+// query params/calls) — mirrors the real getWCTeamMatches/getWCLeagueMatches
+// shape, which fetches once and splits the result itself.
 function standardMock(finished = [], scheduled = []) {
   return (url) => {
     if (url.includes('/standings')) return mockOk({ standings: MOCK_STANDINGS });
-    if (url.includes('FINISHED')) return mockOk({ matches: finished });
-    if (url.includes('SCHEDULED')) return mockOk({ matches: scheduled });
+    if (url.includes('/matches')) return mockOk({ matches: [...finished, ...scheduled] });
     if (url.includes('/teams')) return mockOk({ teams: MOCK_TEAMS });
     return mockOk({});
   };
@@ -103,7 +112,7 @@ describe('getWCTeamData', () => {
     await worldCupService.getWCTeamData({ teamName: 'England' });
     await worldCupService.getWCTeamData({ teamName: 'England' });
     const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/teams/1/matches'));
-    expect(matchCalls.length).toBe(2); // one FINISHED + one SCHEDULED fetch, not doubled
+    expect(matchCalls.length).toBe(1); // one combined fetch, not doubled
   });
 
   it('keeps separate match caches per team', async () => {
@@ -111,7 +120,7 @@ describe('getWCTeamData', () => {
     await worldCupService.getWCTeamData({ teamName: 'England' });
     await worldCupService.getWCTeamData({ teamName: 'France' });
     const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/matches') && url.includes('/teams/'));
-    expect(matchCalls.length).toBe(4);
+    expect(matchCalls.length).toBe(2);
   });
 });
 
@@ -146,7 +155,7 @@ describe('getWCLeagueGames', () => {
     await worldCupService.getWCLeagueGames();
     await worldCupService.getWCLeagueGames();
     const matchCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/competitions/WC/matches'));
-    expect(matchCalls.length).toBe(2); // one FINISHED + one SCHEDULED fetch, not doubled
+    expect(matchCalls.length).toBe(1); // one combined fetch, not doubled
   });
 
   it('throws when the league matches fetch fails', async () => {

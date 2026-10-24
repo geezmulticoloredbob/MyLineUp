@@ -48,7 +48,11 @@ const _teamsCache = new Map();    // code → { data, at }
 const _standingsCache = new Map();
 const _scorersCache = new Map();
 const TEAMS_TTL    = 24 * 60 * 60 * 1000;
-const STANDINGS_TTL = 5 * 60 * 1000;
+// Bumped from 5min to 15min — football-data.org's 10 req/min limit is
+// shared across the whole app, so every TTL this short is a cold-cache load
+// a user can hit again within a single sitting. Standings/results don't
+// meaningfully change that often outside live-match windows.
+const STANDINGS_TTL = 15 * 60 * 1000;
 const SCORERS_TTL  = 60 * 60 * 1000;
 
 // In-flight promise deduplication — concurrent cold-start calls share one request
@@ -134,9 +138,12 @@ function findFDTeam(allTeams, ourName, code) {
 // Per-team matches — cached so N favourites of the same team, or repeated
 // dashboard loads, don't each trigger a fresh call within the TTL window.
 // football-data.org's free tier is tightly rate-limited, so this matters most here.
+// Bumped from 5min to 15min for the same reason as STANDINGS_TTL above —
+// this is the TTL that matters most, since it's paid once per *team*
+// rather than once per competition.
 const _teamMatchesCache = new Map();
 const _teamMatchesInFlight = new Map();
-const TEAM_MATCHES_TTL = 5 * 60 * 1000;
+const TEAM_MATCHES_TTL = 15 * 60 * 1000;
 
 async function getFDTeamMatches(code, teamId) {
   const cacheKey = `${code}-${teamId}`;
@@ -151,17 +158,18 @@ async function getFDTeamMatches(code, teamId) {
     const future = new Date(now);
     future.setDate(future.getDate() + 30);
 
-    const [finishedRes, scheduledRes] = await Promise.all([
-      fdFetch(`/teams/${teamId}/matches?competitions=${code}&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
-      fdFetch(`/teams/${teamId}/matches?competitions=${code}&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
-    ]);
-    if (!finishedRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${finishedRes.status}`);
-    if (!scheduledRes.ok) throw new Error(`football-data.org ${code} team matches failed: ${scheduledRes.status}`);
-    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-      finishedRes.json(),
-      scheduledRes.json(),
-    ]);
-    return { finished: finished || [], scheduled: scheduled || [] };
+    // One combined call spanning the full past+future window, instead of two
+    // separately-throttled FINISHED/SCHEDULED calls — confirmed live that
+    // omitting `status` entirely returns both finished and upcoming matches
+    // in one response. Halves the throttled-call count per team, which
+    // matters a lot given football-data.org's 10 req/min limit is shared
+    // across the whole app, not per-user or per-team.
+    const res = await fdFetch(`/teams/${teamId}/matches?competitions=${code}&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(future)}`);
+    if (!res.ok) throw new Error(`football-data.org ${code} team matches failed: ${res.status}`);
+    const { matches } = await res.json();
+    const finished = (matches || []).filter((m) => m.status === 'FINISHED');
+    const scheduled = (matches || []).filter((m) => m.status !== 'FINISHED' && new Date(m.utcDate) >= now);
+    return { finished, scheduled };
   })()
     .then((data) => {
       _teamMatchesCache.set(cacheKey, { data, at: Date.now() });
@@ -265,7 +273,7 @@ async function getFDStandingsForOverview(code) {
 
 const _leagueMatchesCache = new Map();
 const _leagueMatchesInFlight = new Map();
-const LEAGUE_MATCHES_TTL = 5 * 60 * 1000;
+const LEAGUE_MATCHES_TTL = 15 * 60 * 1000; // bumped from 5min, same reasoning as STANDINGS_TTL above
 
 async function getFDLeagueMatches(code) {
   const cached = _leagueMatchesCache.get(code);
@@ -279,17 +287,14 @@ async function getFDLeagueMatches(code) {
     const future = new Date(now);
     future.setDate(future.getDate() + 14);
 
-    const [finishedRes, scheduledRes] = await Promise.all([
-      fdFetch(`/competitions/${code}/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
-      fdFetch(`/competitions/${code}/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
-    ]);
-    if (!finishedRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${finishedRes.status}`);
-    if (!scheduledRes.ok) throw new Error(`football-data.org ${code} league matches failed: ${scheduledRes.status}`);
-    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-      finishedRes.json(),
-      scheduledRes.json(),
-    ]);
-    return { finished: finished || [], scheduled: scheduled || [] };
+    // Combined call, same fix as getFDTeamMatches above — one request
+    // spanning the full window instead of two separately-throttled ones.
+    const res = await fdFetch(`/competitions/${code}/matches?dateFrom=${toDateStr(past)}&dateTo=${toDateStr(future)}`);
+    if (!res.ok) throw new Error(`football-data.org ${code} league matches failed: ${res.status}`);
+    const { matches } = await res.json();
+    const finished = (matches || []).filter((m) => m.status === 'FINISHED');
+    const scheduled = (matches || []).filter((m) => m.status !== 'FINISHED' && new Date(m.utcDate) >= now);
+    return { finished, scheduled };
   })()
     .then((data) => {
       _leagueMatchesCache.set(code, { data, at: Date.now() });

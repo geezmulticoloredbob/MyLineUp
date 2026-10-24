@@ -36,7 +36,9 @@ async function getWCTeams() {
 
 let _wcStandingsCache = null;
 let _wcStandingsCachedAt = 0;
-const STANDINGS_TTL_MS = 5 * 60 * 1000;
+// Bumped from 5min to 15min — same reasoning as footballService.js's
+// identical TTLs, which share this same throttled 'football-data' bucket.
+const STANDINGS_TTL_MS = 15 * 60 * 1000;
 
 async function fetchWCStandings() {
   if (_wcStandingsCache && Date.now() - _wcStandingsCachedAt < STANDINGS_TTL_MS) return _wcStandingsCache;
@@ -61,7 +63,7 @@ function findWCTeam(allTeams, ourName) {
 
 const _wcTeamMatchesCache = new Map();
 const _wcTeamMatchesInFlight = new Map();
-const TEAM_MATCHES_TTL_MS = 5 * 60 * 1000;
+const TEAM_MATCHES_TTL_MS = 15 * 60 * 1000; // bumped from 5min, same reasoning as footballService.js
 
 async function getWCTeamMatches(teamId) {
   const cached = _wcTeamMatchesCache.get(teamId);
@@ -75,17 +77,18 @@ async function getWCTeamMatches(teamId) {
     const future = new Date(now);
     future.setDate(future.getDate() + 30);
 
-    const [finishedRes, scheduledRes] = await Promise.all([
-      fdFetch(`/teams/${teamId}/matches?competitions=WC&status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}&limit=5`),
-      fdFetch(`/teams/${teamId}/matches?competitions=WC&status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}&limit=1`),
-    ]);
-    if (!finishedRes.ok) throw new Error(`WC team matches failed: ${finishedRes.status}`);
-    if (!scheduledRes.ok) throw new Error(`WC team matches failed: ${scheduledRes.status}`);
-    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-      finishedRes.json(),
-      scheduledRes.json(),
-    ]);
-    return { finished: finished || [], scheduled: scheduled || [] };
+    // One combined call spanning the full past+future window, instead of two
+    // separately-throttled FINISHED/SCHEDULED calls — same fix as
+    // footballService.js's identical pattern; omitting `status` entirely
+    // returns both finished and upcoming matches in one response. Halves
+    // the throttled-call count per team on the same shared 'football-data'
+    // bucket footballService.js uses.
+    const res = await fdFetch(`/teams/${teamId}/matches?competitions=WC&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(future)}`);
+    if (!res.ok) throw new Error(`WC team matches failed: ${res.status}`);
+    const { matches } = await res.json();
+    const finished = (matches || []).filter((m) => m.status === 'FINISHED');
+    const scheduled = (matches || []).filter((m) => m.status !== 'FINISHED' && new Date(m.utcDate) >= now);
+    return { finished, scheduled };
   })()
     .then((data) => {
       _wcTeamMatchesCache.set(teamId, { data, at: Date.now() });
@@ -211,7 +214,7 @@ async function getWCStandings() {
 let _wcLeagueMatchesCache = null;
 let _wcLeagueMatchesCachedAt = 0;
 let _wcLeagueMatchesInFlight = null;
-const LEAGUE_MATCHES_TTL_MS = 5 * 60 * 1000;
+const LEAGUE_MATCHES_TTL_MS = 15 * 60 * 1000; // bumped from 5min, same reasoning as footballService.js
 
 async function getWCLeagueMatches() {
   if (_wcLeagueMatchesCache && Date.now() - _wcLeagueMatchesCachedAt < LEAGUE_MATCHES_TTL_MS) return _wcLeagueMatchesCache;
@@ -224,17 +227,14 @@ async function getWCLeagueMatches() {
     const future = new Date(now);
     future.setDate(future.getDate() + 7);
 
-    const [finishedRes, scheduledRes] = await Promise.all([
-      fdFetch(`/competitions/WC/matches?status=FINISHED&dateFrom=${toDateStr(past)}&dateTo=${toDateStr(now)}`),
-      fdFetch(`/competitions/WC/matches?status=SCHEDULED&dateFrom=${toDateStr(now)}&dateTo=${toDateStr(future)}`),
-    ]);
-    if (!finishedRes.ok) throw new Error(`WC league games fetch failed: ${finishedRes.status}`);
-    if (!scheduledRes.ok) throw new Error(`WC league games fetch failed: ${scheduledRes.status}`);
-    const [{ matches: finished }, { matches: scheduled }] = await Promise.all([
-      finishedRes.json(),
-      scheduledRes.json(),
-    ]);
-    return { finished: finished || [], scheduled: scheduled || [] };
+    // Combined call, same fix as getWCTeamMatches above — one request
+    // spanning the full window instead of two separately-throttled ones.
+    const res = await fdFetch(`/competitions/WC/matches?dateFrom=${toDateStr(past)}&dateTo=${toDateStr(future)}`);
+    if (!res.ok) throw new Error(`WC league games fetch failed: ${res.status}`);
+    const { matches } = await res.json();
+    const finished = (matches || []).filter((m) => m.status === 'FINISHED');
+    const scheduled = (matches || []).filter((m) => m.status !== 'FINISHED' && new Date(m.utcDate) >= now);
+    return { finished, scheduled };
   })()
     .then((data) => {
       _wcLeagueMatchesCache = data;
