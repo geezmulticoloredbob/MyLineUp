@@ -11,3 +11,7 @@ test-results/
 Thumbs.db
 npm-debug.log*
 
+# Personal Claude Code settings (approved-command history, local paths) —
+# .claude/settings.json (shared project config, if any) stays tracked.
+.claude/settings.local.json
+

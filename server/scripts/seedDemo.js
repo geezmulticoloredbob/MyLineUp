@@ -2,7 +2,10 @@
  * Creates (or resets) a demo account for testing.
  * Usage: node scripts/seedDemo.js
  *
- * Credentials:  demo@mylineup.com / demo1234
+ * Requires DEMO_SEED_PASSWORD in server/.env — see .env.example. Not
+ * hardcoded here: this script and its password used to be committed
+ * together, which published a real, working login for the live production
+ * database to anyone reading the public repo.
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
@@ -14,8 +17,13 @@ const User = require('../src/models/User');
 const Favourite = require('../src/models/Favourite');
 
 const DEMO_EMAIL = 'demo@mylineup.com';
-const DEMO_PASSWORD = 'demo1234';
+const DEMO_PASSWORD = process.env.DEMO_SEED_PASSWORD;
 const DEMO_USERNAME = 'Demo User';
+
+if (!DEMO_PASSWORD) {
+  console.error('Missing DEMO_SEED_PASSWORD in server/.env — see .env.example.');
+  process.exit(1);
+}
 
 const DEMO_FAVOURITES = [
   { league: 'NBA', teamId: 'nba-bos', teamName: 'Boston Celtics' },
@@ -47,7 +55,7 @@ async function seed() {
   console.log(`Seeded ${DEMO_FAVOURITES.length} favourite teams`);
 
   console.log('\n  Email:    demo@mylineup.com');
-  console.log('  Password: demo1234\n');
+  console.log('  Password: (set via DEMO_SEED_PASSWORD in server/.env)\n');
 
   await mongoose.disconnect();
 }
