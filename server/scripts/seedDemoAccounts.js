@@ -5,7 +5,11 @@
  *
  * Usage: node scripts/seedDemoAccounts.js
  *
- * All accounts share the password: Demo1234
+ * All accounts share the password set via DEMO_SEED_PASSWORD in
+ * server/.env — see .env.example. Not hardcoded here: this script and its
+ * password used to be committed together, which published a real, working
+ * login for 5 accounts in the live production database to anyone reading
+ * the public repo.
  */
 
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
@@ -16,7 +20,12 @@ const bcrypt = require('bcryptjs');
 const User = require('../src/models/User');
 const Favourite = require('../src/models/Favourite');
 
-const SHARED_PASSWORD = 'Demo1234';
+const SHARED_PASSWORD = process.env.DEMO_SEED_PASSWORD;
+
+if (!SHARED_PASSWORD) {
+  console.error('Missing DEMO_SEED_PASSWORD in server/.env — see .env.example.');
+  process.exit(1);
+}
 
 const PERSONAS = [
   {
@@ -118,7 +127,7 @@ async function seed() {
     await seedPersona(hashedPassword, persona);
   }
 
-  console.log(`\nAll demo accounts share the password: ${SHARED_PASSWORD}\n`);
+  console.log('\nAll demo accounts share the password set via DEMO_SEED_PASSWORD.\n');
   console.log(PERSONAS.map((p) => `  ${p.email}`).join('\n'));
 
   await mongoose.disconnect();
