@@ -217,6 +217,12 @@ DNS_SERVERS=           # optional, e.g. 8.8.8.8,1.1.1.1 — only if your local r
 VITE_API_URL=http://localhost:5000
 ```
 
+## 🔒 Security
+
+Every push and PR runs [gitleaks](https://github.com/gitleaks/gitleaks) against the full commit history in CI (`.github/workflows/ci.yml`), not just the diff — a hardcoded secret, new or already in history, fails the build instead of silently merging.
+
+This exists because of a real incident: `scripts/seedDemo.js` and `scripts/seedDemoAccounts.js` hardcoded working login passwords for demo accounts in the live production database, committed to this public repo for several months before being caught. Once found, the response was: rotate the actual production credentials immediately (verified live that the old password stopped working), move the password into a gitignored env var (`DEMO_SEED_PASSWORD`, see `.env.example`) so it can't happen the same way again, and add the CI check above so the *next* mistake like this fails loudly instead of shipping. Git history still contains the old (now-rotated, inert) value — scrubbing it would need a force-push history rewrite, judged not worth the disruption once the credential itself was dead.
+
 ## ☁️ Deployment
 
 Free-tier stack: **MongoDB Atlas** (M0 cluster) → **Render** (server) → **Vercel** (client).
