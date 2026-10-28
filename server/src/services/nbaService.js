@@ -1,6 +1,7 @@
 const env = require('../config/env');
 const fetchWithTimeout = require('../utils/fetchWithTimeout');
 const { throttle } = require('../utils/requestThrottle');
+const { getESPNTeamTopScorers } = require('./espnPlayerService');
 
 const BDL_BASE = 'https://api.balldontlie.io/v1';
 // BallDontLie's free tier rejects bursts of near-simultaneous requests (seen
@@ -132,33 +133,6 @@ function toDateStr(d) {
   return d.toISOString().split('T')[0];
 }
 
-const _nbaPlayersCache = new Map();
-const NBA_PLAYERS_TTL = 24 * 60 * 60 * 1000;
-const _nbaAvgsCache = new Map();
-const NBA_AVGS_TTL = 60 * 60 * 1000;
-
-async function getBDLPlayers(teamId) {
-  const cached = _nbaPlayersCache.get(teamId);
-  if (cached && Date.now() - cached.at < NBA_PLAYERS_TTL) return cached.data;
-  const res = await bdlFetch(`/players?team_ids[]=${teamId}&per_page=100`);
-  if (!res.ok) throw new Error(`BDL players failed: ${res.status}`);
-  const { data } = await res.json();
-  _nbaPlayersCache.set(teamId, { data: data || [], at: Date.now() });
-  return data || [];
-}
-
-async function getBDLSeasonAvgs(teamId, playerIds) {
-  const cached = _nbaAvgsCache.get(teamId);
-  if (cached && Date.now() - cached.at < NBA_AVGS_TTL) return cached.data;
-  const season = new Date().getFullYear() - (new Date().getMonth() < 9 ? 1 : 0);
-  const qs = playerIds.slice(0, 50).map((id) => `player_ids[]=${id}`).join('&');
-  const res = await bdlFetch(`/season_averages?season=${season}&${qs}`);
-  if (!res.ok) throw new Error(`BDL season avgs failed: ${res.status}`);
-  const { data } = await res.json();
-  _nbaAvgsCache.set(teamId, { data: data || [], at: Date.now() });
-  return data || [];
-}
-
 // Per-team games (60d back / 14d forward) — cached so N favourites of the same
 // team, or the same user reloading the dashboard, don't each trigger a fresh
 // BallDontLie call within the TTL window.
@@ -264,14 +238,15 @@ async function getNBATeamData(favourite) {
   const hasPlayedThisSeason = ((standing?.wins || 0) + (standing?.losses || 0)) > 0;
   const seasonFinished = isNBAOffSeason || ((futureGames || []).length === 0 && hasPlayedThisSeason);
 
-  const players = await getBDLPlayers(bdlTeam.id).catch(() => []);
-  const playerIds = players.map((p) => p.id);
-  const avgs = playerIds.length ? await getBDLSeasonAvgs(bdlTeam.id, playerIds).catch(() => []) : [];
-  const nameById = new Map(players.map((p) => [p.id, `${p.first_name} ${p.last_name}`]));
-  const topScorers = avgs
-    .sort((a, b) => (b.pts || 0) - (a.pts || 0))
-    .slice(0, 2)
-    .map((a) => ({ name: nameById.get(a.player_id) || 'Unknown', stat: `${Number(a.pts).toFixed(1)} pts/g` }));
+  // BallDontLie's season_averages endpoint (used here until 2026-10) is
+  // paid-tier-only — confirmed live a 401 even with a valid free-tier key,
+  // per BallDontLie's own pricing table. This silently emptied topScorers
+  // in production (caught by the .catch(() => []) below, so no error ever
+  // surfaced) rather than actually fetching real averages. ESPN's own
+  // (free, no key) athlete stats cover NBA too — see espnPlayerService.js.
+  const topScorers = await getESPNTeamTopScorers('NBA', { teamId: favourite.teamId, teamName: favourite.teamName }, 'PTS', 2)
+    .then((scorers) => scorers.map((s) => ({ name: s.name, stat: `${s.display} pts/g` })))
+    .catch(() => []);
 
   return {
     latestResult,

@@ -3,13 +3,15 @@ jest.mock('../../services/footballService', () => ({ getFDTeamData: jest.fn() })
 jest.mock('../../services/worldCupService', () => ({ getWCTeamData: jest.fn() }));
 jest.mock('../../services/espnTeamSportService', () => ({ getESPNTeamData: jest.fn() }));
 jest.mock('../../services/cricketService', () => ({ getCricketTeamData: jest.fn() }));
+jest.mock('../../services/espnPlayerService', () => ({ getESPNPlayerData: jest.fn() }));
 
-const { hydrateFavouriteTeams } = require('../../services/sportsDataService');
+const { hydrateFavouriteTeams, hydrateFavouritePlayers } = require('../../services/sportsDataService');
 const { getNBATeamData } = require('../../services/nbaService');
 const { getFDTeamData } = require('../../services/footballService');
 const { getWCTeamData } = require('../../services/worldCupService');
 const { getESPNTeamData } = require('../../services/espnTeamSportService');
 const { getCricketTeamData } = require('../../services/cricketService');
+const { getESPNPlayerData } = require('../../services/espnPlayerService');
 
 const liveSportData = {
   logoUrl: 'https://example.com/logo.png',
@@ -359,6 +361,59 @@ describe('sportsDataService', () => {
       getESPNTeamData.mockResolvedValue({ ...liveSportData, logoUrl: null });
       const [result] = await hydrateFavouriteTeams([{ ...nrlFav, teamLogoUrl: '' }]);
       expect(result.teamLogoUrl).toBeUndefined();
+    });
+  });
+
+  describe('hydrateFavouritePlayers', () => {
+    const playerFav = {
+      _id: 'pf1',
+      playerId: '111',
+      playerName: 'Patrick Mahomes',
+      teamId: 'nfl-kc',
+      teamName: 'Kansas City Chiefs',
+      league: 'NFL',
+      position: 'QB',
+      headshotUrl: 'https://example.com/mahomes.png',
+    };
+
+    it('returns a live player with stats when ESPN data is available', async () => {
+      getESPNPlayerData.mockResolvedValue({ stats: [{ label: 'PASS YDS', value: '4183' }], dataAvailable: true });
+      const [result] = await hydrateFavouritePlayers([playerFav]);
+      expect(getESPNPlayerData).toHaveBeenCalledWith(playerFav);
+      expect(result.source).toBe('live');
+      expect(result.dataAvailable).toBe(true);
+      expect(result.stats).toEqual([{ label: 'PASS YDS', value: '4183' }]);
+      expect(result.favouriteId).toBe('pf1');
+      expect(result.playerId).toBe('111');
+      expect(result.playerName).toBe('Patrick Mahomes');
+      expect(result.teamId).toBe('nfl-kc');
+      expect(result.position).toBe('QB');
+      expect(result.headshotUrl).toBe('https://example.com/mahomes.png');
+    });
+
+    it('falls back to unavailable when ESPN has no stats for the player', async () => {
+      getESPNPlayerData.mockResolvedValue({ stats: [], dataAvailable: false });
+      const [result] = await hydrateFavouritePlayers([playerFav]);
+      expect(result.source).toBe('unavailable');
+      expect(result.dataAvailable).toBe(false);
+      expect(result.stats).toEqual([]);
+    });
+
+    it('falls back to unavailable without throwing when the player service rejects', async () => {
+      getESPNPlayerData.mockRejectedValue(new Error('ESPN is down'));
+      const [result] = await hydrateFavouritePlayers([playerFav]);
+      expect(result.source).toBe('unavailable');
+      expect(result.dataAvailable).toBe(false);
+      expect(result.stats).toEqual([]);
+    });
+
+    it('hydrates multiple player favourites in parallel and returns them in order', async () => {
+      getESPNPlayerData.mockResolvedValue({ stats: [], dataAvailable: true });
+      const second = { ...playerFav, _id: 'pf2', playerId: '222', playerName: 'Travis Kelce' };
+      const results = await hydrateFavouritePlayers([playerFav, second]);
+      expect(results).toHaveLength(2);
+      expect(results[0].playerName).toBe('Patrick Mahomes');
+      expect(results[1].playerName).toBe('Travis Kelce');
     });
   });
 });
