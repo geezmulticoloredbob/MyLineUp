@@ -4,6 +4,7 @@ const { getWCTeamData } = require('./worldCupService');
 const { getESPNTeamData } = require('./espnTeamSportService');
 const { getCricketTeamData } = require('./cricketService');
 const { getTeamColours } = require('./espnColourService');
+const { getESPNPlayerData } = require('./espnPlayerService');
 
 const ESPN_TEAM_SPORT_LEAGUES = ['NFL', 'NHL', 'MLB', 'AFL', 'NRL', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA', 'TURKEY', 'SCOTLAND', 'JLEAGUE', 'BELGIUM', 'MLS'];
 const CRICKET_LEAGUES = ['IPL', 'BBL'];
@@ -113,4 +114,29 @@ async function hydrateFavouriteTeams(favourites) {
   return Promise.all(favourites.map(hydrateTeam));
 }
 
-module.exports = { hydrateFavouriteTeams };
+async function hydratePlayer(playerFavourite) {
+  const playerData = await getESPNPlayerData(playerFavourite).catch((err) => {
+    console.error(`Player data error for ${playerFavourite.playerName}:`, err.message);
+    return null;
+  });
+
+  return {
+    favouriteId: playerFavourite._id,
+    playerId: playerFavourite.playerId,
+    playerName: playerFavourite.playerName,
+    teamId: playerFavourite.teamId,
+    teamName: playerFavourite.teamName,
+    league: playerFavourite.league,
+    position: playerFavourite.position,
+    headshotUrl: playerFavourite.headshotUrl,
+    stats: playerData?.stats ?? [],
+    dataAvailable: playerData?.dataAvailable ?? false,
+    source: playerData?.dataAvailable ? 'live' : 'unavailable',
+  };
+}
+
+async function hydrateFavouritePlayers(playerFavourites) {
+  return Promise.all(playerFavourites.map(hydratePlayer));
+}
+
+module.exports = { hydrateFavouriteTeams, hydrateFavouritePlayers };

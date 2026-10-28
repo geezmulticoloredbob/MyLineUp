@@ -166,4 +166,62 @@ describe('getNBATeamData', () => {
     const gamesCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/games'));
     expect(gamesCalls.length).toBe(4);
   });
+
+  // topScorers used to come from BallDontLie's season_averages endpoint,
+  // which is paid-tier-only (confirmed live: 401 even with a valid free
+  // key) — it silently emptied this field in production rather than ever
+  // erroring. Now sourced from ESPN instead (see espnPlayerService.js).
+  // Routed by hostname, not just path, since both BallDontLie's and ESPN's
+  // /teams endpoints share the substring "/teams".
+  describe('topScorers (ESPN-based)', () => {
+    const ESPN_TEAM = {
+      sports: [{ leagues: [{ teams: [{
+        team: { id: '2', abbreviation: 'BOS', displayName: 'Boston Celtics', shortDisplayName: 'Celtics', name: 'Celtics', location: 'Boston' },
+      }] }] }],
+    };
+    const ESPN_ROSTER = {
+      athletes: [
+        { id: '111', displayName: 'Jayson Tatum', position: { abbreviation: 'F' }, jersey: '0', headshot: { href: 'x' } },
+        { id: '222', displayName: 'Jaylen Brown', position: { abbreviation: 'G' }, jersey: '7', headshot: { href: 'y' } },
+      ],
+    };
+    function statsFor(pts) {
+      return { categories: [{ name: 'averages', labels: ['PTS'], statistics: [{ stats: [String(pts)] }] }] };
+    }
+
+    function mockWithESPN() {
+      return (url) => {
+        if (url.includes('site.web.api.espn.com')) {
+          const id = url.match(/athletes\/(\d+)\/stats/)?.[1];
+          return mockOk(id === '111' ? statsFor(30.5) : statsFor(25.1));
+        }
+        if (url.includes('site.api.espn.com') && url.includes('/roster')) return mockOk(ESPN_ROSTER);
+        if (url.includes('site.api.espn.com')) return mockOk(ESPN_TEAM);
+        if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS }); // BallDontLie
+        if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+        return mockOk({ data: [MOCK_FINISHED_GAME] });
+      };
+    }
+
+    it('ranks real ESPN-sourced players by points per game', async () => {
+      mockFetch.mockImplementation(mockWithESPN());
+      const result = await nbaService.getNBATeamData({ teamId: 'nba-bos', teamName: 'Boston Celtics' });
+      expect(result.topScorers).toEqual([
+        { name: 'Jayson Tatum', stat: '30.5 pts/g' },
+        { name: 'Jaylen Brown', stat: '25.1 pts/g' },
+      ]);
+    });
+
+    it('returns an empty array, not a thrown error, when ESPN roster fetch fails', async () => {
+      mockFetch.mockImplementation((url) => {
+        if (url.includes('/roster')) return mockFail();
+        if (url.includes('site.api.espn.com')) return mockOk(ESPN_TEAM);
+        if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+        if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+        return mockOk({ data: [MOCK_FINISHED_GAME] });
+      });
+      const result = await nbaService.getNBATeamData({ teamId: 'nba-bos', teamName: 'Boston Celtics' });
+      expect(result.topScorers).toEqual([]);
+    });
+  });
 });

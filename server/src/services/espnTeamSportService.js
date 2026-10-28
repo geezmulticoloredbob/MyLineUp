@@ -10,8 +10,14 @@ const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports';
 // for every ESPN-routed league before switching.
 const ESPN_STANDINGS_BASE = 'https://site.api.espn.com/apis/v2/sports';
 
-// ESPN sport/league path segments for each supported league code
+// ESPN sport/league path segments for each supported league code. Includes
+// NBA even though NBA's own *team* data comes from BallDontLie, not ESPN
+// (see nbaService.js, sportsDataService.js's hydrateTeam dispatch) — NBA
+// *player* data (espnPlayerService.js) does come from ESPN, and reuses
+// getESPNTeams/findTeamByAbbr/findTeamByName below rather than duplicating
+// them, so this config needs an NBA entry for that lookup to work.
 const ESPN_SPORT_CONFIG = {
+  NBA: { sport: 'basketball', league: 'nba' },
   NFL: { sport: 'football', league: 'nfl' },
   NHL: { sport: 'hockey', league: 'nhl' },
   MLB: { sport: 'baseball', league: 'mlb' },
@@ -524,4 +530,12 @@ module.exports = {
   getESPNTeamData,
   getESPNStandingsOverview,
   getESPNLeagueGames,
+  // Exported for espnPlayerService.js, which resolves a stored team to its
+  // ESPN numeric id the same way this file's own getESPNTeamData does,
+  // rather than duplicating the team-list fetch/cache and match logic.
+  ESPN_SPORT_CONFIG,
+  getESPNTeams,
+  findTeamByAbbr,
+  findTeamByName,
+  espnFetch,
 };
