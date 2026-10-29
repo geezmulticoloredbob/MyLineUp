@@ -4,15 +4,21 @@ import FavouritesManager from '../../../features/favourites/components/Favourite
 import { SUPPORTED_LEAGUES, LEAGUE_DISPLAY_NAMES } from '../../../constants/leagues';
 
 vi.mock('../../../features/favourites/hooks/useFavourites');
+vi.mock('../../../features/players/hooks/usePlayerFavourites');
+vi.mock('../../../features/players/hooks/useRoster');
 vi.mock('../../../contexts/AuthContext');
 vi.mock('../../../services/leagueApi');
 
 import { useFavourites } from '../../../features/favourites/hooks/useFavourites';
+import { usePlayerFavourites } from '../../../features/players/hooks/usePlayerFavourites';
+import { useRoster } from '../../../features/players/hooks/useRoster';
 import { useAuth } from '../../../contexts/AuthContext';
 import { updateFollowedLeagues } from '../../../services/leagueApi';
 
 const mockAddFavourite = vi.fn();
 const mockRemoveFavourite = vi.fn();
+const mockAddPlayerFavourite = vi.fn();
+const mockRemovePlayerFavourite = vi.fn();
 const mockUpdateUser = vi.fn();
 const mockOnClose = vi.fn();
 
@@ -24,6 +30,13 @@ beforeEach(() => {
     addFavourite: mockAddFavourite,
     removeFavourite: mockRemoveFavourite,
   });
+  usePlayerFavourites.mockReturnValue({
+    playerFavourites: [],
+    loading: false,
+    addPlayerFavourite: mockAddPlayerFavourite,
+    removePlayerFavourite: mockRemovePlayerFavourite,
+  });
+  useRoster.mockReturnValue({ roster: [], status: 'idle' });
   useAuth.mockReturnValue({
     user: { followedLeagues: [] },
     updateUser: mockUpdateUser,
@@ -167,5 +180,102 @@ describe('FavouritesManager', () => {
     await waitFor(() => expect(screen.getByText(/something went wrong/i)).toBeInTheDocument());
     fireEvent.click(addButtons[1]);
     await waitFor(() => expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument());
+  });
+
+  describe('Players sub-tab (NFL pilot)', () => {
+    it('does not show a Teams/Players sub-tab for a league outside the player-pages rollout', () => {
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NBA' }));
+      expect(screen.queryByRole('button', { name: 'Players' })).not.toBeInTheDocument();
+    });
+
+    it('shows a Teams/Players sub-tab for NFL and defaults to the team list', () => {
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NFL' }));
+      expect(screen.getByRole('button', { name: 'Teams' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Players' })).toBeInTheDocument();
+      expect(screen.getByText('Arizona Cardinals')).toBeInTheDocument();
+    });
+
+    it('switches to the roster picker when Players is clicked, with a team selector', () => {
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NFL' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Players' }));
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Add' })).not.toBeInTheDocument();
+    });
+
+    it('resets back to the Teams sub-tab when switching league tabs', () => {
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NFL' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Players' }));
+      fireEvent.click(screen.getByRole('button', { name: 'NBA' }));
+      fireEvent.click(screen.getByRole('button', { name: 'NFL' }));
+      expect(screen.getByText('Arizona Cardinals')).toBeInTheDocument();
+    });
+
+    it('shows the roster once a team is selected and lets you follow a player', async () => {
+      useRoster.mockReturnValue({
+        roster: [{ id: '111', name: 'Kyler Murray', position: 'QB', headshotUrl: 'https://example.com/km.png' }],
+        status: 'ready',
+      });
+      mockAddPlayerFavourite.mockResolvedValue({});
+
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NFL' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Players' }));
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'nfl-ari' } });
+
+      expect(screen.getByText('Kyler Murray')).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+      await waitFor(() => expect(mockAddPlayerFavourite).toHaveBeenCalledWith({
+        league: 'NFL',
+        playerId: '111',
+        playerName: 'Kyler Murray',
+        teamId: 'nfl-ari',
+        teamName: 'Arizona Cardinals',
+        position: 'QB',
+        headshotUrl: 'https://example.com/km.png',
+      }));
+    });
+
+    it('shows Remove and calls removePlayerFavourite for an already-followed player', async () => {
+      useRoster.mockReturnValue({
+        roster: [{ id: '111', name: 'Kyler Murray', position: 'QB', headshotUrl: '' }],
+        status: 'ready',
+      });
+      usePlayerFavourites.mockReturnValue({
+        playerFavourites: [{ _id: 'pf-1', playerId: '111', league: 'NFL' }],
+        loading: false,
+        addPlayerFavourite: mockAddPlayerFavourite,
+        removePlayerFavourite: mockRemovePlayerFavourite,
+      });
+      mockRemovePlayerFavourite.mockResolvedValue({});
+
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NFL' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Players' }));
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'nfl-ari' } });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+      await waitFor(() => expect(mockRemovePlayerFavourite).toHaveBeenCalledWith('pf-1'));
+    });
+
+    it('shows an error message when addPlayerFavourite fails', async () => {
+      useRoster.mockReturnValue({
+        roster: [{ id: '111', name: 'Kyler Murray', position: 'QB', headshotUrl: '' }],
+        status: 'ready',
+      });
+      mockAddPlayerFavourite.mockRejectedValue(new Error('Network error'));
+
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NFL' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Players' }));
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'nfl-ari' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+
+      await waitFor(() => expect(screen.getByText(/something went wrong/i)).toBeInTheDocument());
+    });
   });
 });

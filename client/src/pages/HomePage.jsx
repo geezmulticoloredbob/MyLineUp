@@ -10,6 +10,7 @@ import PageContainer from '../components/common/PageContainer';
 import ErrorBoundary from '../components/common/ErrorBoundary';
 import SportIcon from '../components/common/SportIcon';
 import TeamCard from '../features/dashboard/components/TeamCard';
+import PlayerCard from '../features/dashboard/components/PlayerCard';
 import LeagueCard, { SkeletonLeagueCard } from '../features/dashboard/components/LeagueCard';
 import GamesFeed from '../features/dashboard/components/GamesFeed';
 import NextMatches from '../features/dashboard/components/NextMatches';
@@ -190,6 +191,7 @@ function HomePage() {
   const { user } = useAuth();
   const { leagueOrder, setLeagueOrder, teamOrder, setTeamOrder, expandedSports, toggleSportExpand, expandSport } = useTheme();
   const [teams, setTeams] = useState([]);
+  const [players, setPlayers] = useState([]);
   const [leagueOverviews, setLeagueOverviews] = useState([]);
   const [status, setStatus] = useState('loading');
   const [retryCount, setRetryCount] = useState(0);
@@ -198,8 +200,9 @@ function HomePage() {
     const controller = new AbortController();
     setStatus('loading');
     apiClient('/api/dashboard', { signal: controller.signal })
-      .then(({ teams, leagueOverviews }) => {
+      .then(({ teams, players, leagueOverviews }) => {
         setTeams(teams);
+        setPlayers(players || []);
         setLeagueOverviews(leagueOverviews || []);
         setStatus(teams.length === 0 && (leagueOverviews?.length ?? 0) === 0 ? 'empty' : 'ready');
         const bgTeams = teams.map(({ teamName, teamId, league }) => ({ teamName, teamId, league }));
@@ -375,6 +378,21 @@ function HomePage() {
                 </div>
               );
             })}
+          </div>
+        </ErrorBoundary>
+      )}
+      {players.length > 0 && (
+        <ErrorBoundary>
+          <div className="team-group">
+            <h2 className="team-group__title" style={{ cursor: 'default' }}>
+              Your Players
+              <span className="team-group__count">{players.length}</span>
+            </h2>
+            <div className="team-card-grid">
+              {players.map((player) => (
+                <PlayerCard key={player.favouriteId} player={player} />
+              ))}
+            </div>
           </div>
         </ErrorBoundary>
       )}
