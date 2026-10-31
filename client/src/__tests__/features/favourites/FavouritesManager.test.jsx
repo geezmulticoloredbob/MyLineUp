@@ -182,7 +182,7 @@ describe('FavouritesManager', () => {
     await waitFor(() => expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument());
   });
 
-  describe('Players sub-tab (NFL + NBA)', () => {
+  describe('Players sub-tab (NFL + NBA + NHL)', () => {
     it('does not show a Teams/Players sub-tab for a league outside the player-pages rollout', () => {
       render(<FavouritesManager onClose={mockOnClose} />);
       fireEvent.click(screen.getByRole('button', { name: 'AFL' }));
@@ -192,6 +192,13 @@ describe('FavouritesManager', () => {
     it('shows a Teams/Players sub-tab for NBA too, not just the NFL pilot', () => {
       render(<FavouritesManager onClose={mockOnClose} />);
       fireEvent.click(screen.getByRole('button', { name: 'NBA' }));
+      expect(screen.getByRole('button', { name: 'Teams' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Players' })).toBeInTheDocument();
+    });
+
+    it('shows a Teams/Players sub-tab for NHL too', () => {
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'NHL' }));
       expect(screen.getByRole('button', { name: 'Teams' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Players' })).toBeInTheDocument();
     });
