@@ -1,10 +1,10 @@
 # Player Pages V1 rollout
 
-*Last touched 2026-11-08.*
+*Last touched 2026-11-09.*
 
 Player Pages (follow individual players, see their season stats) is one of the app's own Roadmap items, being shipped **league by league** — one small, independently live-verified PR per league, not all at once. This file is a snapshot of local project memory so a session on another device/machine has the same context; verify anything load-bearing against the actual code/PR history before trusting it as current.
 
-**Shipped so far (2026-10-28 through 2026-11-08), eleven PRs:**
+**Shipped so far (2026-10-28 through 2026-11-09), twelve PRs:**
 - PR #73 — backend data layer: `PlayerFavourite` model, `server/src/services/espnPlayerService.js` (roster + per-player stats via ESPN's free athlete endpoints, no API key needed), `/api/players/*` routes, wired into `dashboardService.buildDashboard`'s response (`players`/`playerCount`).
 - PR #74 — client UI: Teams/Players sub-tab inside Manage Favourites (team picker → live roster → follow/unfollow a player) and a `PlayerCard` on the dashboard. NFL pilot.
 - PR #75 — NBA. PR #76 — NHL. PR #77 — MLB (its ESPN `/stats` splits into separate `career-batting`/`pitching` categories rather than one flat category — `zipLatestSeason`'s "take the last row" logic already handled this with no code change). PR #78 — WNBA.
@@ -13,9 +13,11 @@ Player Pages (follow individual players, see their season stats) is one of the a
 - PR #81 — Liga MX. PR #82 — Brasileirão. Both matched the same flat-roster/`/overview`-stats shape as NWSL/A-League — no new quirks.
 - PR #83 — Argentina (Liga Profesional). Opened 2026-11-07 by a cloud session as a **draft**: its sandbox's network allowlist blocked `site.api.espn.com`, so it shipped the allowlist+tests change but explicitly left the live-ESPN check (checklist steps 3–4) undone rather than assume it would pass, flagging it clearly in the PR description with a ready-to-run verification script. Picked up 2026-11-08 from a machine with ESPN access: ran that script — all four of Boca Juniors, River Plate, Independiente Rivadavia and Independiente resolve to distinct, non-overlapping rosters (confirms the `RIV` abbreviation collision and the Independiente/Independiente Rivadavia name-substring case are both handled correctly), each with real non-zero stats (e.g. River Plate's Santiago Beltrán: 15 starts, 7 clean sheets, 37 saves). Full e2e round trip also verified. Marked ready and merged.
 
-**Current allowlist** (`client/src/features/players/constants.js`'s `PLAYER_PAGES_LEAGUES`): `['NFL', 'NBA', 'NHL', 'MLB', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA']`.
+- PR #84 — Saudi Pro League, the sixth soccer league. Confirmed live: roster is flat, `/overview` stats real (Rúben Neves: 11 starts, 5 goals, 3 assists). No new quirks. Merged cleanly on the first `gh pr merge` attempt.
 
-**Remaining ESPN-routed leagues not yet shipped:** Saudi PL, Primeira Liga, Turkey, Scotland, J1, Belgium, MLS — all soccer, and every soccer league checked so far (NWSL, A-League, Liga MX, Brasileirão, Argentina) has matched the same flat-roster/`/overview`-stats shape, so this looks like a reliable pattern, but give each one its own quick live check before shipping rather than assuming. AFL and NRL are currently un-shippable (ESPN returns `athletes: []` for both — confirmed via the response's own `season.name` field showing their off-season; re-check once their season resumes, ~March). football-data.org-routed leagues (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, UCL, World Cup) and cricket are a permanent gap — that provider has no full roster endpoint.
+**Current allowlist** (`client/src/features/players/constants.js`'s `PLAYER_PAGES_LEAGUES`): `['NFL', 'NBA', 'NHL', 'MLB', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA', 'SAUDIPL']`.
+
+**Remaining ESPN-routed leagues not yet shipped:** Primeira Liga, Turkey, Scotland, J1, Belgium, MLS — all soccer, and every soccer league checked so far (NWSL, A-League, Liga MX, Brasileirão, Argentina, Saudi PL) has matched the same flat-roster/`/overview`-stats shape, so this looks like a reliable pattern, but give each one its own quick live check before shipping rather than assuming. AFL and NRL are currently un-shippable (ESPN returns `athletes: []` for both — confirmed via the response's own `season.name` field showing their off-season; re-check once their season resumes, ~March). football-data.org-routed leagues (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, UCL, World Cup) and cricket are a permanent gap — that provider has no full roster endpoint.
 
 **Rollout checklist for the next league:**
 1. Check the previous PR actually merged (`gh pr view <n> --json state,mergedAt`, or in cloud sessions where GraphQL is blocked: `gh api repos/geezmulticoloredbob/mylineup/pulls/<n> --jq '{merged,merged_at}'`) — don't assume. Sync local master.
