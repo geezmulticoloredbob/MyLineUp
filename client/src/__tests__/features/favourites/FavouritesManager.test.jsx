@@ -182,7 +182,7 @@ describe('FavouritesManager', () => {
     await waitFor(() => expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument());
   });
 
-  describe('Players sub-tab (NFL + NBA + NHL + MLB + WNBA + NWSL + A-League + Liga MX + Brasileirão + Liga Profesional + Saudi Pro League + Primeira Liga + Süper Lig + Scottish Premiership + J1 League + Belgian Pro League)', () => {
+  describe('Players sub-tab (NFL + NBA + NHL + MLB + WNBA + NWSL + A-League + Liga MX + Brasileirão + Liga Profesional + Saudi Pro League + Primeira Liga + Süper Lig + Scottish Premiership + J1 League + Belgian Pro League + MLS)', () => {
     it('does not show a Teams/Players sub-tab for a league outside the player-pages rollout', () => {
       render(<FavouritesManager onClose={mockOnClose} />);
       fireEvent.click(screen.getByRole('button', { name: 'AFL' }));
@@ -290,6 +290,13 @@ describe('FavouritesManager', () => {
     it('shows a Teams/Players sub-tab for Belgian Pro League too', () => {
       render(<FavouritesManager onClose={mockOnClose} />);
       fireEvent.click(screen.getByRole('button', { name: 'Belgian Pro League' }));
+      expect(screen.getByRole('button', { name: 'Teams' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Players' })).toBeInTheDocument();
+    });
+
+    it('shows a Teams/Players sub-tab for MLS too', () => {
+      render(<FavouritesManager onClose={mockOnClose} />);
+      fireEvent.click(screen.getByRole('button', { name: 'MLS' }));
       expect(screen.getByRole('button', { name: 'Teams' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Players' })).toBeInTheDocument();
     });
