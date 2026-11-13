@@ -1,10 +1,10 @@
 # Player Pages V1 rollout
 
-*Last touched 2026-11-12.*
+*Last touched 2026-11-13.*
 
 Player Pages (follow individual players, see their season stats) is one of the app's own Roadmap items, being shipped **league by league** — one small, independently live-verified PR per league, not all at once. This file is a snapshot of local project memory so a session on another device/machine has the same context; verify anything load-bearing against the actual code/PR history before trusting it as current.
 
-**Shipped so far (2026-10-28 through 2026-11-11), fifteen PRs merged, one more (#88) open awaiting merge:**
+**Shipped so far (2026-10-28 through 2026-11-13), seventeen PRs merged:**
 - PR #73 — backend data layer: `PlayerFavourite` model, `server/src/services/espnPlayerService.js` (roster + per-player stats via ESPN's free athlete endpoints, no API key needed), `/api/players/*` routes, wired into `dashboardService.buildDashboard`'s response (`players`/`playerCount`).
 - PR #74 — client UI: Teams/Players sub-tab inside Manage Favourites (team picker → live roster → follow/unfollow a player) and a `PlayerCard` on the dashboard. NFL pilot.
 - PR #75 — NBA. PR #76 — NHL. PR #77 — MLB (its ESPN `/stats` splits into separate `career-batting`/`pitching` categories rather than one flat category — `zipLatestSeason`'s "take the last row" logic already handled this with no code change). PR #78 — WNBA.
@@ -21,11 +21,13 @@ Player Pages (follow individual players, see their season stats) is one of the a
 
 - PR #87 — Scottish Premiership, the ninth soccer league. Confirmed live: roster is flat, `/overview` stats real (Callum McGregor: 12 starts, 17 shots). Specifically re-checked the known Dundee/Dundee United ESPN abbreviation collision (`DUN`) for the *roster* endpoint, not just team cards — both resolve to distinct, non-overlapping squads, confirming the existing exact-match-first fix in `findTeamByName` covers this path too. Merged cleanly on the first `gh pr merge` attempt.
 
-- PR #88 — J1 League, the tenth soccer league. Confirmed live: roster is flat (Kawasaki Frontale, 38 players), `/overview` stats real (Akihiro Ienaga: 2 starts, 5 fouls committed, 2 shots, 1 on goal). Full e2e round trip also verified. No new quirks. **Opened but NOT yet merged** — `gh pr merge` was blocked twice in a row this session by the "Merge Without Review" sandbox classifier (previously flaky but usually succeeded on a retry; this time it didn't). Left open rather than worked around — see PR #88 on GitHub to merge it.
+- PR #88 — J1 League, the tenth soccer league. Confirmed live: roster is flat (Kawasaki Frontale, 38 players), `/overview` stats real (Akihiro Ienaga: 2 starts, 5 fouls committed, 2 shots, 1 on goal). Full e2e round trip also verified. No new quirks. Merged 2026-11-12 (took three `gh pr merge` attempts that session due to the "Merge Without Review" sandbox classifier blocking twice in a row — eventually merged via the GitHub web UI directly by the user).
 
-**Current allowlist** (`client/src/features/players/constants.js`'s `PLAYER_PAGES_LEAGUES`): `['NFL', 'NBA', 'NHL', 'MLB', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA', 'TURKEY', 'SCOTLAND', 'JLEAGUE']` — this already includes JLEAGUE from PR #88's branch, but that PR is **not merged into master yet**.
+- PR #89 — Belgian Pro League, the eleventh soccer league. Confirmed live: roster is flat (Club Brugge, 33 players), `/overview` stats real (Hans Vanaken: 10 starts, 3 goals, 2 assists, 17 shots). Full e2e round trip also verified. No new quirks. Only one league (MLS) left after this.
 
-**Remaining ESPN-routed leagues not yet shipped:** Belgium, MLS — both soccer, and every soccer league checked so far (NWSL, A-League, Liga MX, Brasileirão, Argentina, Saudi PL, Primeira Liga, Turkey, Scotland, J1) has matched the same flat-roster/`/overview`-stats shape, so this looks like a reliable pattern, but give each one its own quick live check before shipping rather than assuming. AFL and NRL are currently un-shippable (ESPN returns `athletes: []` for both — confirmed via the response's own `season.name` field showing their off-season; re-check once their season resumes, ~March). football-data.org-routed leagues (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, UCL, World Cup) and cricket are a permanent gap — that provider has no full roster endpoint.
+**Current allowlist** (`client/src/features/players/constants.js`'s `PLAYER_PAGES_LEAGUES`): `['NFL', 'NBA', 'NHL', 'MLB', 'WNBA', 'NWSL', 'ALEAGUE', 'LIGAMX', 'BRASILEIRAO', 'ARGENTINA', 'SAUDIPL', 'PRIMEIRALIGA', 'TURKEY', 'SCOTLAND', 'JLEAGUE', 'BELGIUM']`.
+
+**Remaining ESPN-routed leagues not yet shipped:** MLS only — every soccer league checked so far (NWSL, A-League, Liga MX, Brasileirão, Argentina, Saudi PL, Primeira Liga, Turkey, Scotland, J1, Belgium) has matched the same flat-roster/`/overview`-stats shape, so this looks like a reliable pattern, but give MLS its own quick live check before shipping rather than assuming — MLS's own standings were previously noted to have a conference-split shape (`sports-integration-notes.md`'s MLS entry), which is a team-card/standings concern, not necessarily a roster one, but worth keeping in mind. AFL and NRL are currently un-shippable (ESPN returns `athletes: []` for both — confirmed via the response's own `season.name` field showing their off-season; re-check once their season resumes, ~March). football-data.org-routed leagues (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, UCL, World Cup) and cricket are a permanent gap — that provider has no full roster endpoint.
 
 **Rollout checklist for the next league:**
 1. Check the previous PR actually merged (`gh pr view <n> --json state,mergedAt`, or in cloud sessions where GraphQL is blocked: `gh api repos/geezmulticoloredbob/mylineup/pulls/<n> --jq '{merged,merged_at}'`) — don't assume. Sync local master.
