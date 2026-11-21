@@ -3,7 +3,9 @@
 [![CI](https://github.com/geezmulticoloredbob/MyLineUp/actions/workflows/ci.yml/badge.svg)](https://github.com/geezmulticoloredbob/MyLineUp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A personalised sports dashboard that lets users follow their favourite teams across multiple leagues in one unified interface — fixtures, results, ladders and stats, aggregated into a single feed.
+A personalised sports dashboard that lets users follow their favourite teams — and individual players — across 30 leagues in one unified interface: fixtures, results, ladders and stats, aggregated into a single feed.
+
+**Live:** [my-line-up.vercel.app](https://my-line-up.vercel.app) (the free-tier backend may take a few seconds to wake up)
 
 ## 📌 Overview
 
@@ -18,6 +20,8 @@ Core capabilities:
   - Ladder / league table position
   - Season stats and top scorers
   - Team logo and brand colours (sourced from ESPN)
+  - A "Recent Form" strip built from daily snapshot history
+- Player Pages: follow individual players and see their current-season stats on the dashboard (17 ESPN-routed leagues — see below)
 - A "Today" feed showing live results and fixtures across followed leagues, plus a separate "Next Matches" view with the soonest upcoming fixture per sport
 - Drag-and-drop reordering of leagues and teams on the dashboard
 - Dark/light theme, with an optional background tint derived from a chosen team's colours
@@ -92,7 +96,7 @@ Supported leagues:
 **External data**
 - BallDontLie API (NBA)
 - football-data.org (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, Champions League, World Cup)
-- ESPN's public site API and CDN — a single config-driven service covering NFL, NHL, MLB, AFL, NRL, WNBA, NWSL, A-League, Liga MX, Brasileirão, Argentina, Saudi Pro League, Primeira Liga, Süper Lig, Scottish Premiership, J1 League, Belgian Pro League, and MLS, plus team logos and brand colours for all of them (with a maintained fallback for the handful of clubs ESPN itself has no real colour data for)
+- ESPN's public site API and CDN — a single config-driven service covering NFL, NHL, MLB, AFL, NRL, WNBA, NWSL, A-League, Liga MX, Brasileirão, Argentina, Saudi Pro League, Primeira Liga, Süper Lig, Scottish Premiership, J1 League, Belgian Pro League, and MLS, plus team logos and brand colours for all of them (with a maintained fallback for the handful of clubs ESPN itself has no real colour data for). ESPN's athlete endpoints also power Player Pages rosters and per-player stats
 - cricketdata.org (IPL, Big Bash League)
 
 ## 🧠 Core Features
@@ -108,12 +112,20 @@ Supported leagues:
 - "Today" feed of results and fixtures across all followed leagues
 - "Next Matches" view — one row per sport, whichever followed team has the soonest fixture after today
 - Drag-and-drop reordering of leagues and teams, persisted per user
+- "Recent Form" W/D/L strip on each team card, read from the daily snapshot history (see [Snapshot history](#snapshot-history)) — appears once a team has a few days of history
 
 ### 3️⃣ Favourites
 - Add/remove favourite teams per league from the onboarding flow or dashboard
 - Favourites drive both the dashboard cards and the games feed
 
-### 4️⃣ Theming
+### 4️⃣ Player Pages
+- A Teams/Players sub-tab in Manage Favourites: pick a team, browse its live roster, follow or unfollow individual players
+- Followed players appear as player cards on the dashboard with their current-season stats (soccer leagues use ESPN's per-player `/overview` stats, the US leagues use `/stats`)
+- Available for every ESPN-routed league with roster data: NFL, NBA, NHL, MLB, WNBA, NWSL, A-League, Liga MX, Brasileirão, Argentina, Saudi Pro League, Primeira Liga, Süper Lig, Scottish Premiership, J1 League, Belgian Pro League, and MLS (allowlist in `client/src/features/players/constants.js`)
+- **Not yet available:** AFL and NRL (ESPN returns empty rosters during their off-season — to be re-checked when seasons resume around March). The football-data.org leagues (EPL, La Liga, Bundesliga, Serie A, Ligue 1, Championship, Eredivisie, Champions League, World Cup) and cricket (IPL, BBL) aren't supported, because those providers don't offer full roster data
+- Shipped league by league (PRs #73–#90), each one checked against live ESPN data before release
+
+### 5️⃣ Theming
 - Dark theme by default, with a light theme toggle
 - Optional dashboard background tint derived from a favourite team's brand colours
 
@@ -124,19 +136,37 @@ Supported leagues:
 - `followedLeagues[]` — any of the leagues listed under Supported leagues above (enum lives in `constants/leagues.js`)
 - `onboardingComplete`
 - `iconId` — selected avatar icon
+- `passwordResetTokenHash`, `passwordResetExpires` — set by the forgot-password flow, cleared on use
 
 **Favourite**
 - `user` (ref), `league`, `teamId`, `teamName`, `teamLogoUrl`
 - Unique index on `(user, league, teamId)`
+
+**PlayerFavourite**
+- `user` (ref), `league`, `playerId`, `playerName`, `teamId`, `teamName`, `position`, `headshotUrl`
+- Unique index on `(user, league, playerId)`
+
+**TeamSnapshot**
+- `league`, `teamId`, `teamName`, `capturedOn` (`YYYY-MM-DD`, UTC), `latestResult`, `ladderPosition`, `stats`
+- Unique index on `(league, teamId, capturedOn)` — one row per followed team per day
 
 Team IDs follow the pattern `{league}-{abbr}` (e.g. `nba-gsw`, `epl-ars`, `afl-haw`).
 
 ## 🔄 Data Flow
 
 1. User logs in and completes onboarding (or lands on the dashboard if already onboarded)
-2. Dashboard requests the user's favourites and followed leagues
-3. The server's league services fetch and normalise data from each external API — NBA, the football-data.org-routed leagues, World Cup, a single config-driven service covering 18 ESPN-routed leagues (NFL, NHL, MLB, AFL and 14 more — see External data above), and cricketdata.org (IPL, BBL) — each caching in-memory to minimise external calls: team lists 24h, standings 5min, scorers 1h, and match/game fetches 5min
-4. Results are aggregated into a single dashboard payload and rendered on the client as league/team cards, a "Today" feed, and a "Next Matches" view
+2. Dashboard requests the user's favourite teams, favourite players, and followed leagues
+3. The server's league services fetch and normalise data from each external API — NBA, the football-data.org-routed leagues, World Cup, a single config-driven service covering 18 ESPN-routed leagues (NFL, NHL, MLB, AFL and 14 more — see External data above), and cricketdata.org (IPL, BBL) — plus `espnPlayerService` for followed players. Each one caches in memory and shares in-flight requests to keep external calls down:
+
+   | Data | football-data.org | ESPN | cricketdata.org |
+   |---|---|---|---|
+   | Team lists / rosters | 24h | 24h | 3h |
+   | Standings | 15min | 5min | 3h |
+   | Matches / games | 15min | 5min | 3h |
+   | Top scorers / player stats | 1h | 1h | — |
+
+   football-data.org and other rate-limited providers also go through a per-provider request throttle (`utils/requestThrottle.js`), so a burst of favourites doesn't exceed the provider's per-minute limit
+4. Results are aggregated into a single dashboard payload and rendered on the client as league/team cards, player cards, a "Today" feed, and a "Next Matches" view. If one source fails, that team's card shows as unavailable and the rest of the dashboard still loads
 
 ## 📁 Project Structure
 
@@ -145,19 +175,21 @@ Monorepo with independent `client/`, `server/`, and `e2e/` apps (no shared packa
 ```
 client/src/
   components/   shared UI (account menu, protected routes, error boundary, layout)
-  features/     feature modules — auth, dashboard, favourites
-  pages/        route-level screens (login, register, onboarding, home)
+  features/     feature modules — auth, dashboard, favourites, players
+  pages/        route-level screens (login, register, forgot/reset password,
+                onboarding, home)
   routes/       router setup
   contexts/     Auth, Theme, Favourites providers
   data/         static team/league reference data
   services/     API client
 
 server/src/
-  routes/       auth, league, favourites, dashboard
+  routes/       auth, league, favourites, players, dashboard, internal
   controllers/  request handlers (wrapped in asyncHandler)
-  services/     league integrations + dashboard aggregation
-  models/       User, Favourite (Mongoose)
-  middleware/   auth, error handling
+  services/     league + player integrations, dashboard aggregation,
+                daily snapshots
+  models/       User, Favourite, PlayerFavourite, TeamSnapshot (Mongoose)
+  middleware/   auth (cookie JWT), internal-secret auth, error handling
   validators/   request payload validation
 
 e2e/            Playwright smoke tests against the live deployed app
@@ -165,6 +197,20 @@ e2e/            Playwright smoke tests against the live deployed app
 ```
 
 See `docs/project-structure.md` for more detail, and `CLAUDE.md` for architecture notes.
+
+## 🔌 API Overview
+
+All routes are under `/api`. Unless marked otherwise, they require the httpOnly `token` cookie set at login.
+
+| Area | Endpoints |
+|---|---|
+| Auth | `POST /auth/register`, `POST /auth/login` (public, rate-limited) · `POST /auth/forgot-password`, `POST /auth/reset-password/:token` (public, rate-limited) · `GET /auth/me` · `POST /auth/logout` · `PATCH /auth/icon`, `/auth/profile`, `/auth/password` |
+| Leagues | `GET /leagues`, `PUT /leagues` · `POST /leagues/complete-onboarding` |
+| Team favourites | `GET /favourites`, `POST /favourites`, `DELETE /favourites/:favouriteId` |
+| Players | `GET /players/roster/:league/:teamId` · `GET /players/favourites`, `POST /players/favourites`, `DELETE /players/favourites/:favouriteId` |
+| Dashboard | `GET /dashboard` · `GET /dashboard/trend/:league/:teamId` |
+| Internal | `POST /internal/refresh-snapshots` (`x-internal-secret` header, no cookie) |
+| Health | `GET /health` (public) |
 
 ## 🛠 Local Development Setup
 
@@ -258,7 +304,8 @@ To wire this up:
 
 ## 🧩 Roadmap
 
-- Player pages and player-level stats/favourites
+- Player Pages for AFL and NRL once their seasons resume (V1 is live for the other 17 ESPN-routed leagues)
+- A fix for World Cup team match history, which football-data.org's free tier currently blocks
 - Video highlights integration
 - Live match tracking
 - Push notifications
