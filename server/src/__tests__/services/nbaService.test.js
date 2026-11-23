@@ -41,6 +41,20 @@ beforeEach(() => {
   nbaService = require('../../services/nbaService');
 });
 
+const MOCK_UPCOMING_GAME_JAN = {
+  id: 201,
+  date: '2026-01-20T00:00:00.000Z',
+  status: '7:00 pm ET',
+  home_team: { id: 1, abbreviation: 'ATL', full_name: 'Atlanta Hawks' },
+  visitor_team: { id: 2, abbreviation: 'BOS', full_name: 'Boston Celtics' },
+};
+
+const MOCK_UPCOMING_GAME_JULY = {
+  ...MOCK_UPCOMING_GAME_JAN,
+  id: 202,
+  date: '2026-07-20T00:00:00.000Z',
+};
+
 describe('getNBAStandings', () => {
   it('returns standings sorted by conference rank', async () => {
     mockFetch.mockResolvedValue(mockOk({ data: MOCK_STANDINGS }));
@@ -109,6 +123,11 @@ describe('getNBALeagueGames', () => {
     const gamesCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/games'));
     expect(gamesCalls.length).toBe(2); // one past + one future window fetch, not doubled
   });
+
+  it('rejects when the league-wide games fetch fails', async () => {
+    mockFetch.mockResolvedValue(mockFail(502));
+    await expect(nbaService.getNBALeagueGames()).rejects.toThrow('BDL league games fetch failed: 502');
+  });
 });
 
 describe('getNBATeamData', () => {
@@ -116,6 +135,21 @@ describe('getNBATeamData', () => {
     mockFetch.mockResolvedValue(mockOk({ data: MOCK_TEAMS }));
     const result = await nbaService.getNBATeamData({ teamId: 'nba-zzz' });
     expect(result).toBeNull();
+  });
+
+  it('picks the most recent of several finished games as latestResult', async () => {
+    const olderGame = { ...MOCK_FINISHED_GAME, id: 100, date: '2024-01-01T00:00:00.000Z', home_team_score: 90, visitor_team_score: 100 };
+    const newerGame = { ...MOCK_FINISHED_GAME, id: 101, date: '2024-01-15T00:00:00.000Z' };
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      if (url.includes(`start_date=${new Date().toISOString().split('T')[0]}`)) {
+        return mockOk({ data: [] });
+      }
+      return mockOk({ data: [olderGame, newerGame] });
+    });
+    const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    expect(result.latestResult.date).toBe('2024-01-15');
   });
 
   it('returns team data with latestResult for a known team', async () => {
@@ -165,6 +199,100 @@ describe('getNBATeamData', () => {
     await nbaService.getNBATeamData({ teamId: 'nba-bos' });
     const gamesCalls = mockFetch.mock.calls.filter(([url]) => url.includes('/games'));
     expect(gamesCalls.length).toBe(4);
+  });
+
+  it('computes nextFixture.utcDate in winter (EST, UTC-5)', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      if (url.includes(`start_date=${new Date().toISOString().split('T')[0]}`)) {
+        // future-window call
+        return mockOk({ data: [MOCK_UPCOMING_GAME_JAN] });
+      }
+      return mockOk({ data: [] });
+    });
+    const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    expect(result.nextFixture).not.toBeNull();
+    // 7:00 pm ET in January (EST, UTC-5) is 00:00 UTC the next day
+    expect(result.nextFixture.utcDate).toBe('2026-01-21T00:00:00.000Z');
+  });
+
+  it('computes nextFixture.utcDate in summer (EDT, UTC-4)', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      if (url.includes(`start_date=${new Date().toISOString().split('T')[0]}`)) {
+        return mockOk({ data: [MOCK_UPCOMING_GAME_JULY] });
+      }
+      return mockOk({ data: [] });
+    });
+    const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    expect(result.nextFixture).not.toBeNull();
+    // 7:00 pm ET in July (EDT, UTC-4) is 23:00 UTC the same day
+    expect(result.nextFixture.utcDate).toBe('2026-07-20T23:00:00.000Z');
+  });
+
+  it('leaves nextFixture.utcDate null when the status string has no parseable time', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      if (url.includes(`start_date=${new Date().toISOString().split('T')[0]}`)) {
+        return mockOk({ data: [{ ...MOCK_UPCOMING_GAME_JAN, status: 'Postponed' }] });
+      }
+      return mockOk({ data: [] });
+    });
+    const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    expect(result.nextFixture.utcDate).toBeNull();
+  });
+
+  it('rejects when the teams list fetch fails', async () => {
+    mockFetch.mockResolvedValue(mockFail(500));
+    await expect(nbaService.getNBATeamData({ teamId: 'nba-atl' })).rejects.toThrow('BallDontLie teams fetch failed: 500');
+  });
+
+  it('rejects when the per-team games fetch fails', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      return mockFail(503);
+    });
+    await expect(nbaService.getNBATeamData({ teamId: 'nba-atl' })).rejects.toThrow('BDL games fetch failed: 503');
+  });
+
+  it('falls back to a null ladderPosition and empty stats when the standings fetch fails', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockFail(500);
+      return mockOk({ data: [MOCK_FINISHED_GAME] });
+    });
+    const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    expect(result.ladderPosition).toBeNull();
+    expect(result.stats).toEqual({});
+  });
+
+  it('marks the season finished during the off-season window regardless of fixtures', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-08-15T00:00:00Z'));
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      return mockOk({ data: [] });
+    });
+    const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    expect(result.seasonFinished).toBe(true);
+    jest.useRealTimers();
+  });
+
+  it('marks the season not finished in-season when there are upcoming fixtures', async () => {
+    mockFetch.mockImplementation((url) => {
+      if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+      if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+      if (url.includes(`start_date=${new Date().toISOString().split('T')[0]}`)) {
+        return mockOk({ data: [MOCK_UPCOMING_GAME_JAN] });
+      }
+      return mockOk({ data: [] });
+    });
+    const result = await nbaService.getNBATeamData({ teamId: 'nba-atl' });
+    expect(result.seasonFinished).toBe(false);
   });
 
   // topScorers used to come from BallDontLie's season_averages endpoint,
@@ -221,6 +349,26 @@ describe('getNBATeamData', () => {
         return mockOk({ data: [MOCK_FINISHED_GAME] });
       });
       const result = await nbaService.getNBATeamData({ teamId: 'nba-bos', teamName: 'Boston Celtics' });
+      expect(result.topScorers).toEqual([]);
+    });
+
+    it('returns an empty array, not a thrown error, even if the ESPN top-scorers helper itself rejects unexpectedly', async () => {
+      jest.resetModules();
+      const isolatedMockFetch = jest.fn().mockImplementation((url) => {
+        if (url.includes('/teams')) return mockOk({ data: MOCK_TEAMS });
+        if (url.includes('/standings')) return mockOk({ data: MOCK_STANDINGS });
+        return mockOk({ data: [MOCK_FINISHED_GAME] });
+      });
+      jest.doMock('../../utils/fetchWithTimeout', () => isolatedMockFetch);
+      jest.doMock('../../utils/requestThrottle', () => ({ throttle: (bucket, ms, fn) => fn() }));
+      jest.doMock('../../config/env', () => ({ basketballApiKey: 'test-key' }));
+      jest.doMock('../../services/espnPlayerService', () => ({
+        getESPNTeamTopScorers: jest.fn().mockRejectedValue(new Error('ESPN blew up unexpectedly')),
+      }));
+      const isolatedNbaService = require('../../services/nbaService');
+
+      const result = await isolatedNbaService.getNBATeamData({ teamId: 'nba-bos', teamName: 'Boston Celtics' });
+
       expect(result.topScorers).toEqual([]);
     });
   });
